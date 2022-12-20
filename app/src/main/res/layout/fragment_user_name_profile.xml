@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.loginandsignup.signupfragments.UserNameProfileFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:paddingBottom="50dp"
+        android:paddingTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/profile_animation"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            app:lottie_rawRes="@raw/profile_animation"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:lottie_autoPlay="true"
+            android:visibility="visible"/>
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/addProfilePic"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+            android:src="@drawable/default_profile_pic"
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="invisible"
+            />
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/addPic"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:layout_marginEnd="-7dp"
+            android:background="@color/white"
+            app:strokeColor="@android:color/transparent"
+            app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+            android:src="@drawable/ic_baseline_add_circle_24"
+            app:layout_constraintBottom_toBottomOf="@id/addProfilePic"
+            app:layout_constraintEnd_toEndOf="@id/addProfilePic"
+            />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nameLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:hint="@string/name"
+            app:boxCornerRadiusBottomEnd="10dp"
+            app:boxCornerRadiusBottomStart="10dp"
+            app:boxCornerRadiusTopEnd="10dp"
+            app:boxCornerRadiusTopStart="10dp"
+            app:boxStrokeColor="@color/signup_box_stroke_color"
+            app:expandedHintEnabled="false"
+            app:hintAnimationEnabled="true"
+            app:hintTextColor="@color/orange"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile_animation"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/nameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/my_name_is"
+                android:inputType="text"
+                android:paddingVertical="20dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/addBio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_something_about_you"
+            app:layout_constraintTop_toBottomOf="@id/nameLayout"
+            android:textSize="18sp"
+            android:layout_marginTop="30dp"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:fontFamily="@font/courgette_regular"
+            />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/bioLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:hint="@string/bio"
+            app:boxCornerRadiusBottomEnd="10dp"
+            app:boxCornerRadiusBottomStart="10dp"
+            app:boxCornerRadiusTopEnd="10dp"
+            app:boxCornerRadiusTopStart="10dp"
+            app:boxStrokeColor="@color/signup_box_stroke_color"
+            app:expandedHintEnabled="false"
+            app:hintAnimationEnabled="true"
+            app:hintTextColor="@color/orange"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/addBio"
+            android:layout_marginTop="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/bioEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textAutoCorrect"
+                android:hint="@string/i_am_a_software_engineer_at_microsoft_nand_i_am_a_good_singer"
+                android:paddingVertical="20dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <TextView
+            android:id="@+id/addLoc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/i_am_from"
+            app:layout_constraintTop_toTopOf="@id/locLayout"
+            app:layout_constraintBottom_toBottomOf="@id/locLayout"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:fontFamily="@font/courgette_regular"
+            />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/locLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="10dp"
+            android:hint="@string/location"
+            app:boxCornerRadiusBottomEnd="10dp"
+            app:boxCornerRadiusBottomStart="10dp"
+            app:boxCornerRadiusTopEnd="10dp"
+            app:boxCornerRadiusTopStart="10dp"
+            app:boxStrokeColor="@color/signup_box_stroke_color"
+            app:expandedHintEnabled="false"
+            app:hintAnimationEnabled="true"
+            app:hintTextColor="@color/orange"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/addLoc"
+            app:layout_constraintTop_toBottomOf="@id/bioLayout"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/locEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="@string/cuttack_odisha"
+                android:textAlignment="viewEnd"
+                android:paddingVertical="20dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/addInterest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/i_am_interested_in"
+            app:layout_constraintTop_toBottomOf="@id/locLayout"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:fontFamily="@font/courgette_regular"
+            />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/interestGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/addInterest"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="10dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCinema"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:checkedIconTint="@color/chipSelectedIcon"
+                android:checkable="true"
+                android:text="@string/cinema"
+                app:chipBackgroundColor="@color/chip_selector"
+                android:textColor="@color/chip_text_selector"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipsPolitics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/politics"
+                android:checkable="true"
+                app:chipBackgroundColor="@color/chip_selector"
+                android:textColor="@color/chip_text_selector"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSports"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/sports"
+                app:chipBackgroundColor="@color/chip_selector"
+                android:textColor="@color/chip_text_selector"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipTech"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/technology"
+                app:chipBackgroundColor="@color/chip_selector"
+                android:textColor="@color/chip_text_selector"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCrypto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/crypto"
+                app:chipBackgroundColor="@color/chip_selector"
+                android:textColor="@color/chip_text_selector"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipComedy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/comedy"
+                app:chipBackgroundColor="@color/chip_selector"
+                android:textColor="@color/chip_text_selector"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCurrentAffair"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/current_affair"
+                app:chipBackgroundColor="@color/chip_selector"
+                android:textColor="@color/chip_text_selector"
+                />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createAccountButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/button_background"
+            android:padding="10dp"
+            android:text="@string/create_an_account"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:backgroundTint="@null"
+            app:cornerRadius="10dp"
+            app:layout_constraintTop_toBottomOf="@+id/interestGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:layout_editor_absoluteX="20dp" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.core.widget.NestedScrollView>

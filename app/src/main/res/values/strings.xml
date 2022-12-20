@@ -25,6 +25,40 @@
     <string name="sign_up">Sign Up</string>
     <string name="forgot_your_password">Forgot your password?</string>
     <string name="password">Password</string>
+    <string name="hey_welcome">Hey! Welcome</string>
+    <string name="welcome_description">Time to share some thoughts with Time Share.</string>
+    <string name="get_started">Get Started</string>
+    <string name="already_h_a_a">I already have an account</string>
+    <string name="create_an_account">Continue</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_something_about_you">Add something about yourself ...</string>
+    <string name="my_name_is">My Name is .....</string>
+    <string name="bio">Bio</string>
+    <string name="i_am_a_software_engineer_at_microsoft_nand_i_am_a_good_singer">I am a Software Engineer at Microsoft\nand I am a good Singer</string>
+    <string name="i_am_from">I am from</string>
+    <string name="cuttack_odisha">Cuttack, Odisha</string>
+    <string name="location">Location</string>
+    <string name="cinema">Cinema</string>
+    <string name="politics">Politics</string>
+    <string name="sports">Sports</string>
+    <string name="technology">Technology</string>
+    <string name="crypto">Crypto</string>
+    <string name="comedy">Comedy</string>
+    <string name="current_affair">Current Affair</string>
+    <string name="i_am_interested_in">I am Interested in -</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="next">Next</string>
+    <string name="phone_number_with_country_code">Phone Number with Country Code</string>
+    <string name="otp_verification">OTP Verification</string>
+    <string name="enter_six_digit_otp_send_on_your_mobile_number">Enter Six Digit OTP send on your Mobile Number</string>
+    <string name="password_pattern">Password Pattern | Length >= 8 | a–z | A–Z | 0&#8211;9 | Special Character</string>
+    <string name="name">Name</string>
+    <string name="camera_photo_click">Camera Photo click</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="pick_photo_from_gallery">Pick Photo from Gallery</string>
 
 
 </resources>

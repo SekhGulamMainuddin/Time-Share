@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="addPic" type="id" />
+    <item name="name_animation" type="id" />
+    <item name="bioEditText" type="id" />
+    <item name="addBio" type="id" />
+    <item name="bioLayout" type="id" />
+    <item name="nameEditText" type="id" />
+    <item name="nameLayout" type="id" />
+</resources>

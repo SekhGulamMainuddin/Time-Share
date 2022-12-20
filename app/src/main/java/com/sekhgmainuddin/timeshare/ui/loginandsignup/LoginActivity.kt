@@ -8,12 +8,8 @@ import android.graphics.LinearGradient
 import android.graphics.Shader
 import android.net.Uri
 import android.os.Bundle
-import android.transition.Slide
-import android.transition.TransitionManager
 import android.util.Log
-import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.MediaController
 import android.widget.TextView
 import android.widget.Toast
@@ -36,6 +32,7 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityLoginBinding
 import com.sekhgmainuddin.timeshare.ui.MainActivity
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
+import com.sekhgmainuddin.timeshare.utils.Utils.slideVisibility
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -273,16 +270,5 @@ class LoginActivity : AppCompatActivity() {
         }
 
     }
-
-    private fun View.slideVisibility(visibility: Boolean, durationTime: Long = 300) {
-        val transition = Slide(Gravity.START)
-        transition.apply {
-            duration = durationTime
-            addTarget(this@slideVisibility)
-        }
-        TransitionManager.beginDelayedTransition(this.parent as ViewGroup, transition)
-        this.isVisible = visibility
-    }
-
 
 }

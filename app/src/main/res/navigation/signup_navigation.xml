@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/signup_navigation"
+    app:startDestination="@id/signUpFragment">
+
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.loginandsignup.signupfragments.SignUpFragment"
+        android:label="fragment_sign_up"
+        tools:layout="@layout/fragment_sign_up" >
+        <action
+            android:id="@+id/action_signUpFragment_to_userNameProfileFragment"
+            app:destination="@id/userNameProfileFragment" />
+        <action
+            android:id="@+id/action_signUpFragment_to_phoneOTPFragment"
+            app:destination="@id/phoneOTPFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/userNameProfileFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.loginandsignup.signupfragments.UserNameProfileFragment"
+        android:label="fragment_user_name_profile"
+        tools:layout="@layout/fragment_user_name_profile" >
+        <action
+            android:id="@+id/action_userNameProfileFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/phoneOTPFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.loginandsignup.signupfragments.PhoneOTPFragment"
+        android:label="fragment_phone_o_t_p"
+        tools:layout="@layout/fragment_phone_o_t_p" >
+        <action
+            android:id="@+id/action_phoneOTPFragment_to_userNameProfileFragment"
+            app:destination="@id/userNameProfileFragment" />
+        <action
+            android:id="@+id/action_phoneOTPFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
+</navigation>

@@ -1,5 +1,7 @@
 package com.sekhgmainuddin.timeshare.ui.loginandsignup
 
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
@@ -21,7 +23,21 @@ class LoginSignUpViewModel @Inject constructor(
     }
 
     fun googleLogin(firebaseCredential: AuthCredential) = viewModelScope.launch(Dispatchers.IO) {
-        repository.googleLogin(firebaseCredential)
+        repository.googleLoginOrSignUp(firebaseCredential)
+    }
+
+    val signUpResult = repository.signUpResult
+    fun signUpEmailPassword(email: String, password: String) = viewModelScope.launch(Dispatchers.IO){
+        repository.signUpEmail(email, password)
+    }
+
+    val newUserDetailUpload = repository.newUserDetailUpload
+    fun uploadNewUserDetail(
+        imageUri: Uri?, bitmap: Bitmap?,
+        name: String, bio: String, location: String,
+        interests: String
+    ) = viewModelScope.launch(Dispatchers.IO){
+        repository.uploadNewUserDetail(imageUri, bitmap, name, bio, location, interests)
     }
 
 }
