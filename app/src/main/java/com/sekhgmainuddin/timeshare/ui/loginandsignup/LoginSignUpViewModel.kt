@@ -32,12 +32,12 @@ class LoginSignUpViewModel @Inject constructor(
     }
 
     val newUserDetailUpload = repository.newUserDetailUpload
-    fun uploadNewUserDetail(
+    fun uploadNewUserDetail(email: String,
         imageUri: Uri?, bitmap: Bitmap?,
         name: String, bio: String, location: String,
-        interests: String
+        interests: ArrayList<String>
     ) = viewModelScope.launch(Dispatchers.IO){
-        repository.uploadNewUserDetail(imageUri, bitmap, name, bio, location, interests)
+        repository.uploadNewUserDetail(email, imageUri, bitmap, name, bio, location, interests)
     }
 
 }

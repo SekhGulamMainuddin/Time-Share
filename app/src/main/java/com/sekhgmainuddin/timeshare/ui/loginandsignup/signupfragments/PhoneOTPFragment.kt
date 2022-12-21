@@ -68,6 +68,8 @@ class PhoneOTPFragment : Fragment() {
     }
 
 
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding= null

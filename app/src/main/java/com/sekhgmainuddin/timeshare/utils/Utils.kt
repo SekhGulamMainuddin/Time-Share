@@ -4,10 +4,13 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
 import android.os.Environment.DIRECTORY_PICTURES
+import android.provider.MediaStore
 import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 import android.provider.MediaStore.MediaColumns.*
 import android.transition.Slide
@@ -51,11 +54,22 @@ object Utils {
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri))
     }
 
+    fun Uri.getBitmap(contentResolver: ContentResolver) : Bitmap? = this.let {
+        if(SDK_INT < 28) {
+            return MediaStore.Images.Media.getBitmap(
+                contentResolver,
+                this
+            )
+        } else {
+            return ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, this))
+        }
+    }
+
     fun Bitmap.saveAsJPG(filename: String, applicationContext: Context) = "$filename.jpg".let { name ->
         if (SDK_INT < Q)
             @Suppress("DEPRECATION")
             FileOutputStream(File(applicationContext.getExternalFilesDir(DIRECTORY_PICTURES), name))
-                .use { compress(Bitmap.CompressFormat.JPEG, 100, it) }
+                .use { compress(Bitmap.CompressFormat.JPEG, 90, it) }
         else {
             val values = ContentValues().apply {
                 put(DISPLAY_NAME, name)

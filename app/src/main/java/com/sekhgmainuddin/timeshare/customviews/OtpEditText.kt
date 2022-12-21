@@ -8,7 +8,6 @@ import android.view.ActionMode
 import androidx.appcompat.widget.AppCompatEditText
 import com.sekhgmainuddin.timeshare.R
 
-
 class OtpEditText : AppCompatEditText {
     private var mSpace = 24f //24 dp by default, space between the lines
     private var mNumChars = 4f
@@ -18,7 +17,7 @@ class OtpEditText : AppCompatEditText {
     private var mLinesPaint: Paint? = null
     private var mClickListener: OnClickListener? = null
 
-    constructor(context: Context?) : super(context!!) {}
+    constructor(context: Context?) : super(context!!)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         init(context, attrs)
     }
@@ -32,14 +31,14 @@ class OtpEditText : AppCompatEditText {
     }
 
     private fun init(context: Context, attrs: AttributeSet?) {
-        val multi: Float = context.getResources().getDisplayMetrics().density
-        mLineStroke = multi * mLineStroke
+        val multi: Float = context.resources.displayMetrics.density
+        mLineStroke *= multi
         mLinesPaint = Paint(paint)
         mLinesPaint!!.strokeWidth = mLineStroke
         mLinesPaint!!.color = context.getColor(R.color.orange)
         setBackgroundResource(0)
-        mSpace = multi * mSpace //convert to pixels for our density
-        mLineSpacing = multi * mLineSpacing //convert to pixels for our density
+        mSpace *= multi //convert to pixels for our density
+        mLineSpacing *= multi //convert to pixels for our density
         mNumChars = mMaxLength.toFloat()
         super.setOnClickListener { v -> // When tapped, move cursor to end of text.
             setSelection(text!!.length)
@@ -59,8 +58,7 @@ class OtpEditText : AppCompatEditText {
 
     override fun onDraw(canvas: Canvas) {
         val availableWidth = width - paddingRight - paddingLeft
-        val mCharSize: Float
-        mCharSize = if (mSpace < 0) {
+        val mCharSize: Float = if (mSpace < 0) {
             availableWidth / (mNumChars * 2 - 1)
         } else {
             (availableWidth - mSpace * (mNumChars - 1)) / mNumChars

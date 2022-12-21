@@ -1,19 +1,17 @@
 package com.sekhgmainuddin.timeshare.ui.loginandsignup.signupfragments
 
 import android.app.Dialog
-import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.FragmentSignUpBinding
-import com.sekhgmainuddin.timeshare.ui.MainActivity
 import com.sekhgmainuddin.timeshare.ui.loginandsignup.LoginSignUpViewModel
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.isValidEmail
@@ -98,11 +96,17 @@ class SignUpFragment : Fragment() {
                             Snackbar.LENGTH_SHORT
                         )
                         snackBar.show()
-                        findNavController().navigate(R.id.action_signUpFragment_to_userNameProfileFragment)
+                        val bundle = Bundle()
+                        bundle.putString("email", it.data!!.email)
+                        findNavController().navigate(R.id.action_signUpFragment_to_userNameProfileFragment, bundle)
                     }
                 }
                 is NetworkResult.Error -> {
-                    showSnackBar("Some Error Occurred")
+                    when(it.code){
+                        500 -> {
+                            showSnackBar("Server Error Occurred. Please check your Internet Connection")
+                        }
+                    }
                 }
                 is NetworkResult.Loading -> {
                     progressDialog.show()
