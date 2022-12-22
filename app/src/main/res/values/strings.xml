@@ -16,7 +16,7 @@
     <string name="login_logo_description">"Time Share is the place to Spend some time with your Friends and Family"</string>
     <string name="login_Hi">Welcome to Time Share &#128522;</string>
     <string name="email">Email</string>
-    <string name="continue_login">Continue</string>
+    <string name="continue_">Continue</string>
     <string name="or_login">or</string>
     <string name="continue_with_google">Continue with Google</string>
     <string name="continue_with_facebook">Continue with Facebook</string>
@@ -36,7 +36,7 @@
     <string name="add_something_about_you">Add something about yourself ...</string>
     <string name="my_name_is">My Name is .....</string>
     <string name="bio">Bio</string>
-    <string name="i_am_a_software_engineer_at_microsoft_nand_i_am_a_good_singer">I am a Software Engineer at Microsoft\nand I am a good Singer</string>
+    <string name="i_am_a_software_engineer_at_microsoft">I am a Software Engineer at Microsoft...</string>
     <string name="i_am_from">I am from</string>
     <string name="cuttack_odisha">Cuttack, Odisha</string>
     <string name="location">Location</string>
@@ -59,6 +59,7 @@
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
     <string name="pick_photo_from_gallery">Pick Photo from Gallery</string>
+    <string name="resend">Resend</string>
 
 
 </resources>

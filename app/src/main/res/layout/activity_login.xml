@@ -133,7 +133,7 @@
                 app:backgroundTint="@null"
                 android:textColor="@color/white"
                 android:padding="10dp"
-                android:text="@string/continue_login"
+                android:text="@string/continue_"
                 android:textAllCaps="false"
                 app:cornerRadius="10dp"
                 app:layout_constraintBottom_toTopOf="@+id/textViewOR"

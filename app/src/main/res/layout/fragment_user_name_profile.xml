@@ -124,7 +124,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textAutoCorrect"
-                android:hint="@string/i_am_a_software_engineer_at_microsoft_nand_i_am_a_good_singer"
+                android:hint="@string/i_am_a_software_engineer_at_microsoft"
                 android:paddingVertical="20dp"
                 />
         </com.google.android.material.textfield.TextInputLayout>

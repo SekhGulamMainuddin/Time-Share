@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.PhoneAuthCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,12 +33,17 @@ class LoginSignUpViewModel @Inject constructor(
     }
 
     val newUserDetailUpload = repository.newUserDetailUpload
-    fun uploadNewUserDetail(email: String,
+    fun uploadNewUserDetail(email: String, phone: String,
         imageUri: Uri?, bitmap: Bitmap?,
         name: String, bio: String, location: String,
         interests: ArrayList<String>
     ) = viewModelScope.launch(Dispatchers.IO){
-        repository.uploadNewUserDetail(email, imageUri, bitmap, name, bio, location, interests)
+        repository.uploadNewUserDetail(email, phone, imageUri, bitmap, name, bio, location, interests)
+    }
+
+    val phoneLoginSignUp = repository.phoneLoginSignUp
+    fun phoneLoginSignUp(credential: PhoneAuthCredential) = viewModelScope.launch(Dispatchers.IO){
+        repository.phoneLoginSignUp(credential)
     }
 
 }

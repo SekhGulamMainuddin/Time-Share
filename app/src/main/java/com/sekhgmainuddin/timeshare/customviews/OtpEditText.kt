@@ -9,10 +9,10 @@ import androidx.appcompat.widget.AppCompatEditText
 import com.sekhgmainuddin.timeshare.R
 
 class OtpEditText : AppCompatEditText {
-    private var mSpace = 24f //24 dp by default, space between the lines
-    private var mNumChars = 4f
+    private var mSpace = 14f //24 dp by default, space between the lines
+    private var mNumChars = 6f
     private var mLineSpacing = 8f //8dp by default, height of the text from our lines
-    private val mMaxLength = 4
+    private val mMaxLength = 6
     private var mLineStroke = 2f
     private var mLinesPaint: Paint? = null
     private var mClickListener: OnClickListener? = null

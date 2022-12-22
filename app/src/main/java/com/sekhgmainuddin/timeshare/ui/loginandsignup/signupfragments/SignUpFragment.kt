@@ -1,23 +1,38 @@
 package com.sekhgmainuddin.timeshare.ui.loginandsignup.signupfragments
 
 import android.app.Dialog
+import android.content.Intent
+import android.content.IntentSender
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.FragmentSignUpBinding
+import com.sekhgmainuddin.timeshare.ui.MainActivity
 import com.sekhgmainuddin.timeshare.ui.loginandsignup.LoginSignUpViewModel
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.isValidEmail
 import com.sekhgmainuddin.timeshare.utils.Utils.isValidPassword
 import com.sekhgmainuddin.timeshare.utils.Utils.slideVisibility
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SignUpFragment : Fragment() {
@@ -28,6 +43,10 @@ class SignUpFragment : Fragment() {
     private val viewModel by activityViewModels<LoginSignUpViewModel>()
     private lateinit var progressDialog: Dialog
     private lateinit var snackBar: Snackbar
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
+
+    @Inject
+    lateinit var auth: FirebaseAuth
 
 
     override fun onCreateView(
@@ -48,6 +67,14 @@ class SignUpFragment : Fragment() {
         progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         bindObservers()
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+
     }
 
     private fun registerClickListeners() {
@@ -75,6 +102,10 @@ class SignUpFragment : Fragment() {
             findNavController().navigate(R.id.action_signUpFragment_to_phoneOTPFragment)
         }
 
+        binding.googleSignUpButton.setOnClickListener {
+            progressDialog.show()
+            startGoogleSignIn.launch(mGoogleSignInClient.signInIntent)
+        }
 
     }
 
@@ -85,6 +116,30 @@ class SignUpFragment : Fragment() {
 
 
     private fun bindObservers() {
+        viewModel.loginResult.observe(viewLifecycleOwner){
+            progressDialog.dismiss()
+            when(it){
+                is NetworkResult.Success -> {
+                    if (it.data!=null && it.code==201) {
+                        val bundle= Bundle()
+                        bundle.putString("email", it.data!!.email ?: " ")
+                        bundle.putString("phone", it.data!!.phoneNumber ?: " ")
+                        findNavController().navigate(R.id.action_signUpFragment_to_userNameProfileFragment, bundle)
+                    }
+                    else if (it.data!=null && it.code==200){
+                        startActivity(Intent(requireContext(), MainActivity::class.java))
+                        requireActivity().finish()
+                    }
+                }
+                is NetworkResult.Error -> {
+                    showSnackBar("Some Error Occurred")
+                    progressDialog.dismiss()
+                }
+                is NetworkResult.Loading -> {
+                    progressDialog.dismiss()
+                }
+            }
+        }
         viewModel.signUpResult.observe(viewLifecycleOwner) {
             progressDialog.dismiss()
             when (it) {
@@ -119,5 +174,21 @@ class SignUpFragment : Fragment() {
         snackBar = Snackbar.make(requireActivity().findViewById(R.id.parentLayout), message, Snackbar.LENGTH_SHORT)
         snackBar.show()
     }
+
+    private val startGoogleSignIn =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == AppCompatActivity.RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
+                try {
+                    val account = task.getResult(ApiException::class.java)
+                    val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                    viewModel.googleLogin(credential)
+                } catch (e: ApiException) {
+                    progressDialog.dismiss()
+                    showSnackBar("Failed to Sign In")
+                }
+            }
+        }
+
 
 }

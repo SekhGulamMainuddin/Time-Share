@@ -60,14 +60,14 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        snackBar= Snackbar.make(this,binding.loginLayout," ",Snackbar.LENGTH_SHORT)
+
         changeTextColorGradient(binding.forgotPassword)
         changeTextColorGradient(binding.signupTV)
 
         progressDialog = Dialog(this)
         progressDialog.setContentView(R.layout.progress_dialog)
         progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        snackBar = Snackbar.make(binding.loginLayout, " ", Snackbar.LENGTH_SHORT)
 
         animateSignInOptions()
 
@@ -155,10 +155,11 @@ class LoginActivity : AppCompatActivity() {
         binding.phoneLogin.setOnClickListener {
             startActivity(
                 Intent(this, SignUpActivity::class.java).putExtra(
-                    "signUpFor",
-                    "PhoneNumber"
+                    "phone",
+                    true
                 )
             )
+            finish()
         }
         binding.continueButton.setOnClickListener {
             if (binding.emailEditText.text.toString().trim().isEmpty())
@@ -177,10 +178,10 @@ class LoginActivity : AppCompatActivity() {
             }
         }
         binding.googleLogin.setOnClickListener {
-            snackBar.show()
+            progressDialog.show()
             oneTapClient.beginSignIn(signInRequest)
                 .addOnSuccessListener(this) { result ->
-                    snackBar.dismiss()
+                    progressDialog.dismiss()
                     try {
                         startForResultOneTapSignIn.launch(
                             IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
@@ -192,7 +193,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener(this) { e ->
-                    snackBar.dismiss()
+                    progressDialog.dismiss()
                     Log.d("googleSignIn", "initClickListenersFailed: ${e.message}")
                     showSnackBar(e.localizedMessage ?: "Some Error Occurred")
                     startGoogleSignIn.launch(mGoogleSignInClient.signInIntent)
@@ -205,14 +206,17 @@ class LoginActivity : AppCompatActivity() {
             progressDialog.dismiss()
             when (it) {
                 is NetworkResult.Success -> {
-                    if (it.data != null) {
-                        snackBar = Snackbar.make(
-                            binding.loginLayout,
-                            "Logged in Successfully",
-                            Snackbar.LENGTH_SHORT
-                        )
-                        snackBar.show()
+                    if (it.data != null && it.code==200) {
+                        showSnackBar("Logged in Successfully")
                         startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
+                    else if(it.data != null && it.code==201){
+                        showSnackBar("New User Registered")
+                        startActivity(Intent(this, SignUpActivity::class.java)
+                            .putExtra("email", it.data!!.email)
+                            .putExtra("phone", it.data!!.phoneNumber ?: " "))
+                        finish()
                     }
                 }
                 is NetworkResult.Error -> {
@@ -229,6 +233,7 @@ class LoginActivity : AppCompatActivity() {
                                 "User is not registered. Please Sign Up",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            finish()
                         }
                         403 -> {
                             showSnackBar(it.message!!)

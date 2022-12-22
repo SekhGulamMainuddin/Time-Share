@@ -68,8 +68,10 @@ class LoginSignUpRepository @Inject constructor(
                 user?.uid?.let {
                     firebaseFirestore.collection("Users").document(it).set(newUser).await()
                 }
+                _result.postValue(NetworkResult.Success(response.user!!, 201))
             }
-            _result.postValue(NetworkResult.Success(response.user!!, 200))
+            else
+                _result.postValue(NetworkResult.Success(response.user!!, 200))
         } catch (e: Exception) {
             _result.postValue(NetworkResult.Error(e.localizedMessage, errorCode = 500))
         }
@@ -100,7 +102,7 @@ class LoginSignUpRepository @Inject constructor(
     val newUserDetailUpload: LiveData<NetworkResult<String>>
         get() = _newUserDetailUpload
 
-    suspend fun uploadNewUserDetail(email: String,
+    suspend fun uploadNewUserDetail(email: String, phone: String,
         imageUri: Uri?, bitmap: Bitmap?,
         name: String, bio: String, location: String,
         interests: ArrayList<String>
@@ -129,6 +131,7 @@ class LoginSignUpRepository @Inject constructor(
                 detailMap["imageUrl"] = "https://firebasestorage.googleapis.com/v0/b/time-share-30ac6.appspot.com/o/ProfileImage%2Fdefault_profile_pic.png?alt=media&token=116dce19-d848-481c-b081-389f4bf598ea"
             }
             detailMap["email"] = email
+            detailMap["phone"] = phone
             detailMap["name"] = name
             detailMap["bio"] = bio
             detailMap["location"] = location
@@ -138,6 +141,22 @@ class LoginSignUpRepository @Inject constructor(
         } catch (e: Exception) {
             Log.d("uploadNewUser", "uploadNewUserDetail: $e")
             _newUserDetailUpload.postValue(NetworkResult.Error("Some Error Occurred",errorCode = 400))
+        }
+    }
+
+    private val _phoneLoginSignUp = MutableLiveData<NetworkResult<FirebaseUser>>()
+    val phoneLoginSignUp: LiveData<NetworkResult<FirebaseUser>>
+        get() = _phoneLoginSignUp
+
+    suspend fun phoneLoginSignUp(credential: PhoneAuthCredential){
+        try {
+            val response= firebaseAuth.signInWithCredential(credential).await()
+            if (response.additionalUserInfo?.isNewUser == true)
+                _phoneLoginSignUp.postValue(NetworkResult.Success(response.user!!, code = 201))
+            else
+                _phoneLoginSignUp.postValue(NetworkResult.Success(response.user!!, code = 200))
+        }catch (e: Exception){
+            Log.d("exceptionPhoneLogin", "phoneNewUser: $e")
         }
     }
 

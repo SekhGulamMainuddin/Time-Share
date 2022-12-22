@@ -2,11 +2,9 @@ package com.sekhgmainuddin.timeshare.ui.loginandsignup
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivitySignUpBinding
-import com.sekhgmainuddin.timeshare.ui.loginandsignup.signupfragments.SignUpFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,6 +20,17 @@ class SignUpActivity : AppCompatActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.sign_up_container_fragment) as NavHostFragment
         val navController = navHostFragment.navController
+
+        val bundle= Bundle()
+        if (intent.getBooleanExtra("phone", false)) {
+            bundle.putBoolean("phone", true)
+            navController.navigate(R.id.action_signUpFragment_to_phoneOTPFragment, bundle)
+        }
+        else if (!intent.getStringExtra("email").isNullOrEmpty()){
+            bundle.putString("email", intent.getStringExtra("email"))
+            bundle.putString("phone", intent.getStringExtra("phone") ?: " ")
+            navController.navigate(R.id.action_signUpFragment_to_userNameProfileFragment, bundle)
+        }
 
     }
 }

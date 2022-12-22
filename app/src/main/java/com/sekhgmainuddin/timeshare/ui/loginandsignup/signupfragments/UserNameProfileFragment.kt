@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -35,6 +36,7 @@ class UserNameProfileFragment : Fragment() {
     private lateinit var snackBar: Snackbar
     private lateinit var progressDialog: Dialog
     private lateinit var email: String
+    private lateinit var phone: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +45,7 @@ class UserNameProfileFragment : Fragment() {
         _binding= FragmentUserNameProfileBinding.inflate(inflater)
         // Inflate the layout for this fragment
         email = requireArguments().getString("email","null")
+        phone = requireArguments().getString("phone","null")
         return _binding!!.root
     }
 
@@ -52,8 +55,6 @@ class UserNameProfileFragment : Fragment() {
         progressDialog = Dialog(requireContext())
         progressDialog.setContentView(R.layout.progress_dialog)
         progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        snackBar = Snackbar.make(requireActivity().findViewById(R.id.parentLayout), " ", Snackbar.LENGTH_SHORT)
 
         setupBottomSheetImageUploadDialog()
         registerClickListeners()
@@ -114,7 +115,7 @@ class UserNameProfileFragment : Fragment() {
                 for (i in binding.interestGroup.checkedChipIds){
                     interests.add(binding.interestGroup.findViewById<Chip>(i).text.toString())
                 }
-                viewModel.uploadNewUserDetail(email, imageUri, imageBitmap, binding.nameEditText.text.toString(),
+                viewModel.uploadNewUserDetail(email, phone, imageUri, imageBitmap, binding.nameEditText.text.toString(),
                         binding.bioEditText.text.toString(),binding.locEditText.text.toString(),
                         interests)
             }
