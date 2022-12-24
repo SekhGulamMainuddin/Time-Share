@@ -60,6 +60,16 @@
     <string name="gallery">Gallery</string>
     <string name="pick_photo_from_gallery">Pick Photo from Gallery</string>
     <string name="resend">Resend</string>
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="reels">Reels</string>
+    <string name="profile">Profile</string>
+    <string name="post">Post</string>
+    <string name="messages">Messages</string>
+    <string name="notifications">Notifications</string>
+    <string name="chats">Chats</string>
+    <string name="voice_call">Voice Call</string>
+    <string name="video_call">Video Call</string>
 
 
 </resources>

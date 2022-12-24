@@ -30,7 +30,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityLoginBinding
-import com.sekhgmainuddin.timeshare.ui.MainActivity
+import com.sekhgmainuddin.timeshare.ui.home.MainActivity
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.slideVisibility
 import dagger.hilt.android.AndroidEntryPoint

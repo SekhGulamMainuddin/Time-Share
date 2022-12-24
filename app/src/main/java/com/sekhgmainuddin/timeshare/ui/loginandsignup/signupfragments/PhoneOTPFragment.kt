@@ -20,12 +20,11 @@ import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.FragmentPhoneOTPBinding
-import com.sekhgmainuddin.timeshare.ui.MainActivity
+import com.sekhgmainuddin.timeshare.ui.home.MainActivity
 import com.sekhgmainuddin.timeshare.ui.loginandsignup.LoginActivity
 import com.sekhgmainuddin.timeshare.ui.loginandsignup.LoginSignUpViewModel
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -114,7 +113,7 @@ class PhoneOTPFragment : Fragment() {
                     otpTimer.cancel()
                     if (it.code==200){
                         showSnackBar("Logged in successfully")
-                        startActivity(Intent(requireContext(),MainActivity::class.java))
+                        startActivity(Intent(requireContext(), MainActivity::class.java))
                         requireActivity().finish()
                     }
                     else if (it.code==201){

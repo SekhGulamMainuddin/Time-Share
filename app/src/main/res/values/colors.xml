@@ -11,23 +11,22 @@
     <color name="black">#FF000000</color>
     <color name="semi_black">#0D0D0D</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="athens_gray">#f3f5f7</color>
+    <color name="search_view_background">#ebebec</color>
     <color name="chipSelectedIcon">#FFFFFF</color>
-
     <color name="red">#FF002D</color>
     <color name="medium_red">#FB3A38</color>
     <color name="light_red">#FF5472</color>
     <color name="facebook_blue">#4267B2</color>
     <color name="phone_blue">#276CFF</color>
     <color name="google_red">#EA4335</color>
-
     <color name="orange">#ff832c</color>
     <color name="orangePink">#ff5472</color>
-
     <color name="chipNotSelectedColor">#9EFFC8A1</color>
-
-    <!-- login  -->
     <color name="login_background">#60000000</color>
     <color name="login_card_background">#39000000</color>
+    <color name="chat_active">#00bc48</color>
+    <color name="profile_text_color">#3d4149</color>
 
 
 </resources>

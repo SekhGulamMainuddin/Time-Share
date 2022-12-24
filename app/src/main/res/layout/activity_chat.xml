@@ -4,33 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.MainActivity"
-    >
+    tools:context=".ui.home.chat.ChatActivity">
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/mainScreenFragmentContainer"
-        android:layout_width="0dp"
+        android:id="@+id/chatFragmentContainer"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        app:navGraph="@navigation/main_screen_navigation"
+        app:navGraph="@navigation/chats_screen_navigation"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"/>
-
+        app:layout_constraintBottom_toTopOf="@id/chatsBottomNavigation"
+        />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
+        android:id="@+id/chatsBottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_main_menu"
-        android:paddingVertical="5dp"
-        app:itemIconTint="@color/bottom_nav_menu_color"
         app:itemTextColor="@color/bottom_nav_menu_color"
+        app:itemIconTint="@color/bottom_nav_menu_color"
         app:itemRippleColor="@null"
-        />
+        app:menu="@menu/bottom_chats_menu"
+        android:paddingVertical="5dp"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
