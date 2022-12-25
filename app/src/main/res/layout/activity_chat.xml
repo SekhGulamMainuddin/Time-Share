@@ -22,14 +22,15 @@
         android:id="@+id/chatsBottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:labelVisibilityMode="selected"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:itemTextColor="@color/bottom_nav_menu_color"
-        app:itemIconTint="@color/bottom_nav_menu_color"
-        app:itemRippleColor="@null"
         app:menu="@menu/bottom_chats_menu"
-        android:paddingVertical="5dp"/>
+        android:paddingVertical="5dp"
+        app:itemIconTint="@color/bottom_nav_menu_color"
+        app:itemTextColor="@color/bottom_nav_menu_color"
+        app:itemRippleColor="@null"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

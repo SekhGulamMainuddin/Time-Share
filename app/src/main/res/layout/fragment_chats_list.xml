@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/athens_gray"
+    android:paddingTop="5dp"
     tools:context=".ui.home.chat.fragments.ChatsListFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -33,7 +34,7 @@
                 android:fontFamily="@font/pacifico_regular"
                 android:textColor="@color/black"
                 android:layout_marginVertical="8dp"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="20dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 />
@@ -52,6 +53,20 @@
                 app:iconifiedByDefault="false"
                 />
 
+            <ImageButton
+                android:id="@+id/sendMessageToMultipleContact"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@android:color/transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="20dp"
+                android:scaleType="centerInside"
+                app:layout_constraintTop_toTopOf="@id/chatListTitle"
+                app:layout_constraintBottom_toBottomOf="@id/chatListTitle"
+                android:src="@drawable/edit_icon"
+                app:tint="@color/chat_active"
+                />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -66,5 +81,19 @@
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         />
+    
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/messageTo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/orange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="20sp"
+        app:maxImageSize="40dp"
+        android:src="@drawable/new_message_icon"
+        app:tint="@color/white"
+        android:contentDescription="@string/send_message_to_someone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

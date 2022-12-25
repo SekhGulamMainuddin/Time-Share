@@ -2,19 +2,16 @@ package com.sekhgmainuddin.timeshare.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivitySplashScreenBinding
 import com.sekhgmainuddin.timeshare.ui.home.MainActivity
 import com.sekhgmainuddin.timeshare.ui.loginandsignup.LoginActivity
-import com.sekhgmainuddin.timeshare.ui.loginandsignup.WelcomeActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

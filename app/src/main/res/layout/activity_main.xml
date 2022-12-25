@@ -26,6 +26,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:labelVisibilityMode="selected"
         app:menu="@menu/bottom_main_menu"
         android:paddingVertical="5dp"
         app:itemIconTint="@color/bottom_nav_menu_color"

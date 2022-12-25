@@ -7,37 +7,33 @@
         android:title="@string/home"
         app:showAsAction="always"
         android:icon="@drawable/home_icon"
-        android:iconTint="@color/white"
         />
 
     <item
         android:id="@+id/search"
         android:title="@string/search"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/search_icon"
-        android:iconTint="@color/white"
         />
 
     <item
         android:id="@+id/addPost"
         android:title="@string/post"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/add_post"
-        android:iconTint="@color/white"
         />
 
     <item
         android:id="@+id/reels"
         android:title="@string/reels"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/reels_icon"
-        android:iconTint="@color/white"
         />
 
     <item
         android:id="@+id/profile"
         android:title="@string/profile"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/profile_icon"
         />
 

@@ -70,6 +70,8 @@
     <string name="chats">Chats</string>
     <string name="voice_call">Voice Call</string>
     <string name="video_call">Video Call</string>
+    <string name="send_message_to_someone">Send Message to Someone</string>
+    <string name="active">Active</string>
 
 
 </resources>
