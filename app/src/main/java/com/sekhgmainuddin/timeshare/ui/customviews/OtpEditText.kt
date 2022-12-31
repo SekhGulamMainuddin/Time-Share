@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.customviews
+package com.sekhgmainuddin.timeshare.ui.customviews
 
 import android.content.Context
 import android.graphics.Canvas

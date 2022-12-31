@@ -4,11 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.*
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
 import com.sekhgmainuddin.timeshare.data.modals.User
@@ -22,9 +20,8 @@ import javax.inject.Inject
 
 class LoginSignUpRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firebaseDatabase: FirebaseDatabase,
     private val firebaseFirestore: FirebaseFirestore,
-    private val firebaseStorage: StorageReference,
+    private val storageReference: StorageReference,
     @ApplicationContext val context: Context
 ) {
 
@@ -63,7 +60,11 @@ class LoginSignUpRepository @Inject constructor(
                     user?.displayName ?: "",
                     user?.email ?: "",
                     user?.phoneNumber ?: "",
-                    user?.photoUrl.toString()
+                    user?.photoUrl.toString(),
+                    "",
+                    null,
+                    null,
+                    1
                 )
                 user?.uid?.let {
                     firebaseFirestore.collection("Users").document(it).set(newUser).await()
@@ -116,7 +117,7 @@ class LoginSignUpRepository @Inject constructor(
                 }
                 val imageResponse = uri?.let {
 
-                    firebaseStorage.child(
+                    storageReference.child(
                         "ProfileImage/" + firebaseAuth.uid + "." + getFileExtension(uri,context))
                         .putFile(it).await()
                 }

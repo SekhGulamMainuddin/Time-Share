@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.sekhgmainuddin.timeshare.databinding.FragmentHomeScreenBinding
-import com.sekhgmainuddin.timeshare.ui.home.chat.ChatActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ChatListActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,7 +32,7 @@ class HomeScreenFragment : Fragment() {
 
     fun registerListeners(){
         binding.messages.setOnClickListener {
-            startActivity(Intent(requireContext(), ChatActivity::class.java))
+            startActivity(Intent(requireContext(), ChatListActivity::class.java))
         }
     }
 

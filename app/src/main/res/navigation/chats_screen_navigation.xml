@@ -11,20 +11,12 @@
         android:label="fragment_chats_list"
         tools:layout="@layout/fragment_chats_list" >
         <action
-            android:id="@+id/action_chatsListFragment_to_chatFragment"
-            app:destination="@id/chatFragment" />
-        <action
             android:id="@+id/action_chatsListFragment_to_videoCallFragment"
             app:destination="@id/videoCallFragment" />
         <action
             android:id="@+id/action_chatsListFragment_to_voiceCallFragment"
             app:destination="@id/voiceCallFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/chatFragment"
-        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.fragments.ChatFragment"
-        android:label="fragment_chat"
-        tools:layout="@layout/fragment_chat" />
     <fragment
         android:id="@+id/voiceCallFragment"
         android:name="com.sekhgmainuddin.timeshare.ui.home.chat.fragments.VoiceCallFragment"

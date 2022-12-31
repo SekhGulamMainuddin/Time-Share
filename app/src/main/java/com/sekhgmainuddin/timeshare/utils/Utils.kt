@@ -6,7 +6,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
 import android.os.Environment.DIRECTORY_PICTURES
@@ -21,13 +20,68 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import androidx.core.view.isVisible
-import com.google.common.net.MediaType.JPEG
 import java.io.File
 import java.io.FileOutputStream
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 object Utils {
+
+    const val MSG_BY_USER = 1
+    const val MSG_BY_OPPOSITE = 2
+
+    const val MSG_TYPE_MESSAGE = 1
+    const val MSG_TYPE_IMAGE = 2
+    const val MSG_TYPE_IMAGE_AND_MESSAGE = 3
+    const val MSG_TYPE_PDF = 4
+    const val MSG_TYPE_FILE = 5
+    const val MSG_TYPE_VOICE = 6
+
+    const val MSG_SENT = 1
+    const val MSG_RECEIVED = 2
+    const val MSG_SEEN = 3
+    const val MSG_OLD = 4
+
+    private const val SECOND_MILLIS = 1000
+    private const val MINUTE_MILLIS = 60 * SECOND_MILLIS
+    private const val HOUR_MILLIS = 60 * MINUTE_MILLIS
+    private const val DAY_MILLIS = 24 * HOUR_MILLIS
+    private const val WEEK_MILLIS = 7 * DAY_MILLIS
+    private const val MONTH_MILLIS = 30L * DAY_MILLIS
+    private const val YEAR_MILLIS = 365L * DAY_MILLIS
+
+    fun Long.getTimeAgo(): String? {
+        val now: Long = System.currentTimeMillis()
+        if (this > now || this <= 0) {
+            return null
+        }
+
+        val diff = now - this
+        return if (diff < MINUTE_MILLIS) {
+            "just now"
+        } else if (diff < 2 * MINUTE_MILLIS) {
+            "a minute ago"
+        } else if (diff < 50 * MINUTE_MILLIS) {
+            (diff / MINUTE_MILLIS).toString() + " minutes ago"
+        } else if (diff < 90 * MINUTE_MILLIS) {
+            "an hour ago"
+        } else if (diff < 24 * HOUR_MILLIS) {
+            (diff / HOUR_MILLIS).toString() + " hours ago"
+        } else if (diff < 48 * HOUR_MILLIS) {
+            "yesterday"
+        } else if (diff < WEEK_MILLIS){
+            (diff / DAY_MILLIS).toString() + " days ago"
+        }
+        else if (diff < MONTH_MILLIS){
+            (diff / WEEK_MILLIS).toString() + " weeks ago"
+        }
+        else if (diff < 2L * YEAR_MILLIS){
+            "1 year ago"
+        }
+        else {
+            (diff / YEAR_MILLIS).toString() + " years ago"
+        }
+    }
 
     fun View.slideVisibility(visibility: Boolean, durationTime: Long = 300) {
         val transition = Slide(Gravity.START)

@@ -48,7 +48,7 @@
         android:textStyle="bold"
         android:layout_marginBottom="5dp"
         app:layout_constraintBottom_toTopOf="@+id/profileRecentMessage"
-        app:layout_constraintEnd_toStartOf="@id/lastMessageDuration"
+        app:layout_constraintEnd_toStartOf="@id/lastMessageTime"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@id/profileImage"
         app:layout_constraintTop_toTopOf="@id/profileImage"
@@ -69,7 +69,7 @@
         app:layout_constraintTop_toBottomOf="@+id/profileName" />
 
     <TextView
-        android:id="@+id/lastMessageDuration"
+        android:id="@+id/lastMessageTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="23min"
