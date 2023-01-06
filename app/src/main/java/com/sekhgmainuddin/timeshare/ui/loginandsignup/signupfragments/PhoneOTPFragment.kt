@@ -111,12 +111,12 @@ class PhoneOTPFragment : Fragment() {
             when(it){
                 is NetworkResult.Success -> {
                     otpTimer.cancel()
-                    if (it.code==200){
+                    if (it.statusCode==200){
                         showSnackBar("Logged in successfully")
                         startActivity(Intent(requireContext(), MainActivity::class.java))
                         requireActivity().finish()
                     }
-                    else if (it.code==201){
+                    else if (it.statusCode==201){
                         showSnackBar("Sign-Up Successful")
                         val bundle= Bundle()
                         bundle.putString("phone", binding.phoneEditText.text.toString())

@@ -1,9 +1,9 @@
 package com.sekhgmainuddin.timeshare.utils
 
-sealed class NetworkResult<T>(var data: T? = null, var message: String? = null, var code: Int? = null) {
+sealed class NetworkResult<T>(var data: T? = null, var message: String? = null, var statusCode: Int? = null) {
 
-    class Success<T>(data: T, code: Int?) : NetworkResult<T>(data,null, code)
-    class Error<T>(message: String?, data: T? = null, errorCode: Int? = null) : NetworkResult<T>(data, message, errorCode)
+    class Success<T>(data: T, statusCode: Int?) : NetworkResult<T>(data,null, statusCode)
+    class Error<T>(message: String?, data: T? = null, statusCode: Int? = null) : NetworkResult<T>(data, message, statusCode)
     class Loading<T> : NetworkResult<T>()
 
 }

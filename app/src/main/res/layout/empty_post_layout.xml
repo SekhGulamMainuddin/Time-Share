@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    android:id="@+id/cardViewAddImageVideo"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintTop_toTopOf="@id/viewPagerImageVideo"
+    app:layout_constraintBottom_toBottomOf="@id/viewPagerImageVideo"
+    app:layout_constraintStart_toStartOf="@id/viewPagerImageVideo"
+    app:layout_constraintEnd_toEndOf="@id/viewPagerImageVideo"
+    app:cardCornerRadius="15dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/addPostAnimation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:lottie_rawRes="@raw/add_post"
+        android:layout_marginHorizontal="50dp"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true"
+        />
+
+    <LinearLayout
+        android:id="@+id/layoutTemp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:background="@color/login_card_background">
+
+        <ImageButton
+            android:id="@+id/addPostButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@drawable/add_photo_video_icon"
+            app:tint="@color/white"
+            />
+
+        <TextView
+            android:id="@+id/addPostTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_image_or_video"
+            android:paddingTop="5dp"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/white"/>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

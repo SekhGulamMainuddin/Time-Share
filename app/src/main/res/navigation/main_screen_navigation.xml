@@ -10,5 +10,16 @@
         android:name="com.sekhgmainuddin.timeshare.ui.home.home.HomeScreenFragment"
         android:label="fragment_home_screen"
         tools:layout="@layout/fragment_home_screen" />
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.search.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" />
+    <fragment
+        android:id="@+id/myProfileFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.profile.MyProfileFragment"
+        android:label="fragment_my_profile"
+        tools:layout="@layout/fragment_my_profile" />
+
 
 </navigation>

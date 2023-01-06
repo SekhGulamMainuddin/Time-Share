@@ -19,6 +19,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import java.io.File
 import java.io.FileOutputStream
@@ -142,6 +143,18 @@ object Utils {
             uri?.also {
                 resolver.update(it, values, null, null) }
         }
+    }
+
+    private val imageExtensionList= arrayListOf("jpg", "jpeg", "jpe" ,"jif", "jfif", "jfi","gif","webp","tiff","tif","psd","bmp","svg","svgz","pdf")
+    private val videoExtensionList= arrayListOf("mp4")
+
+    fun String.isImageOrVideo() :Int{
+        if (this in imageExtensionList)
+            return 0
+        else if (this in videoExtensionList)
+            return 1
+        else
+            return -1
     }
 
 }

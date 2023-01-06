@@ -116,13 +116,13 @@ class SignUpFragment : Fragment() {
             progressDialog.dismiss()
             when(it){
                 is NetworkResult.Success -> {
-                    if (it.data!=null && it.code==201) {
+                    if (it.data!=null && it.statusCode==201) {
                         val bundle= Bundle()
                         bundle.putString("email", it.data!!.email ?: " ")
                         bundle.putString("phone", it.data!!.phoneNumber ?: " ")
                         findNavController().navigate(R.id.action_signUpFragment_to_userNameProfileFragment, bundle)
                     }
-                    else if (it.data!=null && it.code==200){
+                    else if (it.data!=null && it.statusCode==200){
                         startActivity(Intent(requireContext(), MainActivity::class.java))
                         requireActivity().finish()
                     }
@@ -153,7 +153,7 @@ class SignUpFragment : Fragment() {
                     }
                 }
                 is NetworkResult.Error -> {
-                    when(it.code){
+                    when(it.statusCode){
                         500 -> {
                             showSnackBar("Server Error Occurred. Please check your Internet Connection")
                         }

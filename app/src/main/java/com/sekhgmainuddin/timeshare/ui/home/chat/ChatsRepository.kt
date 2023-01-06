@@ -8,10 +8,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageReference
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
@@ -104,7 +101,7 @@ class ChatsRepository @Inject constructor(
             _messageSent.postValue(NetworkResult.Success(true, 201))
         } catch (e: Exception) {
             Log.d("sendMessageException", "sendMessage: $e")
-            _messageSent.postValue(NetworkResult.Error(message = "${e.message}", errorCode = 500))
+            _messageSent.postValue(NetworkResult.Error(message = "${e.message}", statusCode = 500))
         }
     }
 

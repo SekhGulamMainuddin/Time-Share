@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp">
+
+    <ImageButton
+        android:id="@+id/addPostButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/add_post_icon"
+        android:scaleType="centerInside"
+        android:padding="5dp"
+        android:background="@android:color/transparent"
+        app:tint="@color/orangePink"
+        app:layout_constraintStart_toStartOf="@id/appPostTV"
+        app:layout_constraintEnd_toEndOf="@id/appPostTV"
+        android:contentDescription="@string/post"
+        app:layout_constraintBottom_toTopOf="@id/appPostTV"/>
+
+    <TextView
+        android:id="@+id/appPostTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/post"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="14sp"/>
+
+    <ImageButton
+        android:id="@+id/addReelsButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/reels_icon"
+        android:scaleType="centerInside"
+        android:padding="5dp"
+        android:background="@android:color/transparent"
+        app:tint="@color/orangePink"
+        app:layout_constraintBottom_toTopOf="@id/addReelsTV"
+        app:layout_constraintStart_toStartOf="@id/addReelsTV"
+        app:layout_constraintEnd_toEndOf="@id/addReelsTV"
+        android:contentDescription="@string/add_reels" />
+
+    <TextView
+        android:id="@+id/addReelsTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/appPostTV"
+        android:layout_marginStart="30dp"
+        android:text="@string/add_reels"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="14sp"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

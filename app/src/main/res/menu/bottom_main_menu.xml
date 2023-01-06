@@ -20,7 +20,7 @@
         android:id="@+id/addPost"
         android:title="@string/post"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/add_post"
+        android:icon="@drawable/add_post_icon"
         />
 
     <item

@@ -1,13 +1,13 @@
 package com.sekhgmainuddin.timeshare.data.db
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
 
 @Dao
@@ -33,5 +33,14 @@ interface TimeShareDbDao {
 
     @Query("SELECT * from recent_profile_chats_entity order by lastMessageTime DESC")
     fun getRecentChatsList(): LiveData<List<RecentProfileChatsEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertPost(posts: PostEntity)
+
+    @Query("DELETE from post_entity")
+    fun deleteAllPosts()
+
+    @Query("SELECT * from post_entity order by postTime DESC")
+    fun getAllPosts(): LiveData<List<PostEntity>>
 
 }

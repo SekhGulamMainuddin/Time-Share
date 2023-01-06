@@ -41,12 +41,12 @@ class LoginSignUpRepository @Inject constructor(
             )
             _result.postValue(NetworkResult.Success(response.user!!, 200))
         } catch (firebaseAuthException: FirebaseAuthInvalidUserException) {
-            _result.postValue(NetworkResult.Error("User Not Found", errorCode = 404))
+            _result.postValue(NetworkResult.Error("User Not Found", statusCode = 404))
         } catch (invalidCredentials: FirebaseAuthInvalidCredentialsException) {
-            _result.postValue(NetworkResult.Error("Invalid Credentials", errorCode = 403))
+            _result.postValue(NetworkResult.Error("Invalid Credentials", statusCode = 403))
         } catch (e: Exception) {
             Log.d("loginTimeShare", "loginEmail: ${e.localizedMessage} ${e.javaClass}")
-            _result.postValue(NetworkResult.Error(e.localizedMessage, errorCode = 500))
+            _result.postValue(NetworkResult.Error(e.localizedMessage, statusCode = 500))
         }
 
     }
@@ -64,7 +64,8 @@ class LoginSignUpRepository @Inject constructor(
                     "",
                     null,
                     null,
-                    1
+                    1,
+                    null
                 )
                 user?.uid?.let {
                     firebaseFirestore.collection("Users").document(it).set(newUser).await()
@@ -74,7 +75,7 @@ class LoginSignUpRepository @Inject constructor(
             else
                 _result.postValue(NetworkResult.Success(response.user!!, 200))
         } catch (e: Exception) {
-            _result.postValue(NetworkResult.Error(e.localizedMessage, errorCode = 500))
+            _result.postValue(NetworkResult.Error(e.localizedMessage, statusCode = 500))
         }
     }
 
@@ -90,7 +91,7 @@ class LoginSignUpRepository @Inject constructor(
             _signUpResult.postValue(
                 NetworkResult.Error(
                     "Internal Server Error Occurred",
-                    errorCode = 500
+                    statusCode = 500
                 )
             )
         }
@@ -127,7 +128,7 @@ class LoginSignUpRepository @Inject constructor(
                 val download_url = downloadUrl.toString()
                 detailMap["imageUrl"] = download_url
             } catch (e: Exception) {
-                _newUserDetailUpload.postValue(NetworkResult.Error("Image Upload Failed using Default Profile Image", errorCode = 409))
+                _newUserDetailUpload.postValue(NetworkResult.Error("Image Upload Failed using Default Profile Image", statusCode = 409))
                 Log.d("imageUploadException", "uploadNewUserDetail: $e")
                 detailMap["imageUrl"] = "https://firebasestorage.googleapis.com/v0/b/time-share-30ac6.appspot.com/o/ProfileImage%2Fdefault_profile_pic.png?alt=media&token=116dce19-d848-481c-b081-389f4bf598ea"
             }
@@ -141,7 +142,7 @@ class LoginSignUpRepository @Inject constructor(
             _newUserDetailUpload.postValue(NetworkResult.Success("Profile Details Added Successfully",200))
         } catch (e: Exception) {
             Log.d("uploadNewUser", "uploadNewUserDetail: $e")
-            _newUserDetailUpload.postValue(NetworkResult.Error("Some Error Occurred",errorCode = 400))
+            _newUserDetailUpload.postValue(NetworkResult.Error("Some Error Occurred",statusCode = 400))
         }
     }
 
@@ -153,9 +154,9 @@ class LoginSignUpRepository @Inject constructor(
         try {
             val response= firebaseAuth.signInWithCredential(credential).await()
             if (response.additionalUserInfo?.isNewUser == true)
-                _phoneLoginSignUp.postValue(NetworkResult.Success(response.user!!, code = 201))
+                _phoneLoginSignUp.postValue(NetworkResult.Success(response.user!!, statusCode = 201))
             else
-                _phoneLoginSignUp.postValue(NetworkResult.Success(response.user!!, code = 200))
+                _phoneLoginSignUp.postValue(NetworkResult.Success(response.user!!, statusCode = 200))
         }catch (e: Exception){
             Log.d("exceptionPhoneLogin", "phoneNewUser: $e")
         }

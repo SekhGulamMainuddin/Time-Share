@@ -206,12 +206,12 @@ class LoginActivity : AppCompatActivity() {
             progressDialog.dismiss()
             when (it) {
                 is NetworkResult.Success -> {
-                    if (it.data != null && it.code==200) {
+                    if (it.data != null && it.statusCode==200) {
                         showSnackBar("Logged in Successfully")
                         startActivity(Intent(this, MainActivity::class.java))
                         finish()
                     }
-                    else if(it.data != null && it.code==201){
+                    else if(it.data != null && it.statusCode==201){
                         showSnackBar("New User Registered")
                         startActivity(Intent(this, SignUpActivity::class.java)
                             .putExtra("email", it.data!!.email)
@@ -220,7 +220,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
                 is NetworkResult.Error -> {
-                    when (it.code) {
+                    when (it.statusCode) {
                         404 -> {
                             startActivity(
                                 Intent(

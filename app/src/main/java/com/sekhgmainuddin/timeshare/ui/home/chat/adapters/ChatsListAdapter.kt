@@ -32,7 +32,7 @@ class ChatsListAdapter(val context: Context, val onClicked: onClicked): ListAdap
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatsListViewHolder {
-        return ChatsListViewHolder(LayoutInflater.from(context).inflate(R.layout.chat_profiles_vh, parent, false))
+        return ChatsListViewHolder(LayoutInflater.from(context).inflate(R.layout.chat_profiles_rv, parent, false))
     }
 
     override fun onBindViewHolder(holder: ChatsListViewHolder, position: Int) {

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.home.addnewpostorreel.AddNewPostOrReelActivity"
+    android:paddingTop="12dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profileImage"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="15dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_profile_pic"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
+
+    <TextView
+        android:id="@+id/profileName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:text="@string/name"
+        android:maxLines="1"
+        android:textColor="@color/profile_text_color"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="2dp"
+        android:layout_marginEnd="25dp"
+        app:layout_constraintStart_toEndOf="@id/profileImage"
+        app:layout_constraintTop_toTopOf="@id/profileImage"/>
+
+    <TextView
+        android:id="@+id/profileLocation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:maxLines="1"
+        android:text="@string/location"
+        android:textSize="16sp"
+        android:layout_marginEnd="25dp"
+        app:layout_constraintStart_toEndOf="@id/profileImage"
+        app:layout_constraintTop_toBottomOf="@+id/profileName"
+        app:layout_constraintBottom_toBottomOf="@id/profileImage" />
+
+    <ImageButton
+        android:id="@+id/savePostDraftButton"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        app:layout_constraintTop_toTopOf="@id/profileImage"
+        app:layout_constraintBottom_toBottomOf="@id/profileImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@android:color/transparent"
+        android:src="@drawable/save_post_icon"
+        android:scaleType="centerInside"
+        android:layout_marginEnd="15dp"
+        />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerImageVideo"
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        android:layout_marginVertical="8dp"
+        app:layout_constraintTop_toBottomOf="@id/profileImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/post_view_pager_background"
+        android:backgroundTint="@android:color/transparent"
+        android:layout_marginHorizontal="10dp"
+        android:orientation="horizontal"
+        />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/viewPagerImageVideo"
+        android:layout_marginBottom="10dp"
+        app:tabBackground="@drawable/post_dot_selector"
+        app:tabPaddingStart="7dp"
+        app:tabPaddingEnd="7dp"
+        app:tabGravity="center"
+        app:tabIndicatorHeight="0dp"
+        android:background="@android:color/transparent"
+        app:tabIndicatorFullWidth="false"
+        />
+
+    <TextView
+        android:id="@+id/addDescTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/viewPagerImageVideo"
+        android:layout_marginVertical="15dp"
+        android:layout_marginHorizontal="10dp"
+        android:text="@string/description"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/descriptionET"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/addDescTV"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="10dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        app:boxCornerRadiusTopStart="15dp"
+        app:boxCornerRadiusTopEnd="15dp"
+        app:boxCornerRadiusBottomEnd="15dp"
+        app:boxCornerRadiusBottomStart="15dp"
+        android:hint="@string/description"
+        app:expandedHintEnabled="false"
+        app:boxStrokeColor="@color/orange"
+        app:boxStrokeWidth="1dp"
+        android:elevation="10dp"
+
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minHeight="100dp"
+            android:hint="@string/add_description"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/postButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/post"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/descriptionET"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginVertical="20dp"
+        app:backgroundTint="@null"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

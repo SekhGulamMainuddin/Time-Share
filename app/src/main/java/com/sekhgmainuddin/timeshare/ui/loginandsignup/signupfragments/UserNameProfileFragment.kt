@@ -62,11 +62,11 @@ class UserNameProfileFragment : Fragment() {
 
     private fun setupBottomSheetImageUploadDialog(){
         bottomSheetDialog= BottomSheetDialog(requireContext())
-        bottomSheetDialog.setContentView(R.layout.image_upload_dialog)
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_upload_dialog)
         val camera= bottomSheetDialog.findViewById<ImageButton>(R.id.camera)
-        val cameraTV= bottomSheetDialog.findViewById<TextView>(R.id.cameraTV)
+        val cameraTV= bottomSheetDialog.findViewById<TextView>(R.id.appPostTV)
         val gallery= bottomSheetDialog.findViewById<ImageButton>(R.id.gallery)
-        val galleryTV= bottomSheetDialog.findViewById<TextView>(R.id.galleryTV)
+        val galleryTV= bottomSheetDialog.findViewById<TextView>(R.id.addReelsTV)
 
         camera?.setOnClickListener {
             cameraLaunch.launch()
@@ -133,7 +133,7 @@ class UserNameProfileFragment : Fragment() {
                     }
                 }
                 is NetworkResult.Error -> {
-                    when (it.code) {
+                    when (it.statusCode) {
                         400 -> {
                             showSnackBar(it.message.toString())
                         }

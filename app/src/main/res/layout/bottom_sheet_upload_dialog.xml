@@ -18,7 +18,7 @@
         android:contentDescription="@string/camera_photo_click" />
 
     <TextView
-        android:id="@+id/cameraTV"
+        android:id="@+id/appPostTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/camera"
@@ -43,7 +43,7 @@
         android:contentDescription="@string/pick_photo_from_gallery" />
 
     <TextView
-        android:id="@+id/galleryTV"
+        android:id="@+id/addReelsTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/gallery"
