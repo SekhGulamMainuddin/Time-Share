@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.exoplayer2.ui.StyledPlayerView
+        android:id="@+id/playerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:resize_mode="fit"
+        app:use_controller="false"
+        android:background="@color/black"
+        />
+
+    <ImageView
+        android:id="@+id/playPauseImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_baseline_play_arrow_24"
+        app:tint="@color/orange"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
+        />
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_centerInParent="true"
+        android:indeterminateTint="@color/orange"/>
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/likeAnimation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:lottie_rawRes="@raw/like_animation"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        android:background="@android:color/transparent"
+        app:lottie_colorFilter="@color/red"
+        />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingEnd="100dp"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="25dp"
+        android:background="@drawable/faded_bottom_to_top"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            >
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/creatorImage"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/default_profile_pic"
+                app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="15dp">
+
+                <TextView
+                    android:id="@+id/creatorName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/name"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/reelsPostTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ago"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"/>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/reels"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:layout_marginTop="10dp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit ="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:scrollHorizontally="true"
+            />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/likeButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:padding="5dp"
+        app:layout_constraintStart_toStartOf="@id/likeCount"
+        app:layout_constraintEnd_toEndOf="@id/likeCount"
+        app:layout_constraintBottom_toTopOf="@id/likeCount"
+        android:background="@android:color/transparent"
+        android:src="@drawable/love_icon"
+        android:scaleType="centerInside"
+        android:layout_marginBottom="3dp"
+        />
+
+    <TextView
+        android:id="@+id/likeCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/like_count_text"
+        app:layout_constraintStart_toStartOf="@id/commentButton"
+        app:layout_constraintEnd_toEndOf="@id/commentButton"
+        app:layout_constraintBottom_toTopOf="@id/commentButton"
+        android:layout_marginBottom="15dp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        />
+
+    <ImageButton
+        android:id="@+id/commentButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:padding="5dp"
+        app:layout_constraintStart_toStartOf="@id/commentCount"
+        app:layout_constraintEnd_toEndOf="@id/commentCount"
+        app:layout_constraintBottom_toTopOf="@id/commentCount"
+        android:background="@android:color/transparent"
+        android:src="@drawable/comment_icon"
+        android:scaleType="centerInside"
+        android:layout_marginBottom="3dp"
+        />
+
+    <TextView
+        android:id="@+id/commentCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/shareButton"
+        app:layout_constraintEnd_toEndOf="@id/shareButton"
+        app:layout_constraintStart_toEndOf="@id/commentButton"
+        android:layout_marginBottom="15dp"
+        android:text="@string/like_count_text"
+        app:layout_constraintBottom_toTopOf="@id/shareButton"
+        android:layout_marginStart="8dp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        />
+
+    <ImageButton
+        android:id="@+id/shareButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toTopOf="@id/savePostButton"
+        app:layout_constraintStart_toStartOf="@id/savePostButton"
+        app:layout_constraintEnd_toEndOf="@id/savePostButton"
+        android:background="@android:color/transparent"
+        android:src="@drawable/send_icon"
+        android:scaleType="centerInside"
+        android:layout_marginBottom="15dp"
+        app:tint="@color/white"
+        />
+
+    <ImageButton
+        android:id="@+id/savePostButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:padding="5dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintStart_toStartOf="@id/moreButton"
+        app:layout_constraintEnd_toEndOf="@id/moreButton"
+        app:layout_constraintBottom_toTopOf="@id/moreButton"
+        android:background="@android:color/transparent"
+        android:src="@drawable/save_post_icon"
+        android:scaleType="centerInside"
+        app:tint="@color/white"
+        />
+
+    <ImageButton
+        android:id="@+id/moreButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:padding="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="30dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_baseline_more_horiz_24"
+        android:scaleType="centerInside"
+        android:layout_marginEnd="20dp"
+        app:tint="@color/white"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

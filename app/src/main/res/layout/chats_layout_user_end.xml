@@ -6,30 +6,38 @@
     android:paddingHorizontal="2dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/senderMessage"
+    <LinearLayout
+        android:id="@+id/linearLayoutChat"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="18dp"
-        android:background="@drawable/chat_start_user_end"
-        android:paddingVertical="10dp"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
-        android:text="@string/my_name_is"
-        android:textColor="@color/white"
-        android:textSize="16sp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline"
+        android:layout_marginEnd="18dp"
+        android:gravity="end">
+        <TextView
+            android:id="@+id/senderMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/chat_start_user_end"
+            android:paddingVertical="10dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:text="@string/my_name_is"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </LinearLayout>
 
     <ImageButton
         android:id="@+id/messageStatus"
         android:layout_width="18dp"
         android:layout_height="18dp"
         android:scaleType="centerInside"
-        app:layout_constraintStart_toEndOf="@id/senderMessage"
+        app:layout_constraintStart_toEndOf="@id/linearLayoutChat"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/senderMessage"
+        app:layout_constraintBottom_toBottomOf="@id/linearLayoutChat"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_baseline_check_circle_24"
         android:layout_marginStart="2dp"
@@ -41,7 +49,7 @@
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.3"
+        app:layout_constraintGuide_percent="0.25"
         android:orientation="vertical"
         />
 

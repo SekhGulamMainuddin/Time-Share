@@ -1,26 +1,28 @@
 package com.sekhgmainuddin.timeshare.ui.home.addnewpostorreel.adapters
 
 import android.content.Context
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.view.isVisible
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.PlaybackException
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.StyledPlayerView
+import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.sekhgmainuddin.timeshare.R
+import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.PostImageVideo
 
-class ImageVideoViewPagerAdapter(val context: Context, val onclick: onClick): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class ImageVideoViewPagerAdapter(val context: Context, val onclick: onClick, var videoListener: OnVideoListener): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     val list= ArrayList<PostImageVideo>()
-//    private val exoPlayer= ExoPlayer.Builder(context).build()
 
     fun update(newList: List<PostImageVideo>){
         list.clear()
@@ -28,9 +30,51 @@ class ImageVideoViewPagerAdapter(val context: Context, val onclick: onClick): Re
         notifyDataSetChanged()
     }
 
-    class ImageVideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ImageVideoViewHolder(itemView: View, val context: Context, var videoPreparedListener: OnVideoListener) : RecyclerView.ViewHolder(itemView) {
         val postImage= itemView.findViewById<ImageView>(R.id.postImage)
         val playerView= itemView.findViewById<StyledPlayerView>(R.id.playerView)
+        val progressBar= itemView.findViewById<ProgressBar>(R.id.pbLoading)
+        private lateinit var exoPlayer: ExoPlayer
+        private lateinit var mediaSource: MediaSource
+
+        fun setVideoPath(uri: Uri) {
+
+            exoPlayer = ExoPlayer.Builder(context).build()
+            exoPlayer.addListener(object : Player.Listener {
+                override fun onPlayerError(error: PlaybackException) {
+                    super.onPlayerError(error)
+                    Toast.makeText(context, "Can't play this video", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                    if (playbackState == Player.STATE_BUFFERING) {
+                        progressBar.visibility = View.VISIBLE
+                    } else if (playbackState == Player.STATE_READY) {
+                        progressBar.visibility = View.GONE
+                    }
+                }
+            })
+
+            playerView.player = exoPlayer
+
+            exoPlayer.seekTo(0)
+            exoPlayer.repeatMode = Player.REPEAT_MODE_ONE
+
+            val dataSourceFactory = DefaultDataSource.Factory(context)
+
+            mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(
+                MediaItem.fromUri(uri))
+
+            exoPlayer.setMediaSource(mediaSource)
+            exoPlayer.prepare()
+
+            if (absoluteAdapterPosition == 0) {
+                exoPlayer.playWhenReady = true
+                exoPlayer.play()
+            }
+
+            videoPreparedListener.onVideoPrepared(ExoPlayerItem(exoPlayer, absoluteAdapterPosition))
+        }
     }
 
     class EmptyTempImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -43,7 +87,7 @@ class ImageVideoViewPagerAdapter(val context: Context, val onclick: onClick): Re
         return if (viewType==-1)
             EmptyTempImageViewHolder(LayoutInflater.from(context).inflate(R.layout.empty_post_layout, parent, false))
         else
-            ImageVideoViewHolder(LayoutInflater.from(context).inflate(R.layout.posts_view_pager_layout, parent, false))
+            ImageVideoViewHolder(LayoutInflater.from(context).inflate(R.layout.posts_view_pager_layout, parent, false), context, videoListener)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -74,11 +118,11 @@ class ImageVideoViewPagerAdapter(val context: Context, val onclick: onClick): Re
             }
             else {
                 imageViewHolder.playerView.visibility= View.VISIBLE
-//                imageViewHolder.playerView.player = exoPlayer
-//                val mediaItem: MediaItem = MediaItem.fromUri(item.videoUrl!!)
-//                exoPlayer.setMediaItem(mediaItem)
-//                exoPlayer.prepare()
-//                exoPlayer.play()
+                imageViewHolder.setVideoPath(Uri.parse(item.videoUrl))
+
+                imageViewHolder.itemView.setOnClickListener {
+                    videoListener.onVideoClick(position)
+                }
             }
         }
     }
@@ -95,23 +139,14 @@ class ImageVideoViewPagerAdapter(val context: Context, val onclick: onClick): Re
         return list.size
     }
 
-//    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
-//        exoPlayer.pause()
-//        super.onViewDetachedFromWindow(holder)
-//    }
-//
-//    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
-//        val position= holder.bindingAdapterPosition
-//        val mediaItem: MediaItem = MediaItem.fromUri(list[position].videoUrl!!)
-//        exoPlayer.setMediaItem(mediaItem)
-//        exoPlayer.prepare()
-//        exoPlayer.play()
-//        super.onViewAttachedToWindow(holder)
-//    }
+    interface OnVideoListener {
+        fun onVideoPrepared(exoPlayerItem: ExoPlayerItem)
+        fun onVideoClick(position: Int)
+    }
 
 }
 
 interface onClick{
     fun onNewAddClick()
-    fun onClickToView(postImageVideo: PostImageVideo)
+    fun onClickToView(postImageVideoWithExoPlayer: PostImageVideo)
 }

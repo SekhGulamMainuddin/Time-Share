@@ -19,7 +19,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import java.io.File
 import java.io.FileOutputStream

@@ -94,11 +94,8 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
         }
 
         viewModel.allPosts.observe(viewLifecycleOwner) {
-            Toast.makeText(requireContext(), "${it.size}", Toast.LENGTH_LONG).show()
-            for (i in it) {
-                Log.d("latestPosts", "bindObservers: ${i.postTime} ${i.creatorName}")
-            }
-            postsAdapter.submitList(it)
+            if (it.isNotEmpty())
+                postsAdapter.submitList(it)
         }
 
     }
@@ -116,9 +113,21 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
 
     override fun postClicked(post: PostEntity) {
         val postData= Post(post.postId, post.creatorId, post.postDesc, post.postContent,
-                        post.creatorName, post.creatorProfileImage, post.likesCount,
-                        post.commentCount, post.likedAndCommentByMe)
+                        post.creatorName, post.creatorProfileImage, post.postTime,
+                        post.likesCount, post.commentCount, post.likedAndCommentByMe, post.myComment)
         startActivity(Intent(requireContext(), PostDetailActivity::class.java).putExtra("post",postData))
+    }
+
+    override fun savePost(post: PostEntity) {
+
+    }
+
+    override fun sharePost(post: PostEntity) {
+
+    }
+
+    override fun likePost(postId: String) {
+        viewModel.addLike(postId)
     }
 
 }

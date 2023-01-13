@@ -43,7 +43,7 @@
             app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
-            android:id="@+id/profileStatus"
+            android:id="@+id/postDate"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
@@ -72,13 +72,28 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginVertical="8dp"
-            app:layout_constraintTop_toBottomOf="@id/profileImage"
-            app:layout_constraintBottom_toTopOf="@id/likeButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:background="@drawable/post_view_pager_background"
-            android:layout_marginHorizontal="5dp"
             android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/likeButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profileImage"
+            app:layout_constraintVertical_bias="0.0"
+            />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/likeAnimation"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:lottie_rawRes="@raw/like_animation"
+            app:layout_constraintTop_toTopOf="@id/viewPagerImageVideo"
+            app:layout_constraintBottom_toBottomOf="@id/viewPagerImageVideo"
+            app:layout_constraintStart_toStartOf="@id/viewPagerImageVideo"
+            app:layout_constraintEnd_toEndOf="@id/viewPagerImageVideo"
+            android:visibility="gone"
+            android:background="@android:color/transparent"
+            app:lottie_colorFilter="@color/red"
             />
 
         <com.google.android.material.tabs.TabLayout
@@ -88,7 +103,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/viewPagerImageVideo"
-            android:layout_marginBottom="10dp"
             app:tabBackground="@drawable/post_dot_selector"
             app:tabPaddingStart="7dp"
             app:tabPaddingEnd="7dp"
@@ -173,10 +187,12 @@
             android:maxLines="2"
             android:textColor="@color/black"
             android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toTopOf="@id/addCommentEditText"
+            app:layout_constraintBottom_toTopOf="@id/addCommentText"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             />
+
+
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/addCommentProfileImage"
@@ -185,13 +201,13 @@
             android:layout_marginStart="15dp"
             android:scaleType="centerCrop"
             android:src="@drawable/default_profile_pic"
-            app:layout_constraintTop_toTopOf="@id/addCommentEditText"
-            app:layout_constraintBottom_toBottomOf="@id/addCommentEditText"
+            app:layout_constraintTop_toTopOf="@id/addCommentText"
+            app:layout_constraintBottom_toBottomOf="@id/addCommentText"
             app:layout_constraintStart_toStartOf="parent"
             app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
 
-        <EditText
-            android:id="@+id/addCommentEditText"
+        <TextView
+            android:id="@+id/addCommentText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/addCommentProfileImage"
@@ -199,12 +215,11 @@
             app:layout_constraintEnd_toStartOf="@id/addFireComment"
             android:layout_marginHorizontal="8dp"
             android:background="@android:color/transparent"
-            android:hint="@string/add_a_comment"
+            android:text="@string/add_a_comment"
             android:textSize="16sp"
             android:layout_marginVertical="5dp"
-            android:maxLines="1"
+            android:maxLines="2"
             android:scrollHorizontally="true"
-            android:inputType="text"
             />
 
         <ImageButton
@@ -214,8 +229,8 @@
             android:src="@drawable/love_comment_icon"
             android:scaleType="centerInside"
             android:background="@android:color/transparent"
-            app:layout_constraintBottom_toBottomOf="@id/addCommentEditText"
-            app:layout_constraintTop_toTopOf="@id/addCommentEditText"
+            app:layout_constraintBottom_toBottomOf="@id/addCommentText"
+            app:layout_constraintTop_toTopOf="@id/addCommentText"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="15dp"
             />
@@ -227,8 +242,8 @@
             android:src="@drawable/fire_comment_icon"
             android:scaleType="centerInside"
             android:background="@android:color/transparent"
-            app:layout_constraintBottom_toBottomOf="@id/addCommentEditText"
-            app:layout_constraintTop_toTopOf="@id/addCommentEditText"
+            app:layout_constraintBottom_toBottomOf="@id/addCommentText"
+            app:layout_constraintTop_toTopOf="@id/addCommentText"
             app:layout_constraintEnd_toStartOf="@id/addLoveComment"
             android:layout_marginEnd="5dp"
             />

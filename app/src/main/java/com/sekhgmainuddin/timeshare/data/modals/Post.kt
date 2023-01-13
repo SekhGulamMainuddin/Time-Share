@@ -5,14 +5,17 @@ import java.io.Serializable
 
 data class Post (
 
-    val postId: String,
-    val creatorId: String,
-    val postDesc: String,
-    val postContent: List<PostImageVideo>? = null,
-    val creatorName: String,
-    val creatorProfileImage: String,
-    val likesCount: Int,
-    val commentCount: Int,
-    val likedAndCommentByMe: Int
+    var postId: String= "",
+    var creatorId: String= "",
+    var postDesc: String= "",
+    var postContent: List<PostImageVideo>? = null,
+    var creatorName: String= "",
+    var creatorProfileImage: String= "",
+    var postTime: Long= 0L,
+    var likeCount: Int= 0,
+    var commentCount: Int= 0,
+    var likedAndCommentByMe: Int= 0,
+    var myComment: String= "",
+    var likeAndComment: HashMap<String, LikeComment>? = null
 
     ) : Serializable

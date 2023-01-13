@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
-import com.sekhgmainuddin.timeshare.data.modals.User
+import com.sekhgmainuddin.timeshare.data.modals.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -76,6 +76,76 @@ class HomeViewModel @Inject constructor(
             if(it.isFailure) {
                 Log.d("latestPosts", "getLatestPosts: failure occurred ${it.exceptionOrNull()}")
             }
+        }
+    }
+
+    val postDetails= MutableLiveData<Triple<Post, List<LikeWithProfile>, List<CommentWithProfile>>>()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getPost(postId: String) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.getPost(postId).collectLatest {
+            if (it.isSuccess) {
+                it.getOrNull()?.let{ pair ->
+                    var userListResponse= HashMap<String, User>()
+                    pair.second.let { userList->
+                        val set= mutableSetOf<String>()
+                        set.addAll(userList)
+                        set.add(pair.first.creatorId)
+                        userListResponse= homeRepository.getUserDataById(set)
+                    }
+                    val likeList= mutableListOf<LikeWithProfile>()
+                    val commentList= mutableListOf<CommentWithProfile>()
+                    pair.first.likeAndComment?.forEach{ map->
+                        val user= userListResponse[map.key]
+                        if (map.value.liked)
+                            likeList.add(LikeWithProfile(map.key, user?.name?:" ", user?.imageUrl?:" "))
+                        if (map.key!=firebaseUser?.uid){
+                            if (map.value.comment.isNotEmpty())
+                                commentList.add(CommentWithProfile(map.key, user?.name?:" ", user?.imageUrl?:" ", map.value.comment))
+                        }
+                    }
+                    pair.first.let{ post->
+                        val creator= userListResponse[post.creatorId]
+                        post.likeAndComment= null
+                        post.creatorName= creator?.name ?: ""
+                        post.creatorProfileImage=  creator?.imageUrl?: ""
+                        postDetails.postValue(Triple(post, likeList, commentList))
+                    }
+                }
+            }
+        }
+    }
+
+    fun addLike(postId: String) = viewModelScope.launch(Dispatchers.IO){
+        homeRepository.incrementLike(postId)
+    }
+
+    fun addComment(postId: String, comment: String) = viewModelScope.launch(Dispatchers.IO){
+        homeRepository.addComment(postId, comment)
+    }
+
+    val newReels= MutableLiveData<ArrayList<Reel>>()
+
+    fun getReels(oldReels: List<String> = listOf("noIdPassed"))= viewModelScope.launch(Dispatchers.IO){
+        val result= homeRepository.getReels(oldReels)
+        if (result!=null){
+            val userList= result.second.let { homeRepository.getUserDataById(it) }
+            result.first.forEach { reel->
+                reel.creatorName= userList[reel.creatorId]?.name ?: ""
+                reel.creatorImageUrl= userList[reel.creatorId]?.imageUrl ?: ""
+                val likeComment= reel.likeAndComment?.get(firebaseUser?.uid)
+                if (likeComment !=null){
+                    if (likeComment.liked && likeComment.comment.isNotEmpty())
+                        reel.likedAndCommentByMe= 3
+                    else if (likeComment.liked)
+                        reel.likedAndCommentByMe= 1
+                    else if (likeComment.comment.isNotEmpty())
+                        reel.likedAndCommentByMe= 2
+                    else
+                        reel.likedAndCommentByMe= 0
+                }
+            }
+            newReels.postValue(result.first)
         }
     }
 

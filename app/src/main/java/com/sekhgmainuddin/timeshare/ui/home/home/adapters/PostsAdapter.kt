@@ -2,36 +2,38 @@ package com.sekhgmainuddin.timeshare.ui.home.home.adapters
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.airbnb.lottie.LottieAnimationView
+import com.bumptech.glide.Glide
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
-import com.sekhgmainuddin.timeshare.data.modals.PostImageVideo
-import com.sekhgmainuddin.timeshare.ui.home.addnewpostorreel.adapters.ImageVideoViewPagerAdapter
-import com.sekhgmainuddin.timeshare.ui.home.addnewpostorreel.adapters.onClick
 import com.sekhgmainuddin.timeshare.ui.home.home.HomeScreenFragment
+import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
 
-class PostsAdapter(val context: Context, val onClick: HomeScreenFragment): ListAdapter<PostEntity,PostsAdapter.PostsViewHolder>(PostDiffCallBack()),
-    onClick {
+class PostsAdapter(val context: Context, val onClick: HomeScreenFragment): ListAdapter<PostEntity,PostsAdapter.PostsViewHolder>(PostDiffCallBack()) {
+
 
     private class PostDiffCallBack: DiffUtil.ItemCallback<PostEntity>() {
         override fun areItemsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
-            return oldItem==newItem
+            return oldItem.creatorId == newItem.creatorId
         }
 
         override fun areContentsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
-            return oldItem.creatorId == newItem.creatorId
+            return oldItem==newItem
         }
 
     }
@@ -44,6 +46,13 @@ class PostsAdapter(val context: Context, val onClick: HomeScreenFragment): ListA
         val tabLayout= itemView.findViewById<TabLayout>(R.id.tabLayout)
         val likeIcon= itemView.findViewById<ImageButton>(R.id.likeButton)
         val commentIcon= itemView.findViewById<ImageButton>(R.id.commentButton)
+        val creatorName= itemView.findViewById<TextView>(R.id.profileName)
+        val postDate= itemView.findViewById<TextView>(R.id.postDate)
+        val creatorProfileImage= itemView.findViewById<ShapeableImageView>(R.id.profileImage)
+        val shareButton= itemView.findViewById<ImageButton>(R.id.shareButton)
+        val savePostButton= itemView.findViewById<ImageButton>(R.id.savePostButton)
+        val likeAnimation= itemView.findViewById<LottieAnimationView>(R.id.likeAnimation)
+        val commenttext= itemView.findViewById<TextView>(R.id.addCommentText)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostsViewHolder {
@@ -52,27 +61,59 @@ class PostsAdapter(val context: Context, val onClick: HomeScreenFragment): ListA
 
     override fun onBindViewHolder(holder: PostsViewHolder, position: Int) {
         val item= currentList[position]
-        val viewPagerAdapter = ImageVideoViewPagerAdapter(context,this)
+        val viewPagerAdapter = ImageVideoViewPagerAdapter(context, item) {
+            if (it==1)
+                onClick.postClicked(item)
+            else if (it==2) {
+                onClick.likePost(item.postId)
+                playLikeAnimation(holder)
+            }
+        }
         holder.viewPager.adapter = viewPagerAdapter
-        item.postContent?.let { viewPagerAdapter.update(it) }
         TabLayoutMediator(holder.tabLayout, holder.viewPager)
         {_,_ -> }.attach()
+        holder.creatorName.text= item.creatorName
+        holder.postDate.text= item.postTime.getTimeAgo()
+        Glide.with(context).load(item.creatorProfileImage).placeholder(R.drawable.default_profile_pic).into(holder.creatorProfileImage)
         holder.postDescription.text= item.postDesc
         holder.likeCount.text= item.likesCount.toString()
         holder.commentCount.text= item.commentCount.toString()
+        if (item.myComment.isEmpty()){
+            holder.commenttext.text= context.getString(R.string.add_a_comment)
+            holder.commenttext.setTextColor(context.getColor(R.color.profile_text_color))
+        }else{
+            holder.commenttext.text= item.myComment
+            holder.commenttext.setTextColor(context.getColor(R.color.semi_black))
+        }
         holder.likeIcon.setImageDrawable(AppCompatResources.getDrawable(context,if (item.likedAndCommentByMe in intArrayOf(1,3)) R.drawable.liked_icon else R.drawable.love_icon))
         holder.commentIcon.imageTintList= ColorStateList.valueOf(context.getColor(if (item.likedAndCommentByMe in intArrayOf(2,3)) R.color.orangePink else R.color.black))
-        holder.itemView.setOnClickListener {
+        holder.savePostButton.setOnClickListener {
+            onClick.savePost(item)
+        }
+        holder.shareButton.setOnClickListener {
+            onClick.sharePost(item)
+        }
+        holder.likeIcon.setOnClickListener {
+            playLikeAnimation(holder)
+        }
+        holder.commenttext.setOnClickListener {
             onClick.postClicked(item)
         }
     }
 
-    override fun onNewAddClick() {}
-
-    override fun onClickToView(postImageVideo: PostImageVideo) {}
+    private fun playLikeAnimation(holder: PostsViewHolder) {
+        holder.likeAnimation?.visibility= View.VISIBLE
+        holder.likeAnimation?.playAnimation()
+        Handler(Looper.getMainLooper()).postDelayed({
+            holder.likeAnimation?.cancelAnimation()
+            holder.likeAnimation?.visibility= View.GONE
+        }, 750)
+    }
 
     interface OnClick{
         fun postClicked(post: PostEntity)
+        fun savePost(post: PostEntity)
+        fun sharePost(post: PostEntity)
+        fun likePost(postId: String)
     }
-
 }

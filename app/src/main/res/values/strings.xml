@@ -73,12 +73,14 @@
     <string name="send_message_to_someone">Send Message to Someone</string>
     <string name="active">Active</string>
     <string name="like_count_text">192</string>
-    <string name="view_all_35_comments">View all 35 comments</string>
+    <string name="view_all_35_comments">Comments</string>
     <string name="add_a_comment">Add a comment</string>
     <string name="add_reels">Add Reels</string>
     <string name="add_description">Write some description about the post.\nAdd @ symbol to tag people and # to add hashtags</string>
     <string name="description">Description</string>
     <string name="add_image_or_video">Add Image or Video</string>
+    <string name="people_reacted">People Reacted</string>
+    <string name="ago">23 min ago</string>
 
 
 </resources>

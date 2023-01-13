@@ -4,7 +4,7 @@ package com.sekhgmainuddin.timeshare.data.modals
 data class PostImageVideo (
     val imageOrVideo: Int,
     val imageUrl: String?,
-    val videoUrl: String?
-) {
+    val videoUrl: String?,
+): java.io.Serializable {
     constructor() : this (0, null, null)
 }
