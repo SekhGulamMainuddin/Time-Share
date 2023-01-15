@@ -18,7 +18,7 @@ import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils
 import com.sekhgmainuddin.timeshare.utils.Utils.isImageOrVideo
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
@@ -186,12 +186,12 @@ class HomeRepository @Inject constructor(
     }
 
 
-    suspend fun getReels(oldReels: List<String>) : Pair<ArrayList<Reel>, Set<String>>?{
+    suspend fun getReels(oldReels: List<String>): Pair<ArrayList<Reel>, Set<String>>? {
         val reelsResponce = firebaseFirestore.collection("Reels")
             .orderBy("reelPostTime", Query.Direction.DESCENDING)
             .limit(10).get().await()
         if (!reelsResponce.isEmpty) {
-            val userList= ArrayList<String>()
+            val userList = ArrayList<String>()
             val reelNewList = ArrayList<Reel>()
             reelsResponce.documents.forEach {
                 it.toObject(Reel::class.java)?.let { reel ->
@@ -204,6 +204,69 @@ class HomeRepository @Inject constructor(
                 return Pair(reelNewList, userList.toSet())
         }
         return null
+    }
+
+    suspend fun getCommentsAndLikesByReelsId(reelId: String) = callbackFlow<Result<Reel?>> {
+        val reelListener = firebaseFirestore.collection("Reels").document(reelId)
+            .addSnapshotListener { value, error ->
+                if (error != null)
+                    trySend(Result.failure(error))
+                if (value?.exists() == true) {
+                    trySend(Result.success(value.toObject(Reel::class.java)))
+                }
+            }
+        awaitClose { reelListener.remove() }
+    }
+
+    private var _likeReelStatus = MutableLiveData<NetworkResult<Boolean>>()
+    val likeReelStatus: LiveData<NetworkResult<Boolean>>
+        get() = _likeReelStatus
+
+    suspend fun likeReel(reelId: String, liked: Boolean) {
+        try {
+            val mainMap = hashMapOf(
+                Pair(
+                    "likeAndComment",
+                    hashMapOf(Pair(firebaseUser?.uid, hashMapOf(Pair("liked", !liked))))
+                )
+            )
+            firebaseFirestore.collection("Reels").document(reelId)
+                .update(
+                    "likeCount",
+                    if (!liked) FieldValue.increment(1) else FieldValue.increment(-1)
+                ).await()
+            firebaseFirestore.collection("Reels").document(reelId).set(mainMap, SetOptions.merge())
+                .await()
+            _likeReelStatus.postValue(NetworkResult.Success(true, 200))
+        } catch (e: Exception) {
+            _likeReelStatus.postValue(NetworkResult.Error("Some Error Occurred"))
+        }
+    }
+
+    private var _commentReelStatus = MutableLiveData<NetworkResult<Boolean>>()
+    val commentReelStatus: LiveData<NetworkResult<Boolean>>
+        get() = _commentReelStatus
+
+    suspend fun addCommentToReel(reelId: String, comment: String) = coroutineScope {
+        try {
+            val mainMap = hashMapOf(
+                Pair(
+                    "likeAndComment",
+                    hashMapOf(Pair(firebaseUser?.uid, hashMapOf(Pair("comment", comment))))
+                )
+            )
+            awaitAll(async {
+                firebaseFirestore.collection("Reels").document(reelId)
+                    .update("commentCount", FieldValue.increment(1))
+            }, async {
+                firebaseFirestore.collection("Reels").document(reelId)
+                    .set(mainMap, SetOptions.merge())
+            })
+
+            _commentReelStatus.postValue(NetworkResult.Success(true, 200))
+        } catch (e: Exception) {
+            _commentReelStatus.postValue(NetworkResult.Error("Some Error Occurred"))
+        }
     }
 
 }

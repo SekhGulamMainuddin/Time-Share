@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.reels
+package com.sekhgmainuddin.timeshare.ui.home.reels.adapters
 
 import DoubleClickListener
 import android.content.Context
@@ -26,7 +26,6 @@ import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.Reel
 import com.sekhgmainuddin.timeshare.databinding.ReelsLayoutRvBinding
 import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
-import kotlin.random.Random
 
 class ReelsAdapter(
     var context: Context,
@@ -88,14 +87,8 @@ class ReelsAdapter(
                 }
 
                 override fun onDoubleClick(v: View?) {
-                    videoPreparedListener.reelsLiked()
-                    binding.likeAnimation.isVisible= true
-                    binding.likeAnimation.playAnimation()
-                    binding.likeButton.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.liked_icon))
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        binding.likeAnimation.cancelAnimation()
-                        binding.likeAnimation.isVisible= false
-                    }, 750)
+                    videoPreparedListener.reelLiked()
+                    showAnimation(binding, context)
                 }
 
             })
@@ -143,15 +136,58 @@ class ReelsAdapter(
         holder.binding.reelsPostTime.text= item.reelPostTime.getTimeAgo()
         Glide.with(context).load(item.creatorImageUrl).placeholder(R.drawable.default_profile_pic).into(holder.binding.creatorImage)
         holder.binding.creatorName.text= item.creatorName
-
+        holder.binding.commentButton.setOnClickListener {
+            videoListener.openCommentDrawer(item)
+        }
+        holder.binding.savePostButton.setOnClickListener {
+            videoListener.saveReel(item.reelId)
+        }
+        holder.binding.shareButton.setOnClickListener {
+            videoListener.shareReel(item)
+        }
+        holder.binding.likeButton.setOnClickListener {
+            if (item.likedAndCommentByMe !in intArrayOf(1,3)){
+                reels[position].likedAndCommentByMe++
+                showAnimation(holder.binding, context)
+                videoListener.reelLiked()
+            }else{
+                reels[position].likedAndCommentByMe--
+                holder.binding.likeButton.setImageDrawable(AppCompatResources.getDrawable(context,R.drawable.love_icon))
+                holder.binding.likeButton.imageTintList= ColorStateList.valueOf(context.getColor(R.color.white))
+                videoListener.reelUnliked()
+            }
+        }
     }
 
     override fun getItemCount(): Int {
         return reels.size
     }
 
+    companion object{
+        fun showAnimation(binding: ReelsLayoutRvBinding, context: Context) {
+            binding.likeAnimation.isVisible = true
+            binding.likeAnimation.playAnimation()
+            binding.likeButton.setImageDrawable(
+                AppCompatResources.getDrawable(
+                    context,
+                    R.drawable.liked_icon
+                )
+            )
+            binding.likeButton.imageTintList = null
+            Handler(Looper.getMainLooper()).postDelayed({
+                binding.likeAnimation.cancelAnimation()
+                binding.likeAnimation.isVisible = false
+            }, 750)
+        }
+    }
+
     interface OnVideoPreparedListener {
         fun onVideoPrepared(exoPlayerItem: ExoPlayerItem)
-        fun reelsLiked()
+        fun reelLiked()
+        fun reelUnliked()
+        fun openCommentDrawer(reel: Reel)
+        fun saveReel(reelId :String)
+        fun shareReel(reel: Reel)
+
     }
 }

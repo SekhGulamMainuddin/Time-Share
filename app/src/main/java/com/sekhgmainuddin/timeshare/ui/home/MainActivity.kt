@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
     @Inject
     lateinit var firebaseDatabase: DatabaseReference
+    private var currSelectedPage: Int= R.id.home
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,23 +65,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpBottomNavigationBar() {
-
+        binding.bottomNavigation.menu.findItem(R.id.addPost).isCheckable = false
+        binding.bottomNavigation.menu.findItem(R.id.reels).isCheckable = false
         binding.bottomNavigation.setOnItemSelectedListener {
-
             when(it.itemId){
                 R.id.home-> {
+                    currSelectedPage= R.id.home
                     navController.navigate(R.id.homeScreenFragment)
                 }
                 R.id.search-> {
+                    currSelectedPage= R.id.search
                     navController.navigate(R.id.searchFragment)
                 }
                 R.id.addPost-> {
+                    binding.bottomNavigation.menu.findItem(currSelectedPage).isChecked= true
                     bottomSheetDialog.show()
                 }
                 R.id.reels-> {
+                    binding.bottomNavigation.menu.findItem(currSelectedPage).isChecked= true
                     startActivity(Intent(this, ReelsActivity::class.java))
                 }
                 R.id.profile-> {
+                    currSelectedPage= R.id.profile
                     navController.navigate(R.id.myProfileFragment)
                 }
             }

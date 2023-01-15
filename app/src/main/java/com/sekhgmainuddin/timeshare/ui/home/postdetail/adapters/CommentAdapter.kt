@@ -1,6 +1,7 @@
 package com.sekhgmainuddin.timeshare.ui.home.postdetail.adapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +13,9 @@ import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.CommentWithProfile
+import com.sekhgmainuddin.timeshare.databinding.ProgressRvLayoutBinding
 
-class CommentAdapter(val context: Context): ListAdapter<CommentWithProfile, CommentAdapter.CommentViewHolder>(CommentDiffCallBack()) {
+class CommentAdapter(val context: Context): ListAdapter<CommentWithProfile, RecyclerView.ViewHolder>(CommentDiffCallBack()) {
 
     private class CommentDiffCallBack: DiffUtil.ItemCallback<CommentWithProfile>() {
         override fun areItemsTheSame(oldItem: CommentWithProfile, newItem: CommentWithProfile): Boolean {
@@ -30,15 +32,26 @@ class CommentAdapter(val context: Context): ListAdapter<CommentWithProfile, Comm
         val commentTextView= itemView.findViewById<TextView>(R.id.commentTextView)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
-        return CommentViewHolder(LayoutInflater.from(context).inflate(R.layout.post_detail_comment_layout_rv, parent, false))
+    class LoadingViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){}
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType==1)
+            CommentViewHolder(LayoutInflater.from(context).inflate(R.layout.post_detail_comment_layout_rv, parent, false))
+        else LoadingViewHolder(LayoutInflater.from(context).inflate(R.layout.progress_rv_layout, parent, false))
     }
 
-    override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-        val item= currentList[position]
-        Glide.with(context).load(item.profileImage).placeholder(R.drawable.default_profile_pic).into(holder.profileImage)
-        holder.commentTextView.text= item.comment
-        holder.profileName.text= item.profileName
+    override fun getItemViewType(position: Int): Int {
+        return if(currentList[position].commentTime==-1L) 0 else 1
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (currentList[position].commentTime!=-1L){
+            val item= currentList[position]
+            val viewHolder= holder as CommentViewHolder
+            Glide.with(context).load(item.profileImage).placeholder(R.drawable.default_profile_pic).into(holder.profileImage)
+            viewHolder.commentTextView.text= item.comment
+            viewHolder.profileName.text= item.profileName
+        }
     }
 
 }

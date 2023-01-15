@@ -1,16 +1,21 @@
 package com.sekhgmainuddin.timeshare.ui.home.reels
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.Reel
 import com.sekhgmainuddin.timeshare.databinding.ActivityReelsBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
+import com.sekhgmainuddin.timeshare.ui.home.reels.adapters.ReelsAdapter
+import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class ReelsActivity : AppCompatActivity() {
@@ -21,14 +26,23 @@ class ReelsActivity : AppCompatActivity() {
 
     private lateinit var adapter: ReelsAdapter
     private val exoPlayerItems = ArrayList<ExoPlayerItem>()
+    private lateinit var reelCommentsFragment: ReelCommentsFragment
+    private var recentLiked: Int= -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityReelsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.getReels()
 
+        initialize()
+        bindObservers()
+
+    }
+
+    fun initialize(){
+
+        viewModel.getReels()
 
         adapter = ReelsAdapter(this, arrayListOf("49ulF0YTsXPArQhKn5hAxEIAtSY21673447503555") ,object : ReelsAdapter.OnVideoPreparedListener {
 
@@ -36,8 +50,28 @@ class ReelsActivity : AppCompatActivity() {
                 exoPlayerItems.add(exoPlayerItem)
             }
 
-            override fun reelsLiked() {
-                Log.d("reelsLiked", "reelsLiked: ${reelsList[binding.viewPager2.currentItem]}")
+            override fun reelLiked() {
+                viewModel.likeReel(reelsList[binding.viewPager2.currentItem].reelId)
+                recentLiked= binding.viewPager2.currentItem
+                Toast.makeText(this@ReelsActivity, "Liked", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun reelUnliked() {
+                viewModel.likeReel(reelsList[binding.viewPager2.currentItem].reelId, true)
+                Toast.makeText(this@ReelsActivity, "Removed Like", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun openCommentDrawer(reel: Reel) {
+                reelCommentsFragment= ReelCommentsFragment(reel)
+                reelCommentsFragment.show(supportFragmentManager, "reel_comments_fragment")
+            }
+
+            override fun saveReel(reelId: String) {
+
+            }
+
+            override fun shareReel(reel: Reel) {
+
             }
 
         })
@@ -60,15 +94,26 @@ class ReelsActivity : AppCompatActivity() {
                 }
             }
         })
-
-        bindObservers()
-
     }
 
     private fun bindObservers() {
         viewModel.newReels.observe(this){
             adapter.update(it)
             reelsList.addAll(it)
+        }
+        viewModel.likeReelStatus.observe(this){
+            when(it){
+                is NetworkResult.Success->{
+                }
+                is NetworkResult.Error->{
+                    adapter.reels[recentLiked].likedAndCommentByMe--
+                    binding.viewPager2.adapter?.notifyItemChanged(recentLiked)
+                    Toast.makeText(this, "Failed to post the like", Toast.LENGTH_SHORT).show()
+                }
+                is NetworkResult.Loading->{
+
+                }
+            }
         }
     }
 

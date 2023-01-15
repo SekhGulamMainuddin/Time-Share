@@ -72,6 +72,10 @@ class PostsAdapter(val context: Context, val onClick: HomeScreenFragment): ListA
         holder.viewPager.adapter = viewPagerAdapter
         TabLayoutMediator(holder.tabLayout, holder.viewPager)
         {_,_ -> }.attach()
+        if ((item.postContent?.size ?: 0) > 1)
+            holder.tabLayout.visibility= View.INVISIBLE
+        else
+            holder.tabLayout.visibility= View.VISIBLE
         holder.creatorName.text= item.creatorName
         holder.postDate.text= item.postTime.getTimeAgo()
         Glide.with(context).load(item.creatorProfileImage).placeholder(R.drawable.default_profile_pic).into(holder.creatorProfileImage)

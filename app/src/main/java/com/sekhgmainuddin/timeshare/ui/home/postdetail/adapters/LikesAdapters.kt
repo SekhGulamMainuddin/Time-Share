@@ -12,7 +12,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.LikeWithProfile
 
-class LikeAdapter(val context: Context): ListAdapter<LikeWithProfile, LikeAdapter.LikeViewHolder>(LikeDiffCallBack()) {
+class LikeAdapter(val context: Context): ListAdapter<LikeWithProfile, RecyclerView.ViewHolder>(LikeDiffCallBack()) {
 
     private class LikeDiffCallBack: DiffUtil.ItemCallback<LikeWithProfile>() {
         override fun areItemsTheSame(oldItem: LikeWithProfile, newItem: LikeWithProfile): Boolean {
@@ -27,13 +27,23 @@ class LikeAdapter(val context: Context): ListAdapter<LikeWithProfile, LikeAdapte
         val profileImage= itemView.findViewById<ShapeableImageView>(R.id.likeProfileImage)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LikeViewHolder {
-        return LikeViewHolder(LayoutInflater.from(context).inflate(R.layout.liked_profiles_rv, parent, false))
+    class LoadingViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){}
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType==1)
+            LikeViewHolder(LayoutInflater.from(context).inflate(R.layout.liked_profiles_rv, parent, false))
+        else LoadingViewHolder(LayoutInflater.from(context).inflate(R.layout.progress_rv_layout, parent, false))
     }
 
-    override fun onBindViewHolder(holder: LikeViewHolder, position: Int) {
-        val item= currentList[position]
-        Glide.with(context).load(item.profileImage).placeholder(R.drawable.default_profile_pic).into(holder.profileImage)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (currentList[position].likedTime!=-1L){
+            val item= currentList[position]
+            Glide.with(context).load(item.profileImage).placeholder(R.drawable.default_profile_pic).into((holder as LikeViewHolder).profileImage)
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (currentList[position].likedTime==-1L) 0 else 1
     }
 
 }

@@ -145,8 +145,47 @@ class HomeViewModel @Inject constructor(
                         reel.likedAndCommentByMe= 0
                 }
             }
-            newReels.postValue(result.first)
+            result.first.let{ newReels.postValue(it) }
         }
+    }
+
+    val reelDetails= MutableLiveData<Result<Pair<ArrayList<LikeWithProfile>, ArrayList<CommentWithProfile>>>>()
+
+    fun getCommentsAndLikesByReelsId(reelId: String)= viewModelScope.launch(Dispatchers.IO){
+        reelDetails.postValue(Result.success(Pair(arrayListOf<LikeWithProfile>(), arrayListOf<CommentWithProfile>())))
+        homeRepository.getCommentsAndLikesByReelsId(reelId).collectLatest {
+            if (it.isSuccess){
+                it.getOrNull()?.let { reel->
+                    val userList= reel.likeAndComment?.keys?.let { it1 -> homeRepository.getUserDataById(it1) }
+                    val likeWithProfile= ArrayList<LikeWithProfile>()
+                    val commentWithProfile= ArrayList<CommentWithProfile>()
+                    reel.likeAndComment?.forEach { map->
+                        val user= userList?.get(map.key)
+                        if (map.value.liked){
+                            likeWithProfile.add(LikeWithProfile(map.key,user?.name?:"",user?.imageUrl?:"",map.value.likedTime))
+                        }
+                        if (map.value.comment.isNotEmpty()){
+                            commentWithProfile.add(CommentWithProfile(map.key,user?.name?:"",user?.imageUrl?:"",map.value.comment,map.value.commentTime))
+                        }
+                    }
+                    reelDetails.postValue(Result.success(Pair(likeWithProfile, commentWithProfile)))
+                }
+            }
+            else if (it.isFailure){
+                reelDetails.postValue(it.exceptionOrNull()?.let { it1 -> Result.failure(it1) })
+            }
+        }
+    }
+
+    val commentReelStatus= homeRepository.commentReelStatus
+    val likeReelStatus= homeRepository.likeReelStatus
+
+    fun likeReel(reelId: String, liked: Boolean= false)= viewModelScope.launch(Dispatchers.IO){
+        homeRepository.likeReel(reelId, liked)
+    }
+
+    fun commentReel(reelId: String, comment: String)= viewModelScope.launch(Dispatchers.IO){
+        homeRepository.addCommentToReel(reelId, comment)
     }
 
 }

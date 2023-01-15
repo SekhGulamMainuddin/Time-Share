@@ -38,6 +38,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:indeterminateTint="@color/orange"/>
+        android:indeterminateTint="@color/orange"
+        android:visibility="gone"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
