@@ -20,6 +20,11 @@
         android:name="com.sekhgmainuddin.timeshare.ui.home.profile.MyProfileFragment"
         android:label="fragment_my_profile"
         tools:layout="@layout/fragment_my_profile" />
+    <fragment
+        android:id="@+id/reelsFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.reels.ReelsFragment"
+        android:label="fragment_reels_home"
+        tools:layout="@layout/fragment_reels_home" />
 
 
 </navigation>

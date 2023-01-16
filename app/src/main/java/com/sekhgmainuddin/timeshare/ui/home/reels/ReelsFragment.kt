@@ -1,16 +1,16 @@
 package com.sekhgmainuddin.timeshare.ui.home.reels
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.Reel
-import com.sekhgmainuddin.timeshare.databinding.ActivityReelsBinding
+import com.sekhgmainuddin.timeshare.databinding.FragmentReelsHomeBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
 import com.sekhgmainuddin.timeshare.ui.home.reels.adapters.ReelsAdapter
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
@@ -18,10 +18,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class ReelsActivity : AppCompatActivity() {
+class ReelsFragment : Fragment() {
 
-    private lateinit var binding: ActivityReelsBinding
-    private val viewModel by viewModels<HomeViewModel>()
+    private var _binding: FragmentReelsHomeBinding?= null
+    private val binding: FragmentReelsHomeBinding
+        get() = _binding!!
+    private val viewModel by activityViewModels<HomeViewModel>()
     private val reelsList= ArrayList<Reel>()
 
     private lateinit var adapter: ReelsAdapter
@@ -29,22 +31,28 @@ class ReelsActivity : AppCompatActivity() {
     private lateinit var reelCommentsFragment: ReelCommentsFragment
     private var recentLiked: Int= -1
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding= ActivityReelsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding= FragmentReelsHomeBinding.inflate(inflater)
+        return _binding!!.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         initialize()
         bindObservers()
 
     }
 
-    fun initialize(){
+    private fun initialize(){
 
         viewModel.getReels()
 
-        adapter = ReelsAdapter(this, arrayListOf("49ulF0YTsXPArQhKn5hAxEIAtSY21673447503555") ,object : ReelsAdapter.OnVideoPreparedListener {
+        adapter = ReelsAdapter(requireContext(), arrayListOf("49ulF0YTsXPArQhKn5hAxEIAtSY21673447503555") ,object : ReelsAdapter.OnVideoPreparedListener {
 
             override fun onVideoPrepared(exoPlayerItem: ExoPlayerItem) {
                 exoPlayerItems.add(exoPlayerItem)
@@ -53,17 +61,17 @@ class ReelsActivity : AppCompatActivity() {
             override fun reelLiked() {
                 viewModel.likeReel(reelsList[binding.viewPager2.currentItem].reelId)
                 recentLiked= binding.viewPager2.currentItem
-                Toast.makeText(this@ReelsActivity, "Liked", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Liked", Toast.LENGTH_SHORT).show()
             }
 
             override fun reelUnliked() {
                 viewModel.likeReel(reelsList[binding.viewPager2.currentItem].reelId, true)
-                Toast.makeText(this@ReelsActivity, "Removed Like", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Removed Like", Toast.LENGTH_SHORT).show()
             }
 
             override fun openCommentDrawer(reel: Reel) {
                 reelCommentsFragment= ReelCommentsFragment(reel)
-                reelCommentsFragment.show(supportFragmentManager, "reel_comments_fragment")
+                reelCommentsFragment.show(childFragmentManager, "reel_comments_fragment")
             }
 
             override fun saveReel(reelId: String) {
@@ -97,18 +105,18 @@ class ReelsActivity : AppCompatActivity() {
     }
 
     private fun bindObservers() {
-        viewModel.newReels.observe(this){
+        viewModel.newReels.observe(viewLifecycleOwner){
             adapter.update(it)
             reelsList.addAll(it)
         }
-        viewModel.likeReelStatus.observe(this){
+        viewModel.likeReelStatus.observe(viewLifecycleOwner){
             when(it){
                 is NetworkResult.Success->{
                 }
                 is NetworkResult.Error->{
                     adapter.reels[recentLiked].likedAndCommentByMe--
                     binding.viewPager2.adapter?.notifyItemChanged(recentLiked)
-                    Toast.makeText(this, "Failed to post the like", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Failed to post the like", Toast.LENGTH_SHORT).show()
                 }
                 is NetworkResult.Loading->{
 
@@ -139,8 +147,8 @@ class ReelsActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         if (exoPlayerItems.isNotEmpty()) {
             for (item in exoPlayerItems) {
                 val player = item.exoPlayer

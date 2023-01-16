@@ -11,15 +11,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.sekhgmainuddin.timeshare.R
-import com.sekhgmainuddin.timeshare.data.modals.PostImageVideo
 import com.sekhgmainuddin.timeshare.databinding.ActivityMainBinding
 import com.sekhgmainuddin.timeshare.ui.home.addnewpostorreel.AddNewPostOrReelActivity
-import com.sekhgmainuddin.timeshare.ui.home.reels.ReelsActivity
+import com.sekhgmainuddin.timeshare.ui.home.reels.ReelsFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -65,28 +60,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpBottomNavigationBar() {
-        binding.bottomNavigation.menu.findItem(R.id.addPost).isCheckable = false
-        binding.bottomNavigation.menu.findItem(R.id.reels).isCheckable = false
         binding.bottomNavigation.setOnItemSelectedListener {
             when(it.itemId){
                 R.id.home-> {
-                    currSelectedPage= R.id.home
                     navController.navigate(R.id.homeScreenFragment)
                 }
                 R.id.search-> {
-                    currSelectedPage= R.id.search
                     navController.navigate(R.id.searchFragment)
                 }
                 R.id.addPost-> {
-                    binding.bottomNavigation.menu.findItem(currSelectedPage).isChecked= true
                     bottomSheetDialog.show()
                 }
                 R.id.reels-> {
-                    binding.bottomNavigation.menu.findItem(currSelectedPage).isChecked= true
-                    startActivity(Intent(this, ReelsActivity::class.java))
+                    navController.navigate(R.id.reelsFragment)
                 }
                 R.id.profile-> {
-                    currSelectedPage= R.id.profile
                     navController.navigate(R.id.myProfileFragment)
                 }
             }
