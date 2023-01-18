@@ -29,6 +29,7 @@
     <color name="chat_active">#00bc48</color>
     <color name="profile_text_color">#3d4149</color>
     <color name="posts_stroke_color">#B9B9B9</color>
+    <color name="profile_bio">#5A5B5E</color>
 
 
 </resources>

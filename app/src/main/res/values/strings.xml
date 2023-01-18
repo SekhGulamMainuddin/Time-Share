@@ -83,6 +83,10 @@
     <string name="ago">23 min ago</string>
     <string name="no_comments">No Comments</string>
     <string name="loading">Loading…</string>
+    <string name="verified_user">Verified User</string>
+    <string name="following">Following</string>
+    <string name="followers">Followers</string>
+    <string name="friends">Friends</string>
 
 
 </resources>

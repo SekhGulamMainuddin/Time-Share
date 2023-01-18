@@ -29,23 +29,7 @@ import java.io.FileOutputStream
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-
 object Utils {
-
-    const val MSG_BY_USER = 1
-    const val MSG_BY_OPPOSITE = 2
-
-    const val MSG_TYPE_MESSAGE = 1
-    const val MSG_TYPE_IMAGE = 2
-    const val MSG_TYPE_IMAGE_AND_MESSAGE = 3
-    const val MSG_TYPE_PDF = 4
-    const val MSG_TYPE_FILE = 5
-    const val MSG_TYPE_VOICE = 6
-
-    const val MSG_SENT = 1
-    const val MSG_RECEIVED = 2
-    const val MSG_SEEN = 3
-    const val MSG_OLD = 4
 
     private const val SECOND_MILLIS = 1000
     private const val MINUTE_MILLIS = 60 * SECOND_MILLIS
@@ -194,5 +178,6 @@ object Utils {
         }
         return bitmap
     }
+
 
 }

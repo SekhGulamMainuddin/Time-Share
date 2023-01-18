@@ -25,13 +25,12 @@
         android:theme="@style/Theme.TimeShare"
         tools:targetApi="31">
         <activity
+            android:name=".ui.home.chat.VoiceCallActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.home.chat.VideoCallActivity"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:exported="true">
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.home.postdetail.PostDetailActivity"
@@ -88,7 +87,11 @@
         <activity
             android:name=".ui.SplashScreenActivity"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".ui.home.MainActivity"

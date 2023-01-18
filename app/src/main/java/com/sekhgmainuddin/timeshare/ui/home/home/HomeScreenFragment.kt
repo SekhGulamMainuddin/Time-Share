@@ -69,16 +69,6 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
         }
         statusAdapter.submitList(list)
 
-        binding.postRecyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-
-                binding.statusRecyclerView.isVisible = layoutManager.findFirstVisibleItemPosition()==0
-
-                super.onScrolled(recyclerView, dx, dy)
-
-            }
-        })
-
     }
 
     private fun bindObservers() {

@@ -17,7 +17,7 @@ import com.sekhgmainuddin.timeshare.data.modals.Chats
 import com.sekhgmainuddin.timeshare.data.modals.RecentProfileChats
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_SENT
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_SENT
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking

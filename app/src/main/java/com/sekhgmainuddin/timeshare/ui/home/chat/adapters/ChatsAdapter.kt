@@ -13,17 +13,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_BY_OPPOSITE
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_BY_USER
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_OLD
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_RECEIVED
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_SEEN
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_SENT
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_TYPE_FILE
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_TYPE_IMAGE
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_TYPE_IMAGE_AND_MESSAGE
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_TYPE_MESSAGE
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_TYPE_PDF
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_BY_OPPOSITE
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_BY_USER
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_OLD
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_RECEIVED
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_SEEN
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_SENT
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_FILE
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_IMAGE
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_IMAGE_AND_MESSAGE
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_MESSAGE
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_PDF
 
 class ChatsAdapter(val context: Context, val chatProfileImage: String, val firebaseUserId: String) : ListAdapter<ChatEntity, ChatsAdapter.ChatsViewHolder>(
     ChatsDiffCallBack()

@@ -13,7 +13,7 @@ import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.databinding.ActivityChatBinding
 import com.sekhgmainuddin.timeshare.ui.home.chat.adapters.ChatsAdapter
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
-import com.sekhgmainuddin.timeshare.utils.Utils.MSG_TYPE_MESSAGE
+import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_MESSAGE
 import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
