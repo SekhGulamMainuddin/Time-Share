@@ -2,7 +2,7 @@ package com.sekhgmainuddin.timeshare.data.modals
 
 import com.google.firebase.database.PropertyName
 
-data class User(
+data class UserWithFriendFollowerAndFollowingLists (
     @PropertyName("name") val name: String,
     @PropertyName("email") val email: String = "",
     @PropertyName("phone") val phone: String = "",
@@ -11,11 +11,11 @@ data class User(
     @PropertyName("interests") val interests: ArrayList<String>? = null,
     @PropertyName("location") val location: String? = null,
     @PropertyName("activeStatus") val activeStatus: Long = 0L,
-    @PropertyName("friends") val friends: ArrayList<String>? = null,
-    @PropertyName("followers") val followers: ArrayList<String>? = null,
-    @PropertyName("following") val following: ArrayList<String>? = null,
+    @PropertyName("friends") val friends: Map<String, User> = emptyMap(),
+    @PropertyName("followers") val followers: Map<String, User> = emptyMap(),
+    @PropertyName("following") val following: Map<String, User> = emptyMap(),
     @PropertyName("isVerified") val isVerified: Boolean = false,
 
-) : java.io.Serializable {
-    constructor() : this ("","","","","",null, "",0L, null, null, null,false)
+    ) {
+    constructor() : this ("","","","","",null, "",0L, emptyMap(), emptyMap(), emptyMap(),false)
 }

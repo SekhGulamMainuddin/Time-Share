@@ -2,6 +2,8 @@ package com.sekhgmainuddin.timeshare.ui.home.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -33,7 +35,6 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
     private val viewModel by activityViewModels<HomeViewModel>()
     private val oldFriendList= ArrayList<String>()
     private lateinit var postsAdapter: PostsAdapter
-    private lateinit var statusAdapter: StatusAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,14 +61,20 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
 
         viewModel.getUserData()
 
-        statusAdapter= StatusAdapter(requireContext())
-        binding.statusRecyclerView.adapter= statusAdapter
-
         val list= ArrayList<Status>()
         for (i in 0..10) {
             list.add(Status("",""))
         }
-        statusAdapter.submitList(list)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            postsAdapter.updateStatus(list)
+            Handler(Looper.getMainLooper()).postDelayed({
+                for (i in 0..10) {
+                    list.add(Status("",""))
+                }
+                postsAdapter.updateStatus(list)
+            },3000)
+        },3000)
 
     }
 

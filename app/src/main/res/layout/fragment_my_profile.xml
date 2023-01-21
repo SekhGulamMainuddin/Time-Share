@@ -78,7 +78,7 @@
                     app:layout_constraintTop_toBottomOf="@id/profileName"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/login_logo_description"
                     android:textAlignment="center"
                     android:layout_marginHorizontal="40dp"
@@ -94,7 +94,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/locationIcon"
                     android:text="@string/location"
                     android:textStyle="bold"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:textAlignment="center"
                     android:layout_marginStart="5dp"
                     />
@@ -104,7 +104,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_marginStart="5dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:src="@drawable/ic_baseline_location_on_24"
                     android:scaleType="fitXY"
                     android:background="@android:color/transparent"
@@ -136,27 +136,30 @@
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/followingOneImage"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:src="@drawable/default_profile_pic"
+                            android:scaleType="fitXY"
                             app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                             />
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/followingTwoImage"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:src="@drawable/default_profile_pic"
-                            android:layout_marginStart="-18dp"
+                            android:layout_marginStart="-12dp"
+                            android:scaleType="fitXY"
                             app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                             />
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/followingThreeImage"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:src="@drawable/default_profile_pic"
-                            android:layout_marginStart="-18dp"
+                            android:layout_marginStart="-12dp"
+                            android:scaleType="fitXY"
                             app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                             />
 
@@ -203,27 +206,30 @@
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/followerOneImage"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:scaleType="fitXY"
                             android:src="@drawable/default_profile_pic"
                             app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                             />
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/followerTwoImage"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:src="@drawable/default_profile_pic"
-                            android:layout_marginStart="-18dp"
+                            android:layout_marginStart="-12dp"
+                            android:scaleType="fitXY"
                             app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                             />
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/followerThreeImage"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:src="@drawable/default_profile_pic"
-                            android:layout_marginStart="-18dp"
+                            android:layout_marginStart="-12dp"
+                            android:scaleType="fitXY"
                             app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                             />
 
@@ -269,28 +275,31 @@
                         android:gravity="center_vertical">
 
                         <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/friendOneImage"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:id="@+id/friendsOneImage"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:src="@drawable/default_profile_pic"
+                            android:scaleType="fitXY"
                             app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                             />
 
                         <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/friendTwoImage"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:id="@+id/friendsTwoImage"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:src="@drawable/default_profile_pic"
-                            android:layout_marginStart="-18dp"
+                            android:layout_marginStart="-12dp"
+                            android:scaleType="fitXY"
                             app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                             />
 
                         <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/friendThreeImage"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
+                            android:id="@+id/friendsThreeImage"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:src="@drawable/default_profile_pic"
-                            android:layout_marginStart="-18dp"
+                            android:layout_marginStart="-12dp"
+                            android:scaleType="fitXY"
                             app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                             />
 
@@ -354,7 +363,7 @@
             app:layout_constraintTop_toBottomOf="@id/profileTabs"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:padding="5dp"
+            android:paddingBottom="5dp"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

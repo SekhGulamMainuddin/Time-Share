@@ -2,12 +2,14 @@ package com.sekhgmainuddin.timeshare.ui.home
 
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
+import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,8 +30,16 @@ class HomeViewModel @Inject constructor(
         homeRepository.getUserData().collectLatest {
             if (it.isSuccess){
                 userData.postValue(it.getOrNull())
+                Log.d("AllPostsOfUser", "getUserData: ${it.getOrNull()}")
             }
         }
+    }
+
+    val userDetails: LiveData<Result<UserWithFriendFollowerAndFollowingLists>>
+        get() = homeRepository.userDetails
+
+    fun getUserData(userId: String?) = viewModelScope.launch(Dispatchers.IO){
+        homeRepository.getUserData(userId)
     }
 
     val addPostStatus= homeRepository.addPostStatus
@@ -187,5 +197,21 @@ class HomeViewModel @Inject constructor(
     fun commentReel(reelId: String, comment: String)= viewModelScope.launch(Dispatchers.IO){
         homeRepository.addCommentToReel(reelId, comment)
     }
+
+    val posts= MutableLiveData<List<Pair<String, String>>?>()
+
+    fun getAllPosts(oldList: List<String> = listOf("noList"))= viewModelScope.launch(Dispatchers.IO){
+        posts.postValue(null)
+        val response= homeRepository.getAllPosts(oldList)
+        posts.postValue(response)
+    }
+
+    val userUploadedReels: LiveData<NetworkResult<List<Reel>>>
+        get() = homeRepository.userUploadedReels
+
+    fun getUserReels(oldList: List<String> = listOf("noid"))= viewModelScope.launch(Dispatchers.IO){
+        homeRepository.getUserPostedReels(oldList)
+    }
+
 
 }

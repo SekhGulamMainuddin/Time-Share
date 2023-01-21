@@ -16,6 +16,7 @@ import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 import android.provider.MediaStore.MediaColumns.*
 import android.transition.Slide
 import android.transition.TransitionManager
+import android.util.DisplayMetrics
 import android.util.Patterns
 import android.view.Gravity
 import android.view.View
@@ -178,6 +179,5 @@ object Utils {
         }
         return bitmap
     }
-
 
 }

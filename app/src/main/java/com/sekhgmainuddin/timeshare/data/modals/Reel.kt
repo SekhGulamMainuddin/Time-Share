@@ -8,6 +8,8 @@ data class Reel (
     val reelDesc: String = "",
     val reelPostTime: Long = 0L,
     val reelUrl: String = "",
+    val reelViewsCount: Int = 0,
+    var reelThumbnail: String = "",
     var likeCount: Int= 0,
     var commentCount: Int= 0,
     var likedAndCommentByMe: Int= 0,

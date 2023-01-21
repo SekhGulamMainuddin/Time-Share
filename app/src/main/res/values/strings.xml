@@ -87,6 +87,7 @@
     <string name="following">Following</string>
     <string name="followers">Followers</string>
     <string name="friends">Friends</string>
+    <string name="some_error_occurred">Some Error Occurred</string>
 
 
 </resources>

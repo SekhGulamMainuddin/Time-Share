@@ -21,11 +21,19 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
+import com.sekhgmainuddin.timeshare.data.modals.Status
+import com.sekhgmainuddin.timeshare.databinding.StatusHolderRvBinding
 import com.sekhgmainuddin.timeshare.ui.home.home.HomeScreenFragment
 import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
 
-class PostsAdapter(val context: Context, val onClick: HomeScreenFragment): ListAdapter<PostEntity,PostsAdapter.PostsViewHolder>(PostDiffCallBack()) {
+class PostsAdapter(val context: Context, val onClick: HomeScreenFragment): ListAdapter<PostEntity,RecyclerView.ViewHolder>(PostDiffCallBack()) {
 
+    val statusList= ArrayList<Status>()
+    fun updateStatus(list: List<Status>){
+        statusList.clear()
+        statusList.addAll(list)
+        notifyItemChanged(0)
+    }
 
     private class PostDiffCallBack: DiffUtil.ItemCallback<PostEntity>() {
         override fun areItemsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
@@ -55,53 +63,80 @@ class PostsAdapter(val context: Context, val onClick: HomeScreenFragment): ListA
         val commenttext= itemView.findViewById<TextView>(R.id.addCommentText)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostsViewHolder {
-        return PostsViewHolder(LayoutInflater.from(context).inflate(R.layout.posts_layout_rv, parent, false))
+    class StatusViewHolder(val binding: StatusHolderRvBinding, val context: Context, ): RecyclerView.ViewHolder(binding.root){
+
+        private var adapter: StatusAdapter?= null
+
+        fun loadViews(list: List<Status>){
+            if (adapter==null){
+                adapter= StatusAdapter(context)
+                binding.statusRecyclerView.adapter= adapter
+            }
+            update(list)
+        }
+
+        fun update(list: List<Status>){
+            adapter?.submitList(list)
+        }
     }
 
-    override fun onBindViewHolder(holder: PostsViewHolder, position: Int) {
-        val item= currentList[position]
-        val viewPagerAdapter = ImageVideoViewPagerAdapter(context, item) {
-            if (it==1)
-                onClick.postClicked(item)
-            else if (it==2) {
-                onClick.likePost(item.postId)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if(viewType != 0)
+            PostsViewHolder(LayoutInflater.from(context).inflate(R.layout.posts_layout_rv, parent, false))
+        else
+            StatusViewHolder(StatusHolderRvBinding.inflate(LayoutInflater.from(context), parent, false), context)
+    }
+
+    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
+        if (position==0){
+            val holder= viewHolder as StatusViewHolder
+            holder.loadViews(statusList)
+        }
+        else{
+            val item= currentList[position]
+            val holder= viewHolder as PostsViewHolder
+            val viewPagerAdapter = ImageVideoViewPagerAdapter(context, item) {
+                if (it==1)
+                    onClick.postClicked(item)
+                else if (it==2) {
+                    onClick.likePost(item.postId)
+                    playLikeAnimation(holder)
+                }
+            }
+            holder.viewPager.adapter = viewPagerAdapter
+            TabLayoutMediator(holder.tabLayout, holder.viewPager)
+            {_,_ -> }.attach()
+            if ((item.postContent?.size ?: 0) > 1)
+                holder.tabLayout.visibility= View.INVISIBLE
+            else
+                holder.tabLayout.visibility= View.VISIBLE
+            holder.creatorName.text= item.creatorName
+            holder.postDate.text= item.postTime.getTimeAgo()
+            Glide.with(context).load(item.creatorProfileImage).placeholder(R.drawable.default_profile_pic).into(holder.creatorProfileImage)
+            holder.postDescription.text= item.postDesc
+            holder.likeCount.text= item.likesCount.toString()
+            holder.commentCount.text= item.commentCount.toString()
+            if (item.myComment.isEmpty()){
+                holder.commenttext.text= context.getString(R.string.add_a_comment)
+                holder.commenttext.setTextColor(context.getColor(R.color.profile_text_color))
+            }else{
+                holder.commenttext.text= item.myComment
+                holder.commenttext.setTextColor(context.getColor(R.color.semi_black))
+            }
+            holder.likeIcon.setImageDrawable(AppCompatResources.getDrawable(context,if (item.likedAndCommentByMe in intArrayOf(1,3)) R.drawable.liked_icon else R.drawable.love_icon))
+            holder.commentIcon.imageTintList= ColorStateList.valueOf(context.getColor(if (item.likedAndCommentByMe in intArrayOf(2,3)) R.color.orangePink else R.color.black))
+            holder.savePostButton.setOnClickListener {
+                onClick.savePost(item)
+            }
+            holder.shareButton.setOnClickListener {
+                onClick.sharePost(item)
+            }
+            holder.likeIcon.setOnClickListener {
                 playLikeAnimation(holder)
             }
-        }
-        holder.viewPager.adapter = viewPagerAdapter
-        TabLayoutMediator(holder.tabLayout, holder.viewPager)
-        {_,_ -> }.attach()
-        if ((item.postContent?.size ?: 0) > 1)
-            holder.tabLayout.visibility= View.INVISIBLE
-        else
-            holder.tabLayout.visibility= View.VISIBLE
-        holder.creatorName.text= item.creatorName
-        holder.postDate.text= item.postTime.getTimeAgo()
-        Glide.with(context).load(item.creatorProfileImage).placeholder(R.drawable.default_profile_pic).into(holder.creatorProfileImage)
-        holder.postDescription.text= item.postDesc
-        holder.likeCount.text= item.likesCount.toString()
-        holder.commentCount.text= item.commentCount.toString()
-        if (item.myComment.isEmpty()){
-            holder.commenttext.text= context.getString(R.string.add_a_comment)
-            holder.commenttext.setTextColor(context.getColor(R.color.profile_text_color))
-        }else{
-            holder.commenttext.text= item.myComment
-            holder.commenttext.setTextColor(context.getColor(R.color.semi_black))
-        }
-        holder.likeIcon.setImageDrawable(AppCompatResources.getDrawable(context,if (item.likedAndCommentByMe in intArrayOf(1,3)) R.drawable.liked_icon else R.drawable.love_icon))
-        holder.commentIcon.imageTintList= ColorStateList.valueOf(context.getColor(if (item.likedAndCommentByMe in intArrayOf(2,3)) R.color.orangePink else R.color.black))
-        holder.savePostButton.setOnClickListener {
-            onClick.savePost(item)
-        }
-        holder.shareButton.setOnClickListener {
-            onClick.sharePost(item)
-        }
-        holder.likeIcon.setOnClickListener {
-            playLikeAnimation(holder)
-        }
-        holder.commenttext.setOnClickListener {
-            onClick.postClicked(item)
+            holder.commenttext.setOnClickListener {
+                onClick.postClicked(item)
+            }
         }
     }
 
@@ -112,6 +147,10 @@ class PostsAdapter(val context: Context, val onClick: HomeScreenFragment): ListA
             holder.likeAnimation?.cancelAnimation()
             holder.likeAnimation?.visibility= View.GONE
         }, 750)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position==0) 0 else 1
     }
 
     interface OnClick{

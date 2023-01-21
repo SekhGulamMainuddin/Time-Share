@@ -59,6 +59,62 @@ class HomeRepository @Inject constructor(
         return usersData
     }
 
+    private var _userDetails = MutableLiveData<Result<UserWithFriendFollowerAndFollowingLists>>()
+    val userDetails: LiveData<Result<UserWithFriendFollowerAndFollowingLists>>
+        get() = _userDetails
+
+    suspend fun getUserData(userId: String? = null) {
+        val response = (userId ?: firebaseUser?.uid)?.let {
+            firebaseFirestore.collection("Users").document(
+                it
+            ).get().await()
+        }
+        if (response?.exists() == true) {
+            val otherUserList = ArrayList<String>()
+            val user = response.toObject(User::class.java)
+            user?.apply {
+                friends?.let { otherUserList.addAll(it) }
+                followers?.let { otherUserList.addAll(it) }
+                following?.let { otherUserList.addAll(it) }
+                getUserDataById(otherUserList.toSet()).let { otherUsers ->
+                    val friendList = HashMap<String, User>()
+                    val followersList = HashMap<String, User>()
+                    val followingList = HashMap<String, User>()
+                    friends?.forEach { id ->
+                        otherUsers[id]?.let { user ->
+                            friendList[id] = user
+                        }
+                    }
+                    followers?.forEach { id ->
+                        otherUsers[id]?.let { user ->
+                            followersList[id] = user
+                        }
+                    }
+                    following?.forEach { id ->
+                        otherUsers[id]?.let { user ->
+                            followingList[id] = user
+                        }
+                    }
+                    val userDetails = UserWithFriendFollowerAndFollowingLists(
+                        name,
+                        email,
+                        phone,
+                        imageUrl,
+                        bio,
+                        interests,
+                        location,
+                        activeStatus,
+                        friendList,
+                        followersList,
+                        followingList
+                    )
+                    Log.d("userDetails", "getUserData: $followersList $followingList $friendList")
+                    _userDetails.postValue(Result.success(userDetails))
+                }
+            }
+        }
+    }
+
     suspend fun getUserData() = callbackFlow<Result<User>> {
         val subscriptionUser = firebaseUser?.uid?.let {
             firebaseFirestore.collection("Users").document(it)
@@ -206,6 +262,28 @@ class HomeRepository @Inject constructor(
         return null
     }
 
+    private var _userUploadedReels = MutableLiveData<NetworkResult<List<Reel>>>()
+    val userUploadedReels: LiveData<NetworkResult<List<Reel>>>
+        get() = _userUploadedReels
+
+    suspend fun getUserPostedReels(oldReels: List<String>) {
+        firebaseUser?.uid.let { id ->
+            val reelsResponse = firebaseFirestore.collection("Reels").whereEqualTo("creatorId", id)
+                .whereNotIn("reelId", oldReels).orderBy("reelId").orderBy("reelPostTime", Query.Direction.DESCENDING).limit(20).get().await()
+            if (!reelsResponse.isEmpty){
+                val reelNewList = ArrayList<Reel>()
+                reelsResponse.documents.forEach {
+                    it.toObject(Reel::class.java)?.let { reel ->
+                        reelNewList.add(reel)
+                    }
+                }
+                Log.d("userReelsList", "getUserPostedReels: $reelNewList")
+                if (reelNewList.isNotEmpty())
+                    _userUploadedReels.postValue(NetworkResult.Success(reelNewList, 200))
+            }
+        }
+    }
+
     suspend fun getCommentsAndLikesByReelsId(reelId: String) = callbackFlow<Result<Reel?>> {
         val reelListener = firebaseFirestore.collection("Reels").document(reelId)
             .addSnapshotListener { value, error ->
@@ -266,6 +344,31 @@ class HomeRepository @Inject constructor(
             _commentReelStatus.postValue(NetworkResult.Success(true, 200))
         } catch (e: Exception) {
             _commentReelStatus.postValue(NetworkResult.Error("Some Error Occurred"))
+        }
+    }
+
+    suspend fun getAllPosts(oldList: List<String>): List<Pair<String, String>>? {
+        val posts = ArrayList<Pair<String, String>>()
+        val postsResponse =
+            firebaseFirestore.collection("Posts").whereEqualTo("creatorId", firebaseUser?.uid)
+                .whereNotIn("postId", oldList).orderBy("postId")
+                .orderBy("postTime", Query.Direction.DESCENDING).limit(10).get().await()
+        if (!postsResponse.isEmpty) {
+            postsResponse.documents.forEach {
+                it.toObject(Post::class.java)?.let { post ->
+                    var image = ""
+                    post.postContent?.forEach { content ->
+                        if (content.imageOrVideo == 0)
+                            image = content.imageUrl.toString()
+                    }
+                    posts.add(Pair(post.postId, image))
+                }
+            }
+            Log.d("AllPostsOfUser", "getAllPosts: $posts")
+            return posts
+        } else {
+            Log.d("AllPostsOfUser", "getAllPosts: Empty")
+            return null
         }
     }
 
