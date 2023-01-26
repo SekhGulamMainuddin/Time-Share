@@ -11,7 +11,6 @@ import android.view.View.OnKeyListener
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
-import androidx.core.widget.addTextChangedListener
 import com.bumptech.glide.Glide
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity

@@ -24,12 +24,14 @@ class ReelsFragment : Fragment() {
     private val binding: FragmentReelsHomeBinding
         get() = _binding!!
     private val viewModel by activityViewModels<HomeViewModel>()
-    private val reelsList= ArrayList<Reel>()
+    private val reelsList= ArrayList<String>()
 
     private lateinit var adapter: ReelsAdapter
     private val exoPlayerItems = ArrayList<ExoPlayerItem>()
     private lateinit var reelCommentsFragment: ReelCommentsFragment
     private var recentLiked: Int= -1
+    private var showUserReels= false
+    private var showReelId: String?= ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +39,8 @@ class ReelsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding= FragmentReelsHomeBinding.inflate(inflater)
+        showUserReels = arguments?.getBoolean("showUserReels", false) == true
+        showReelId = arguments?.getString("showReelId")
         return _binding!!.root
     }
 
@@ -50,8 +54,6 @@ class ReelsFragment : Fragment() {
 
     private fun initialize(){
 
-        viewModel.getReels()
-
         adapter = ReelsAdapter(requireContext(), arrayListOf("49ulF0YTsXPArQhKn5hAxEIAtSY21673447503555") ,object : ReelsAdapter.OnVideoPreparedListener {
 
             override fun onVideoPrepared(exoPlayerItem: ExoPlayerItem) {
@@ -59,13 +61,13 @@ class ReelsFragment : Fragment() {
             }
 
             override fun reelLiked() {
-                viewModel.likeReel(reelsList[binding.viewPager2.currentItem].reelId)
+                viewModel.likeReel(reelsList[binding.viewPager2.currentItem])
                 recentLiked= binding.viewPager2.currentItem
                 Toast.makeText(requireContext(), "Liked", Toast.LENGTH_SHORT).show()
             }
 
             override fun reelUnliked() {
-                viewModel.likeReel(reelsList[binding.viewPager2.currentItem].reelId, true)
+                viewModel.likeReel(reelsList[binding.viewPager2.currentItem], true)
                 Toast.makeText(requireContext(), "Removed Like", Toast.LENGTH_SHORT).show()
             }
 
@@ -102,12 +104,27 @@ class ReelsFragment : Fragment() {
                 }
             }
         })
+
+        if (showUserReels) {
+            viewModel.reelPassedToView.value?.let {
+                adapter.update(arrayListOf(it))
+                reelsList.add(it.reelId)
+            }
+            if (viewModel.reelPassedToView.value==null)
+                viewModel.getReels(showUserReels = true)
+        }
+        else {
+            viewModel.getReels()
+        }
+
     }
 
     private fun bindObservers() {
-        viewModel.newReels.observe(viewLifecycleOwner){
-            adapter.update(it)
-            reelsList.addAll(it)
+        viewModel.newReels.observe(viewLifecycleOwner){ newList->
+            adapter.update(newList)
+            newList.forEach {
+                reelsList.add(it.reelId)
+            }
         }
         viewModel.likeReelStatus.observe(viewLifecycleOwner){
             when(it){

@@ -51,6 +51,7 @@
                 android:background="@drawable/search_view_background"
                 app:defaultQueryHint="@string/search"
                 app:iconifiedByDefault="false"
+                app:queryBackground="@null"
                 />
 
             <ImageButton

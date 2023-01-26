@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingVertical="10dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="15dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profileImage"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:padding="5dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_profile_pic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+        app:strokeColor="@color/orangePink"
+        app:strokeWidth="3dp" />
+
+    <TextView
+        android:id="@+id/profileName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:text="@string/my_name_is"
+        android:textColor="@color/profile_text_color"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="2dp"
+        app:layout_constraintBottom_toTopOf="@+id/profileBio"
+        app:layout_constraintEnd_toStartOf="@id/profileLocation"
+        app:layout_constraintStart_toEndOf="@id/profileImage"
+        app:layout_constraintTop_toTopOf="@id/profileImage"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/profileBio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:maxLines="1"
+        android:text="@string/login_logo_description"
+        android:textSize="16sp"
+        android:layout_marginBottom="2dp"
+        android:ellipsize="end"
+        app:layout_constraintBottom_toTopOf="@id/followedBy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/profileImage"
+        app:layout_constraintTop_toBottomOf="@+id/profileName" />
+
+    <TextView
+        android:id="@+id/profileLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/location"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:maxEms="5"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="@id/profileName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/profileName"
+        app:drawableStartCompat="@drawable/ic_baseline_location_on_24" />
+
+    <TextView
+        android:id="@+id/followedBy"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/followed_by"
+        app:layout_constraintStart_toEndOf="@id/profileImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/profileImage"
+        android:layout_marginHorizontal="15dp"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

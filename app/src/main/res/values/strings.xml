@@ -88,6 +88,13 @@
     <string name="followers">Followers</string>
     <string name="friends">Friends</string>
     <string name="some_error_occurred">Some Error Occurred</string>
+    <string name="cancel">Cancel</string>
+    <string name="followed_by">Followed by …</string>
+    <string name="add_friend">Add Friend</string>
+    <string name="un_friend">Unfriend</string>
+    <string name="un_follow">Unfollow</string>
+    <string name="no_posts_yet">No Posts Yet</string>
+    <string name="failed_to_fecth_posts">Failed to fetch posts. Please refresh.</string>
 
 
 </resources>

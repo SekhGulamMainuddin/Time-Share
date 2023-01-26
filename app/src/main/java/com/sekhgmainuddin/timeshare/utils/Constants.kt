@@ -17,4 +17,7 @@ object Constants {
     const val MSG_SEEN = 3
     const val MSG_OLD = 4
 
+    const val TYPE_SEARCH_USER = 1
+    const val TYPE_USER_LOGGED_IN = 2
+
 }

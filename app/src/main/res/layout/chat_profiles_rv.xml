@@ -34,7 +34,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/messagesTV"
         app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
-        app:strokeColor="@color/chat_active"
+        app:strokeColor="@color/orangePink"
         app:strokeWidth="3dp" />
 
     <TextView
@@ -92,7 +92,7 @@
         android:text="99+"
         android:textSize="14sp"
         android:textStyle="bold"
-        app:backgroundTint="@color/chat_active"
+        app:backgroundTint="@color/orange"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="@id/profileRecentMessage"
         app:layout_constraintEnd_toEndOf="parent"

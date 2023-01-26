@@ -12,7 +12,7 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.Reel
 import com.sekhgmainuddin.timeshare.databinding.UploadedReelsLayoutRvBinding
 
-class ProfileReelsAdapter(val context: Context) :
+class ProfileReelsAdapter(val context: Context, val selectedReel : (Reel) -> Unit) :
     ListAdapter<Reel, ProfileReelsAdapter.ReelViewHolder>(ReelDiffCallback()) {
 
     private class ReelDiffCallback() : DiffUtil.ItemCallback<Reel>() {
@@ -33,7 +33,7 @@ class ProfileReelsAdapter(val context: Context) :
     override fun onBindViewHolder(holder: ReelViewHolder, position: Int) {
         holder.loadView(currentList[position])
         holder.itemView.setOnLongClickListener {
-            Toast.makeText(context, "Item $position Pressed", Toast.LENGTH_SHORT).show()
+            selectedReel.invoke(currentList[position])
             true
         }
     }

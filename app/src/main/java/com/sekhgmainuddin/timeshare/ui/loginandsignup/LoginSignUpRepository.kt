@@ -58,6 +58,7 @@ class LoginSignUpRepository @Inject constructor(
                 val user = response.user
                 val newUser = User(
                     user?.displayName ?: "",
+                    "",
                     user?.email ?: "",
                     user?.phoneNumber ?: "",
                     user?.photoUrl.toString(),
@@ -68,6 +69,7 @@ class LoginSignUpRepository @Inject constructor(
                     null
                 )
                 user?.uid?.let {
+                    newUser.userId= it
                     firebaseFirestore.collection("Users").document(it).set(newUser).await()
                 }
                 _result.postValue(NetworkResult.Success(response.user!!, 201))

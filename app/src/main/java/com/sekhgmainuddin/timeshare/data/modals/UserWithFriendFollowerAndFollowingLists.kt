@@ -4,6 +4,7 @@ import com.google.firebase.database.PropertyName
 
 data class UserWithFriendFollowerAndFollowingLists (
     @PropertyName("name") val name: String,
+    @PropertyName("userId") var userId: String= "",
     @PropertyName("email") val email: String = "",
     @PropertyName("phone") val phone: String = "",
     @PropertyName("imageUrl") val imageUrl: String,
@@ -17,5 +18,5 @@ data class UserWithFriendFollowerAndFollowingLists (
     @PropertyName("isVerified") val isVerified: Boolean = false,
 
     ) {
-    constructor() : this ("","","","","",null, "",0L, emptyMap(), emptyMap(), emptyMap(),false)
+    constructor() : this ("","","","","","",null, "",0L, emptyMap(), emptyMap(), emptyMap(),false)
 }

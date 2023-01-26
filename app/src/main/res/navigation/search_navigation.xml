@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/search_navigation"
+    app:startDestination="@id/searchPostFragment"
+    >
+    <fragment
+        android:id="@+id/searchPostFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.search.fragments.SearchPostFragment"
+        android:label="fragment_search_post"
+        tools:layout="@layout/fragment_search_post"
+        />
+    <fragment
+        android:id="@+id/searchAccountFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.search.fragments.SearchAccountFragment"
+        android:label="fragment_search_account"
+        tools:layout="@layout/fragment_search_account" />
+</navigation>

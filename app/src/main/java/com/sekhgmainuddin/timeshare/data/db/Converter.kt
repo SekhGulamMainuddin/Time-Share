@@ -10,8 +10,8 @@ import kotlinx.serialization.json.Json
 @OptIn(ExperimentalSerializationApi::class)
 class Converter {
     @TypeConverter
-    fun fromList(value : List<PostImageVideo>) = Json.encodeToString(value)
+    fun fromList(value : MutableList<PostImageVideo>) = Json.encodeToString(value)
 
     @TypeConverter
-    fun toList(value: String) = Json.decodeFromString<List<PostImageVideo>>(value)
+    fun toList(value: String) = Json.decodeFromString<MutableList<PostImageVideo>>(value)
 }

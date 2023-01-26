@@ -1,5 +1,6 @@
 package com.sekhgmainuddin.timeshare.ui.home.home
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -15,6 +16,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.modals.Post
 import com.sekhgmainuddin.timeshare.data.modals.Status
@@ -35,12 +37,18 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
     private val viewModel by activityViewModels<HomeViewModel>()
     private val oldFriendList= ArrayList<String>()
     private lateinit var postsAdapter: PostsAdapter
+    private lateinit var progressDialog: Dialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding= FragmentHomeScreenBinding.inflate(inflater)
+        progressDialog = Dialog(requireContext())
+        progressDialog.setContentView(R.layout.progress_dialog)
+        progressDialog.setCancelable(false)
+        progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
         return _binding!!.root
     }
 
@@ -54,12 +62,16 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
     }
 
     private fun initialize() {
+        progressDialog.show()
+
         postsAdapter= PostsAdapter(requireContext(), this)
         val layoutManager= LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.postRecyclerView.layoutManager= layoutManager
         binding.postRecyclerView.adapter= postsAdapter
 
+        viewModel.getUserData(null)
         viewModel.getUserData()
+
 
         val list= ArrayList<Status>()
         for (i in 0..10) {
@@ -93,6 +105,15 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
         viewModel.allPosts.observe(viewLifecycleOwner) {
             if (it.isNotEmpty())
                 postsAdapter.submitList(it)
+        }
+        viewModel.userDetails.observe(viewLifecycleOwner){
+            it.onSuccess {
+                progressDialog.dismiss()
+            }
+            it.onFailure {
+                progressDialog.dismiss()
+                Toast.makeText(requireContext(), "Failed to fetch user details", Toast.LENGTH_SHORT).show()
+            }
         }
 
     }

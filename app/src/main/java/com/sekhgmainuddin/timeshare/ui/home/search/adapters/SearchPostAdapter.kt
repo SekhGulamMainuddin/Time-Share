@@ -1,11 +1,10 @@
-package com.sekhgmainuddin.timeshare.ui.home.profile.adapters
+package com.sekhgmainuddin.timeshare.ui.home.search.adapters
 
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,9 +15,10 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.Post
-import com.sekhgmainuddin.timeshare.databinding.PostLayoutInProfileBinding
+import com.sekhgmainuddin.timeshare.databinding.SearchPostLayoutRvBinding
+import com.sekhgmainuddin.timeshare.ui.home.search.layoutmanager.SpanSize
 
-class ProfilePostsAdapter(val context: Context, val selectedPost: (Post) -> (Unit)) : ListAdapter<Pair<Post, String>, ProfilePostsAdapter.ProfilePostsViewHolder>(ProfilePostDiffCallBack()) {
+class SearchPostAdapter(val context: Context, val selectedPost: (Post) -> (Unit), val instantView: (Post) -> (Unit)) : ListAdapter<Pair<Post, String>, SearchPostAdapter.SearchPostViewHolder>(ProfilePostDiffCallBack()) {
 
     private class ProfilePostDiffCallBack(): DiffUtil.ItemCallback<Pair<Post, String>>(){
         override fun areItemsTheSame(
@@ -38,21 +38,25 @@ class ProfilePostsAdapter(val context: Context, val selectedPost: (Post) -> (Uni
     }
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfilePostsViewHolder {
-        return ProfilePostsViewHolder(PostLayoutInProfileBinding.inflate(LayoutInflater.from(context), parent, false), context)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchPostViewHolder {
+        return SearchPostViewHolder(SearchPostLayoutRvBinding.inflate(LayoutInflater.from(context), parent, false), context)
     }
 
-    override fun onBindViewHolder(holder: ProfilePostsViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SearchPostViewHolder, position: Int) {
         holder.initialize(currentList[position].second)
-        holder.itemView.setOnLongClickListener {
+        holder.itemView.setOnClickListener{
             selectedPost.invoke(currentList[position].first)
+        }
+        holder.itemView.setOnLongClickListener {
+            instantView.invoke(currentList[position].first)
             true
         }
     }
 
-    class ProfilePostsViewHolder(val binding: PostLayoutInProfileBinding, val context: Context): RecyclerView.ViewHolder(binding.root){
+    class SearchPostViewHolder(val binding: SearchPostLayoutRvBinding, val context: Context): RecyclerView.ViewHolder(binding.root){
         fun initialize(postImageUrl: String){
-            Glide.with(context).load(postImageUrl).addListener(object: RequestListener<Drawable>{
+
+            Glide.with(context).load(postImageUrl).addListener(object: RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,

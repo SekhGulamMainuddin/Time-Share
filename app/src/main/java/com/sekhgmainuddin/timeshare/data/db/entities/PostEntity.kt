@@ -14,7 +14,7 @@ data class PostEntity (
     @ColumnInfo(name = "creatorId") val creatorId: String,
     @ColumnInfo(name = "postDesc") val postDesc: String,
     @ColumnInfo(name = "postTime") val postTime: Long,
-    @ColumnInfo(name = "postContent") @TypeConverters(Converter::class) val postContent: List<PostImageVideo>?,
+    @ColumnInfo(name = "postContent") @TypeConverters(Converter::class) val postContent: MutableList<PostImageVideo>?,
     @ColumnInfo(name = "creatorName") val creatorName: String,
     @ColumnInfo(name = "creatorProfileImage") val creatorProfileImage: String,
     @ColumnInfo(name = "likesCount") val likesCount: Int,

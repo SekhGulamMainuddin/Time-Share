@@ -44,7 +44,7 @@ class ImageVideoViewPagerAdapter(val context: Context, val post: PostEntity, val
 
         if (item.imageOrVideo == 0) {
             holder.postImage.visibility = View.VISIBLE
-            Glide.with(context).load(item.imageUrl).placeholder(R.drawable.default_profile_pic)
+            Glide.with(context).load(item.imageUrl).placeholder(R.drawable.white_image)
                 .into(holder.postImage)
 
             holder.postImage.setOnClickListener(listener)

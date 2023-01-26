@@ -52,6 +52,7 @@ class MyProfileFragment : Fragment() {
         progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         progressDialog.show()
 
+        viewModel.getUserReels()
         viewModel.getAllPosts()
         viewModel.getUserData(null)
         bindObservers()
@@ -203,12 +204,12 @@ class MyProfileFragment : Fragment() {
     private fun bindObservers() {
         viewModel.userDetails.observe(viewLifecycleOwner) {
             progressDialog.dismiss()
-            progressDialog.dismiss()
             it.onSuccess{_->
                 it.getOrNull()?.let { user ->
                     userDetails = user
                     userData = User(
                         user.name,
+                        user.userId,
                         user.email,
                         user.phone,
                         user.imageUrl,

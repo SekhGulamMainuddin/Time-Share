@@ -25,6 +25,9 @@ class HomeViewModel @Inject constructor(
 
     val firebaseUser= firebaseAuth.currentUser
     val userData= MutableLiveData<User>()
+    val postPassedToView= MutableLiveData<Post>()
+    val reelPassedToView= MutableLiveData<Reel>()
+
 
     fun getUserData() = viewModelScope.launch(Dispatchers.IO){
         homeRepository.getUserData().collectLatest {
@@ -37,6 +40,8 @@ class HomeViewModel @Inject constructor(
 
     val userDetails: LiveData<Result<UserWithFriendFollowerAndFollowingLists>>
         get() = homeRepository.userDetails
+    val searchUserDetails: LiveData<Result<UserWithFriendFollowerAndFollowingLists?>>
+        get() = homeRepository.searchUserDetails
 
     fun getUserData(userId: String?) = viewModelScope.launch(Dispatchers.IO){
         homeRepository.getUserData(userId)
@@ -51,7 +56,8 @@ class HomeViewModel @Inject constructor(
     val allPosts= homeRepository.allPosts
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getLatestPosts(friendsList: List<String>)= viewModelScope.launch(Dispatchers.IO) {
+    fun getLatestPosts(friendsList: MutableList<String>)= viewModelScope.launch(Dispatchers.IO) {
+        friendsList.add(firebaseUser?.uid!!)
         homeRepository.getLatestPosts(friendsList).collectLatest {
             if (it.isSuccess) {
                 it.getOrNull()?.let { data ->
@@ -136,8 +142,8 @@ class HomeViewModel @Inject constructor(
 
     val newReels= MutableLiveData<ArrayList<Reel>>()
 
-    fun getReels(oldReels: List<String> = listOf("noIdPassed"))= viewModelScope.launch(Dispatchers.IO){
-        val result= homeRepository.getReels(oldReels)
+    fun getReels(oldReels: List<String> = listOf("noIdPassed"), showUserReels: Boolean= false)= viewModelScope.launch(Dispatchers.IO){
+        val result= homeRepository.getReels(oldReels, showUserReels)
         if (result!=null){
             val userList= result.second.let { homeRepository.getUserDataById(it) }
             result.first.forEach { reel->
@@ -198,20 +204,44 @@ class HomeViewModel @Inject constructor(
         homeRepository.addCommentToReel(reelId, comment)
     }
 
-    val posts= MutableLiveData<List<Pair<String, String>>?>()
+    val posts= MutableLiveData<List<Pair<Post, String>>?>()
+    val otherUserPosts= MutableLiveData<List<Pair<Post, String>>?>()
 
-    fun getAllPosts(oldList: List<String> = listOf("noList"))= viewModelScope.launch(Dispatchers.IO){
-        posts.postValue(null)
-        val response= homeRepository.getAllPosts(oldList)
-        posts.postValue(response)
+    fun getAllPosts(oldList: List<String> = listOf("noList"), userId: String?= null)= viewModelScope.launch(Dispatchers.IO){
+        if (userId==null){
+            posts.postValue(null)
+        }else{
+            otherUserPosts.postValue(null)
+        }
+        val response= homeRepository.getAllPosts(oldList, userId)
+        if (userId==null){
+            posts.postValue(response)
+        }else{
+            otherUserPosts.postValue(response)
+        }
+    }
+
+    val searchFragmentPosts= MutableLiveData<List<Pair<Post, String>>?>()
+
+    fun getAllPostsForSearchFragment(oldList: List<String> = listOf("noList"), searchFragmentPost: Boolean)= viewModelScope.launch(Dispatchers.IO){
+        val response= homeRepository.getAllPosts(oldList, searchFragmentPost)
+        searchFragmentPosts.postValue(response)
     }
 
     val userUploadedReels: LiveData<NetworkResult<List<Reel>>>
         get() = homeRepository.userUploadedReels
 
-    fun getUserReels(oldList: List<String> = listOf("noid"))= viewModelScope.launch(Dispatchers.IO){
-        homeRepository.getUserPostedReels(oldList)
+    val searchUserUploadedReels: LiveData<NetworkResult<List<Reel>?>>
+        get() = homeRepository.searchUserUploadedReels
+
+    fun getUserReels(oldList: List<String> = listOf("noid"), userId: String?= null)= viewModelScope.launch(Dispatchers.IO){
+        homeRepository.getUserPostedReels(oldList, userId)
     }
 
+    val profilesFromSearchQuery= homeRepository.profilesFromSearchQuery
+
+    fun getProfilesFromSearch(query: String)= viewModelScope.launch(Dispatchers.IO){
+        homeRepository.getProfileFromSearch(query)
+    }
 
 }

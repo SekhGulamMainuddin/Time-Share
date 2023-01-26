@@ -1,9 +1,11 @@
 package com.sekhgmainuddin.timeshare.ui.home
 
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -28,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
     @Inject
     lateinit var firebaseDatabase: DatabaseReference
-    private var currSelectedPage: Int= R.id.home
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +82,14 @@ class MainActivity : AppCompatActivity() {
 
             true
         }
+    }
+
+    override fun onBackPressed() {
+        navController.popBackStack()
+//        when(navController.currentBackStackEntry?.id){
+//
+//        }
+//        super.onBackPressed()
     }
 
 

@@ -46,4 +46,10 @@
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
+    <declare-styleable name="SpannedGridLayoutManager">
+        <attr name="android:orientation" />
+        <attr name="spanCount" />
+        <attr name="aspectRatio" format="string" />
+    </declare-styleable>
+
 </resources>

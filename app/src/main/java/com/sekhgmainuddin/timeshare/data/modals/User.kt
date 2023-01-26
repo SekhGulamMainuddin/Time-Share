@@ -4,6 +4,7 @@ import com.google.firebase.database.PropertyName
 
 data class User(
     @PropertyName("name") val name: String,
+    @PropertyName("userId") var userId: String= "",
     @PropertyName("email") val email: String = "",
     @PropertyName("phone") val phone: String = "",
     @PropertyName("imageUrl") val imageUrl: String,
@@ -17,5 +18,5 @@ data class User(
     @PropertyName("isVerified") val isVerified: Boolean = false,
 
 ) : java.io.Serializable {
-    constructor() : this ("","","","","",null, "",0L, null, null, null,false)
+    constructor() : this ("","","","","","",null, "",0L, null, null, null,false)
 }

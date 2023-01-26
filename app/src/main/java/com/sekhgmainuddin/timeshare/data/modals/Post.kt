@@ -4,11 +4,10 @@ import java.io.Serializable
 
 
 data class Post (
-
     var postId: String= "",
     var creatorId: String= "",
     var postDesc: String= "",
-    var postContent: List<PostImageVideo>? = null,
+    var postContent: MutableList<PostImageVideo>? = null,
     var creatorName: String= "",
     var creatorProfileImage: String= "",
     var postTime: Long= 0L,
