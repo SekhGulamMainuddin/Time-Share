@@ -2,7 +2,6 @@ package com.sekhgmainuddin.timeshare.data.modals
 
 import java.io.Serializable
 
-
 data class Post (
     var postId: String= "",
     var creatorId: String= "",

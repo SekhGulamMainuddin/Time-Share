@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -80,8 +81,7 @@ class ChatsAdapter(val context: Context, val chatProfileImage: String, val fireb
                 }
             }
             if (chatEntity.senderId!= firebaseUserId){
-                messageStatus.visibility= View.VISIBLE
-                messageStatus.setImageResource(R.drawable.ic_baseline_check_circle_24)
+                messageStatus.isVisible= false
                 when(chatEntity.messageStatus){
                     MSG_OLD-> {
                         messageStatus.visibility= View.GONE
@@ -97,7 +97,8 @@ class ChatsAdapter(val context: Context, val chatProfileImage: String, val fireb
                     }
                 }
             }else{
-                messageStatus.visibility= View.GONE
+                messageStatus.isVisible= true
+                messageStatus.setImageResource(R.drawable.ic_baseline_check_circle_24)
             }
         }
 

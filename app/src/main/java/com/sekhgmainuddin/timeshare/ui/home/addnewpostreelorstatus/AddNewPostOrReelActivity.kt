@@ -1,11 +1,8 @@
-package com.sekhgmainuddin.timeshare.ui.home.addnewpostorreel
+package com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -15,8 +12,8 @@ import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.PostImageVideo
 import com.sekhgmainuddin.timeshare.databinding.ActivityAddNewPostOrReelBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
-import com.sekhgmainuddin.timeshare.ui.home.addnewpostorreel.adapters.ImageVideoViewPagerAdapter
-import com.sekhgmainuddin.timeshare.ui.home.addnewpostorreel.adapters.onClick
+import com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.adapters.ImageVideoViewPagerAdapter
+import com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.adapters.onClick
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.getFileExtension
 import com.sekhgmainuddin.timeshare.utils.Utils.isImageOrVideo

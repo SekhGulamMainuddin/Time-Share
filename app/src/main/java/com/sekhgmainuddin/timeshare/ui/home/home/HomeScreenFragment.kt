@@ -75,14 +75,14 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
 
         val list= ArrayList<Status>()
         for (i in 0..10) {
-            list.add(Status("",""))
+            list.add(Status())
         }
 
         Handler(Looper.getMainLooper()).postDelayed({
             postsAdapter.updateStatus(list)
             Handler(Looper.getMainLooper()).postDelayed({
                 for (i in 0..10) {
-                    list.add(Status("",""))
+                    list.add(Status())
                 }
                 postsAdapter.updateStatus(list)
             },3000)

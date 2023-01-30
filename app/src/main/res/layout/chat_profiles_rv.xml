@@ -29,13 +29,12 @@
         android:padding="5dp"
         android:scaleType="centerCrop"
         android:src="@drawable/default_profile_pic"
-        app:contentPadding="3dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/messagesTV"
         app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
         app:strokeColor="@color/orangePink"
-        app:strokeWidth="3dp" />
+        app:strokeWidth="4dp" />
 
     <TextView
         android:id="@+id/profileName"

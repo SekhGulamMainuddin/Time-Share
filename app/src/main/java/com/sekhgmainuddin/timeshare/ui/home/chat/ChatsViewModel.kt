@@ -9,6 +9,7 @@ import com.sekhgmainuddin.timeshare.data.db.TimeShareDbDao
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
 import com.sekhgmainuddin.timeshare.data.modals.User
+import com.sekhgmainuddin.timeshare.ui.home.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,13 +23,8 @@ class ChatsViewModel @Inject constructor(
     private val chatsRepository: ChatsRepository,
     private val dao: TimeShareDb
 ) :ViewModel(){
-
-    init {
-        CoroutineScope(Dispatchers.IO).launch{
-            dao.getDao().deleteAllChats()
-        }
-    }
-
+    
+    val user= chatsRepository.user
     val chatList= chatsRepository.chatsList
     val recentChatProfiles= chatsRepository.recentChatProfiles
 
@@ -91,5 +87,8 @@ class ChatsViewModel @Inject constructor(
 //            }
 //        }
     }
+
+
+
 
 }

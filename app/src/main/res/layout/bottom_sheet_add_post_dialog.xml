@@ -7,56 +7,119 @@
     android:background="@drawable/bottom_sheet_background"
     android:backgroundTint="@color/white">
 
-    <ImageButton
-        android:id="@+id/addPostButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/add_post_icon"
-        android:scaleType="centerInside"
-        android:padding="5dp"
-        android:background="@android:color/transparent"
-        app:tint="@color/orangePink"
-        app:layout_constraintStart_toStartOf="@id/appPostTV"
-        app:layout_constraintEnd_toEndOf="@id/appPostTV"
-        android:contentDescription="@string/post"
-        app:layout_constraintBottom_toTopOf="@id/appPostTV"/>
-
-    <TextView
-        android:id="@+id/appPostTV"
+    <LinearLayout
+        android:id="@+id/addStatusButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="vertical"
+        android:gravity="center"
         app:layout_constraintStart_toStartOf="parent"
-        android:text="@string/post"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:textSize="14sp"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <ImageButton
-        android:id="@+id/addReelsButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/reels_icon"
-        android:scaleType="centerInside"
-        android:padding="5dp"
-        android:background="@android:color/transparent"
-        app:tint="@color/orangePink"
-        app:layout_constraintBottom_toTopOf="@id/addReelsTV"
-        app:layout_constraintStart_toStartOf="@id/addReelsTV"
-        app:layout_constraintEnd_toEndOf="@id/addReelsTV"
-        android:contentDescription="@string/add_reels" />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/addReelsTV"
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/status_icon"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/add_status"
+                />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/profileImage"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                app:srcCompat="@drawable/default_profile_pic"
+                />
+
+            <ImageButton
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_baseline_add_circle_24"
+                app:tint="@color/orangePink"
+                android:layout_gravity="end|bottom"
+                android:backgroundTint="@color/white"
+                />
+
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_status"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/addPostButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintStart_toEndOf="@id/addStatusButton"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/appPostTV"
-        android:layout_marginStart="30dp"
-        android:text="@string/add_reels"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:textSize="14sp"/>
+        android:layout_marginStart="30dp">
 
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/add_post_icon"
+            android:scaleType="centerInside"
+            android:padding="5dp"
+            android:background="@android:color/transparent"
+            app:tint="@color/orangePink"
+            android:contentDescription="@string/post"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/post"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/addReelsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toEndOf="@id/addPostButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:gravity="center">
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/reels_icon"
+            android:scaleType="centerInside"
+            android:padding="5dp"
+            android:background="@android:color/transparent"
+            app:tint="@color/orangePink"
+            android:contentDescription="@string/add_reels" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_reels"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

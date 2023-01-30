@@ -1,7 +1,9 @@
 package com.sekhgmainuddin.timeshare.ui.home.chat
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
@@ -24,99 +26,109 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
     private val viewModel by viewModels<ChatsViewModel>()
+
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var adapter: ChatsAdapter
+    private lateinit var chatAdapter: ChatsAdapter
     private var profileId: String? = null
-    private var profileName: String? = null
-    private var profileImageUrl: String? = null
+    private var profile: User? = null
     private var profileActiveStatus: Long = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityChatBinding.inflate(layoutInflater)
+        binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        profileId= intent.getStringExtra("profileId")
-        profileName= intent.getStringExtra("profileName")
-        profileImageUrl= intent.getStringExtra("profileImageUrl")
+        val bundle = intent.getBundleExtra("profileBundle")
+        profileId = bundle?.getString("profileId")
+        profile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            bundle?.getSerializable("profile", User::class.java)
+        else
+            bundle?.getSerializable("profile") as User
 
-        updateProfileData(User(name = profileName?:"", imageUrl = profileImageUrl?:"", activeStatus = -1))
+        updateProfileData(
+            User(
+                name = profile?.name ?: "",
+                imageUrl = profile?.imageUrl ?: "",
+                activeStatus = profile?.activeStatus ?: -1
+            )
+        )
         loadData()
         registerClickListeners()
         bindObserver()
 
     }
 
-    fun updateProfileData(user: User){
-        if (user.name != profileName) {
-            profileName = user.name
-            binding.profileName.text= profileName
-        }
-        if (user.imageUrl != profileImageUrl) {
-            profileImageUrl = user.imageUrl
-            Glide.with(this).load(profileImageUrl).placeholder(R.drawable.default_profile_pic).into(binding.profileImage)
-        }
-        if (user.activeStatus != profileActiveStatus) {
-            profileActiveStatus = user.activeStatus
-            val status= when (profileActiveStatus) {
-                -1L, 0L -> ""
-                1L -> "Active"
-                else -> profileActiveStatus.getTimeAgo()!!
+    fun updateProfileData(user: User) {
+        binding.apply {
+            profileName.text = profile?.name?:""
+            Glide.with(this@ChatActivity).load(profile?.imageUrl?:"").placeholder(R.drawable.default_profile_pic)
+                .into(profileImage)
+            if (user.activeStatus != profileActiveStatus) {
+                profileActiveStatus = user.activeStatus
+                val status = when (profileActiveStatus) {
+                    -1L, 0L -> ""
+                    1L -> "Active"
+                    else -> profileActiveStatus.getTimeAgo()!!
+                }
+                profileStatus.text = status
+                profileStatus.isVisible = status == ""
             }
-            binding.profileStatus.text= status
-            binding.profileStatus.isVisible= status==""
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun loadData(){
+    fun loadData() {
 
-        adapter= ChatsAdapter(this, profileImageUrl!!, firebaseAuth.currentUser?.uid!!)
-        val layoutManager= LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        layoutManager.stackFromEnd= true
-        binding.chatsRecyclerView.layoutManager= layoutManager
-        binding.chatsRecyclerView.adapter= adapter
+        chatAdapter = ChatsAdapter(this, profile?.imageUrl ?: "", firebaseAuth.currentUser?.uid!!)
+        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        layoutManager.stackFromEnd = true
+        binding.chatsRecyclerView.layoutManager = layoutManager
+        binding.chatsRecyclerView.adapter = chatAdapter
 
-        viewModel.getProfileDetails(profileId!!)
         viewModel.getLatestChats(profileId!!)
 
     }
 
-    fun registerClickListeners(){
-        binding.backButton.setOnClickListener {
-            finish()
-        }
-        binding.sendMessage.setOnClickListener {
-            if (binding.messageInputET.text.toString().isNotEmpty()){
-                viewModel.sendMessage(profileId!!, MSG_TYPE_MESSAGE,
-                    binding.messageInputET.text.toString(), "")
+    fun registerClickListeners() {
+        binding.apply {
+            backButton.setOnClickListener {
+                finish()
             }
-            else{
-                Toast.makeText(this, "Message field is Empty.\nPlease add some message.", Toast.LENGTH_SHORT).show()
+            sendMessage.setOnClickListener {
+                if (messageInputET.text.toString().isNotEmpty()) {
+                    viewModel.sendMessage(
+                        profileId!!, MSG_TYPE_MESSAGE,
+                        messageInputET.text.toString(), ""
+                    )
+                    messageInputET.text.clear()
+                } else {
+                    Toast.makeText(
+                        this@ChatActivity,
+                        "Message field is Empty.\nPlease add some message.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
 
-    fun bindObserver(){
-        viewModel.sendMessageStatus.observe(this){
-            when(it){
-                is NetworkResult.Success-> {
+    fun bindObserver() {
+        viewModel.sendMessageStatus.observe(this) {
+            when (it) {
+                is NetworkResult.Success -> {
                     Toast.makeText(this, "Message Sent", Toast.LENGTH_SHORT).show()
                 }
-                is NetworkResult.Error-> {
+                is NetworkResult.Error -> {
                     Toast.makeText(this, "Some Error Occurred", Toast.LENGTH_SHORT).show()
                 }
-                is NetworkResult.Loading-> {
+                is NetworkResult.Loading -> {
 
                 }
             }
         }
-        viewModel.chatList.observe(this){
-            adapter.submitList(it)
-        }
-        viewModel.profileDetail.observe(this){
-            updateProfileData(it)
+        viewModel.chatList.observe(this) {
+            chatAdapter.submitList(it)
         }
     }
 

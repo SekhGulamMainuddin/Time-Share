@@ -1,22 +1,21 @@
 package com.sekhgmainuddin.timeshare.data.modals
 
-import com.google.firebase.database.PropertyName
-
+@kotlinx.serialization.Serializable
 data class User(
-    @PropertyName("name") val name: String,
-    @PropertyName("userId") var userId: String= "",
-    @PropertyName("email") val email: String = "",
-    @PropertyName("phone") val phone: String = "",
-    @PropertyName("imageUrl") val imageUrl: String,
-    @PropertyName("bio") val bio: String? = null,
-    @PropertyName("interests") val interests: ArrayList<String>? = null,
-    @PropertyName("location") val location: String? = null,
-    @PropertyName("activeStatus") val activeStatus: Long = 0L,
-    @PropertyName("friends") val friends: ArrayList<String>? = null,
-    @PropertyName("followers") val followers: ArrayList<String>? = null,
-    @PropertyName("following") val following: ArrayList<String>? = null,
-    @PropertyName("isVerified") val isVerified: Boolean = false,
+    val name: String = "",
+    var userId: String= "",
+    val email: String = "",
+    val phone: String = "",
+    val imageUrl: String = "",
+    val bio: String? = null,
+    val interests: ArrayList<String>? = null,
+    val location: String? = null,
+    val activeStatus: Long = 0L,
+    val friends: ArrayList<String>? = null,
+    val followers: ArrayList<String>? = null,
+    val following: ArrayList<String>? = null,
+    val isVerified: Boolean = false,
+    val status: Status? = null,
+    val isSelected: Boolean = false
 
-) : java.io.Serializable {
-    constructor() : this ("","","","","","",null, "",0L, null, null, null,false)
-}
+) : java.io.Serializable

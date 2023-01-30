@@ -6,8 +6,9 @@ import androidx.room.TypeConverters
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 
-@Database(entities = [ChatEntity::class, RecentProfileChatsEntity::class, PostEntity::class], version = 8, exportSchema = false)
+@Database(entities = [ChatEntity::class, RecentProfileChatsEntity::class, PostEntity::class, UserEntity::class], version = 11, exportSchema = false)
 @TypeConverters(Converter::class)
 abstract class TimeShareDb: RoomDatabase() {
 

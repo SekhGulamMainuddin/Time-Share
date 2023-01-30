@@ -6,6 +6,4 @@ data class CommentWithProfile (
     val profileImage: String= "",
     val comment: String= "",
     val commentTime: Long= 0L,
-) {
-    constructor() : this ("","","","",0L)
-}
+)

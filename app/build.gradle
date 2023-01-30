@@ -49,6 +49,8 @@ android {
 }
 
 dependencies {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation 'io.agora.rtc:full-sdk:4.0.1'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
     implementation 'com.google.android.exoplayer:exoplayer-core:2.18.2'
@@ -56,6 +58,7 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-smoothstreaming:2.18.2'
     implementation 'com.github.3llomi:RecordView:3.1.2'
     implementation 'com.github.bumptech.glide:glide:4.14.2'
+    implementation 'com.google.firebase:firebase-messaging:23.1.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
 
     implementation 'com.google.android.gms:play-services-auth:20.4.1'

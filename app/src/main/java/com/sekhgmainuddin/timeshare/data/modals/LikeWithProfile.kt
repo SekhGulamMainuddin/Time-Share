@@ -5,6 +5,4 @@ data class LikeWithProfile (
     val profileName: String= "",
     val profileImage: String= "",
     val likedTime: Long= 0L,
-) {
-    constructor() : this ("","","",0L)
-}
+)

@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,40 +41,31 @@ class ChatsListFragment : Fragment(), onClicked {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter= ChatsListAdapter(requireContext(),this)
-        binding.chatsListRV.adapter= adapter
-
+        initialize()
         viewModel.getRecentProfileChats()
-
-//        findNavController().navigate(R.id.action_chatsListFragment_to_chatFragment)
-
-    /*    binding.chatsListRV.addOnScrollListener(object: RecyclerView.OnScrollListener(){
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 0) {
-                    //You should HIDE filter view here
-                } else if (dy < 0) {
-                    System.out.println("Scrolled Upwards");
-                    if ((binding.chatsListRV.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition() == 0) {
-                        //this is the top of the RecyclerView
-                        System.out.println("==================================== >>>> Detect top of the item List");
-                        //You should visible filter view here
-                    } else {
-                        //You should HIDE filter view here
-                    }
-                } else {
-                    System.out.println("No Vertical Scrolled");
-                    //You should HIDE filter view here
-                }
-            }
-        })*/
-
         bindObservers()
 
     }
 
+    private fun initialize() {
+        adapter= ChatsListAdapter(requireContext(),this)
+        binding.apply{
+            chatsListRV.adapter = adapter
+            messageTo.setOnClickListener {
+                findNavController().navigate(R.id.friendsListFragment)
+            }
+        }
+    }
+
     fun bindObservers(){
         viewModel.recentChatProfiles.observe(viewLifecycleOwner){
-            adapter.submitList(it)
+            if (adapter.currentList.size==1 && it.size>1){
+                adapter.submitList(it)
+                adapter.notifyDataSetChanged()
+            }else{
+                adapter.submitList(it)
+            }
+
         }
     }
 
@@ -83,11 +75,14 @@ class ChatsListFragment : Fragment(), onClicked {
     }
 
     override fun onProfileClicked(profileId: String, profileName: String, profileImageUrl: String) {
-        startActivity(Intent(requireContext(), ChatActivity::class.java)
-            .putExtra("profileId", profileId)
-            .putExtra("profileName", profileName)
-            .putExtra("profileImageUrl", profileImageUrl)
-        )
+        viewModel.user.value?.get(0)?.friends?.get(profileId)?.let{
+            val bundle= Bundle()
+            bundle.putSerializable("profile", it)
+            bundle.putString("profileId", profileId)
+            startActivity(Intent(requireContext(), ChatActivity::class.java)
+                .putExtra("profileBundle", bundle)
+            )
+        }
     }
 
 }

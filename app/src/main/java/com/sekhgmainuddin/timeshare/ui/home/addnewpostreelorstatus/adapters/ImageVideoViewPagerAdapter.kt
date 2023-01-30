@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.addnewpostorreel.adapters
+package com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.adapters
 
 import android.content.Context
 import android.net.Uri

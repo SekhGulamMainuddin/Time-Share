@@ -9,6 +9,7 @@ import androidx.room.Query
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 
 @Dao
 interface TimeShareDbDao {
@@ -42,5 +43,11 @@ interface TimeShareDbDao {
 
     @Query("SELECT * from post_entity order by postTime DESC")
     fun getAllPosts(): LiveData<List<PostEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(user: UserEntity)
+
+    @Query("SELECT * from user_table")
+    fun getUser() : LiveData<List<UserEntity>>
 
 }

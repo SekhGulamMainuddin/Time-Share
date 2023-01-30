@@ -13,6 +13,7 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.StorageReference
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils
@@ -45,6 +46,10 @@ class HomeRepository @Inject constructor(
 
     fun deleteAllPosts() {
         timeShareDbDao.deleteAllPosts()
+    }
+
+    fun insert(user: UserEntity) {
+        timeShareDbDao.insert(user)
     }
 
     suspend fun getUserDataById(listIds: Set<String>): HashMap<String, User> {
@@ -126,6 +131,7 @@ class HomeRepository @Inject constructor(
                         )
                         if (user_Id==null){
                             currentLoggedUser= userDetails
+                            insert(UserEntity(userDetails.userId, userDetails.friends))
                             Log.d("userDetails", "getUserData: $followersList $followingList $friendList")
                             _userDetails.postValue(Result.success(userDetails))
                         }else{
@@ -136,6 +142,7 @@ class HomeRepository @Inject constructor(
                 }
             }
         }catch (e: Exception){
+            Log.d("userDetails", "getUserData: $e")
             if (user_Id==null)
                 _userDetails.postValue(Result.failure(e))
             else

@@ -56,7 +56,6 @@ class SearchAccountAdapter(val context: Context, val accountClicked: (User) -> U
                 profileLocation.text= user.location
                 followedBy.isVisible= !mutualFollowers.isNullOrEmpty()
                 followedBy.text= mutualFollowers.toString()
-                Log.d("searchQuery", "getProfileFromSearch: $mutualFollowers")
             }
         }
     }

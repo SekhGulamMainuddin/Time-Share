@@ -35,6 +35,7 @@ class ChatsRepository @Inject constructor(
     private val firebaseUser = firebaseAuth.currentUser
     private val timeShareDbDao = timeShareDb.getDao()
 
+    val user= timeShareDbDao.getUser()
     val chatsList = timeShareDbDao.getChats()
     val recentChatProfiles = timeShareDbDao.getRecentChatsList()
 
@@ -190,6 +191,24 @@ class ChatsRepository @Inject constructor(
 //        })
 //
 //
+//    }
+
+    private var _friendsList = MutableLiveData<NetworkResult<List<User>>>()
+    val friendsList: LiveData<NetworkResult<List<User>>>
+        get() = _friendsList
+
+//    suspend fun getFriendsList(){
+//        try {
+//            firebaseUser?.uid?.let {
+//                val userData= firestore.collection("Users").document(it).get().await()
+//                if (userData.exists()){
+//                    val user= userData.toObject(User::class.java)
+//                    val
+//                }
+//            }
+//        }catch (e: Exception){
+//            _friendsList.postValue(NetworkResult.Error(e.message))
+//        }
 //    }
 
 }

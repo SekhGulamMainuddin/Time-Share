@@ -2,9 +2,7 @@ package com.sekhgmainuddin.timeshare.data.modals
 
 @kotlinx.serialization.Serializable
 data class PostImageVideo (
-    val imageOrVideo: Int,
-    val imageUrl: String?,
-    val videoUrl: String?,
-): java.io.Serializable {
-    constructor() : this (0, null, null)
-}
+    val imageOrVideo: Int = 0,
+    val imageUrl: String? = null,
+    val videoUrl: String? = null,
+): java.io.Serializable
