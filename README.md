@@ -14,5 +14,6 @@
   <p><br></p>
   
 # Screenshots
-![Screenshots](https://user-images.githubusercontent.com/73953395/221422507-641be5d0-bf43-4d03-bb5d-c61eb5b2e259.png)
+![Screenshots](https://user-images.githubusercontent.com/73953395/221423545-6bbd56c4-56f6-42be-a6b0-b51b5f7f1a34.png)
+
 
