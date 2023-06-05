@@ -1,9 +1,8 @@
 # Time-Share
 
+Social Media App built using Kotlin and XML. It has functionalities like Chatting, Content Sharing, Voice and Video Conferencing, Reels, etc. BackEnd is on Firebase (Firestore, Realtime DB, Firebase Storage and FCM). Authentication and Sign-Up using Email-Password|Google Sign-In|Phone Number-OTP. Used Agora.io for Voice and Video Conferencing.
   <p><br></p>
-  
   <h3 align="left">Languages and Tools Used:</h3>
-
 <p> 
   <a href="https://developer.android.com" target="_blank" rel="noreferrer"> <img src="https://user-images.githubusercontent.com/73953395/221414435-71f899f1-d053-4ab6-b235-12e253b2bbd8.png" alt="android" width="75" height="75"/> </a>
   <a href="https://kotlinlang.org" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/kotlinlang/kotlinlang-icon.svg" alt="kotlin" width="75" height="75"/> </a> 
