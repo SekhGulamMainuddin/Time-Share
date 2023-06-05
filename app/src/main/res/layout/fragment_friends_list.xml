@@ -42,7 +42,7 @@
                 app:layout_constraintTop_toTopOf="@id/friendsListTitle"
                 app:layout_constraintBottom_toBottomOf="@id/friendsListTitle"
                 android:src="@drawable/edit_icon"
-                app:tint="@color/chat_active"
+                app:tint="@color/green"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

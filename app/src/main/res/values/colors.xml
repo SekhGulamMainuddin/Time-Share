@@ -26,10 +26,11 @@
     <color name="chipNotSelectedColor">#9EFFC8A1</color>
     <color name="login_background">#60000000</color>
     <color name="login_card_background">#39000000</color>
-    <color name="chat_active">#00bc48</color>
+    <color name="green">#00bc48</color>
     <color name="profile_text_color">#3d4149</color>
     <color name="posts_stroke_color">#B9B9B9</color>
     <color name="profile_bio">#5A5B5E</color>
+    <color name="message_seen">#00FF62</color>
 
 
 </resources>

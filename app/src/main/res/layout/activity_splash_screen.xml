@@ -32,5 +32,18 @@
         app:layout_constraintStart_toStartOf="@id/verticalGuideline40"
         app:layout_constraintEnd_toEndOf="@id/verticalGuideline60"/>
 
+    <TextView
+        android:id="@+id/appNameTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        app:layout_constraintTop_toBottomOf="@id/splashImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

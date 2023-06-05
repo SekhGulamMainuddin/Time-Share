@@ -65,7 +65,7 @@
                 app:layout_constraintTop_toTopOf="@id/chatListTitle"
                 app:layout_constraintBottom_toBottomOf="@id/chatListTitle"
                 android:src="@drawable/edit_icon"
-                app:tint="@color/chat_active"
+                app:tint="@color/green"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

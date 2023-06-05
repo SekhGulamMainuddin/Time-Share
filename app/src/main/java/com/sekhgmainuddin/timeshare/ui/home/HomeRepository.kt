@@ -23,6 +23,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.io.File
 import javax.inject.Inject
 import kotlin.math.log
 
@@ -63,7 +64,7 @@ class HomeRepository @Inject constructor(
                     }
                 }
             }
-        }catch (_: Exception){
+        } catch (_: Exception) {
 
         }
         return usersData
@@ -73,15 +74,16 @@ class HomeRepository @Inject constructor(
     val userDetails: LiveData<Result<UserWithFriendFollowerAndFollowingLists>>
         get() = _userDetails
 
-    private var _searchUserDetails = MutableLiveData<Result<UserWithFriendFollowerAndFollowingLists?>>()
+    private var _searchUserDetails =
+        MutableLiveData<Result<UserWithFriendFollowerAndFollowingLists?>>()
     val searchUserDetails: LiveData<Result<UserWithFriendFollowerAndFollowingLists?>>
         get() = _searchUserDetails
 
-    private var currentLoggedUser: UserWithFriendFollowerAndFollowingLists?= null
+    private var currentLoggedUser: UserWithFriendFollowerAndFollowingLists? = null
 
     suspend fun getUserData(user_Id: String? = null) {
         try {
-            if (user_Id!=null)
+            if (user_Id != null)
                 _searchUserDetails.postValue(Result.success(null))
             val response = (user_Id ?: firebaseUser?.uid)?.let {
                 firebaseFireStore.collection("Users").document(
@@ -129,21 +131,27 @@ class HomeRepository @Inject constructor(
                             followersList,
                             followingList
                         )
-                        if (user_Id==null){
-                            currentLoggedUser= userDetails
+                        if (user_Id == null) {
+                            currentLoggedUser = userDetails
                             insert(UserEntity(userDetails.userId, userDetails.friends))
-                            Log.d("userDetails", "getUserData: $followersList $followingList $friendList")
+                            Log.d(
+                                "userDetails",
+                                "getUserData: $followersList $followingList $friendList"
+                            )
                             _userDetails.postValue(Result.success(userDetails))
-                        }else{
-                            Log.d("userDetails", "getSearchUserData: $followersList $followingList $friendList")
+                        } else {
+                            Log.d(
+                                "userDetails",
+                                "getSearchUserData: $followersList $followingList $friendList"
+                            )
                             _searchUserDetails.postValue(Result.success(userDetails))
                         }
                     }
                 }
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("userDetails", "getUserData: $e")
-            if (user_Id==null)
+            if (user_Id == null)
                 _userDetails.postValue(Result.failure(e))
             else
                 _searchUserDetails.postValue(Result.failure(e))
@@ -264,7 +272,7 @@ class HomeRepository @Inject constructor(
                 .update("likeCount", FieldValue.increment(1)).await()
             firebaseFireStore.collection("Posts").document(postId).set(mainMap, SetOptions.merge())
                 .await()
-        }catch (_: Exception){
+        } catch (_: Exception) {
 
         }
     }
@@ -281,19 +289,22 @@ class HomeRepository @Inject constructor(
                 .update("commentCount", FieldValue.increment(1)).await()
             firebaseFireStore.collection("Posts").document(postId).set(mainMap, SetOptions.merge())
                 .await()
-        }catch (_: Exception){
+        } catch (_: Exception) {
 
         }
     }
 
 
-    suspend fun getReels(oldReels: List<String>, showUserReels: Boolean): Pair<ArrayList<Reel>, Set<String>>? {
+    suspend fun getReels(
+        oldReels: List<String>,
+        showUserReels: Boolean
+    ): Pair<ArrayList<Reel>, Set<String>>? {
         try {
-            val reelsResponse = if (showUserReels){
-                firebaseFireStore.collection("Reels").whereEqualTo("creatorId", firebaseUser?.uid).whereNotIn("reelId", oldReels).orderBy("reelId")
+            val reelsResponse = if (showUserReels) {
+                firebaseFireStore.collection("Reels").whereEqualTo("creatorId", firebaseUser?.uid)
+                    .whereNotIn("reelId", oldReels).orderBy("reelId")
                     .orderBy("reelPostTime", Query.Direction.DESCENDING).limit(10).get().await()
-            }
-            else{
+            } else {
                 firebaseFireStore.collection("Reels")
                     .whereNotIn("reelId", oldReels).orderBy("reelId")
                     .orderBy("reelPostTime", Query.Direction.DESCENDING)
@@ -313,7 +324,7 @@ class HomeRepository @Inject constructor(
                     return Pair(reelNewList, userList.toSet())
             }
             return null
-        }catch (_: Exception){
+        } catch (_: Exception) {
             return null
         }
     }
@@ -328,12 +339,14 @@ class HomeRepository @Inject constructor(
 
     suspend fun getUserPostedReels(oldReels: List<String>, userId: String?) {
         try {
-            if (userId==null)
+            if (userId == null)
                 _searchUserUploadedReels.postValue(NetworkResult.Success(null, statusCode = 200))
             firebaseUser?.uid.let { id ->
-                val reelsResponse = firebaseFireStore.collection("Reels").whereEqualTo("creatorId",userId ?: id)
-                    .whereNotIn("reelId", oldReels).orderBy("reelId").orderBy("reelPostTime", Query.Direction.DESCENDING).limit(20).get().await()
-                if (!reelsResponse.isEmpty){
+                val reelsResponse =
+                    firebaseFireStore.collection("Reels").whereEqualTo("creatorId", userId ?: id)
+                        .whereNotIn("reelId", oldReels).orderBy("reelId")
+                        .orderBy("reelPostTime", Query.Direction.DESCENDING).limit(20).get().await()
+                if (!reelsResponse.isEmpty) {
                     val reelNewList = ArrayList<Reel>()
                     reelsResponse.documents.forEach {
                         it.toObject(Reel::class.java)?.let { reel ->
@@ -342,14 +355,19 @@ class HomeRepository @Inject constructor(
                     }
                     Log.d("userReelsList", "getUserPostedReels: $reelNewList")
                     if (reelNewList.isNotEmpty()) {
-                        if (userId==null)
+                        if (userId == null)
                             _userUploadedReels.postValue(NetworkResult.Success(reelNewList, 200))
                         else
-                            _searchUserUploadedReels.postValue(NetworkResult.Success(reelNewList, 200))
+                            _searchUserUploadedReels.postValue(
+                                NetworkResult.Success(
+                                    reelNewList,
+                                    200
+                                )
+                            )
                     }
                 }
             }
-        }catch (_: Exception){
+        } catch (_: Exception) {
 
         }
     }
@@ -417,8 +435,11 @@ class HomeRepository @Inject constructor(
         }
     }
 
-    suspend fun getAllPosts(oldList: List<String>, forSearchFragment: Boolean): List<Pair<Post, String>>? {
-        try{
+    suspend fun getAllPosts(
+        oldList: List<String>,
+        forSearchFragment: Boolean
+    ): List<Pair<Post, String>>? {
+        try {
             val posts = ArrayList<Pair<Post, String>>()
             val postsResponse = firebaseFireStore.collection("Posts")
                 .whereNotIn("postId", oldList).orderBy("postId")
@@ -440,7 +461,7 @@ class HomeRepository @Inject constructor(
                 Log.d("AllPostsOfUser", "getAllPosts: Empty")
                 return null
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             return null
         }
     }
@@ -448,9 +469,10 @@ class HomeRepository @Inject constructor(
     suspend fun getAllPosts(oldList: List<String>, userId: String?): List<Pair<Post, String>>? {
         try {
             val posts = ArrayList<Pair<Post, String>>()
-            val postsResponse = firebaseFireStore.collection("Posts").whereEqualTo("creatorId",userId ?: firebaseUser?.uid)
-                        .whereNotIn("postId", oldList).orderBy("postId")
-                        .orderBy("postTime", Query.Direction.DESCENDING).limit(10).get().await()
+            val postsResponse = firebaseFireStore.collection("Posts")
+                .whereEqualTo("creatorId", userId ?: firebaseUser?.uid)
+                .whereNotIn("postId", oldList).orderBy("postId")
+                .orderBy("postTime", Query.Direction.DESCENDING).limit(10).get().await()
             if (!postsResponse.isEmpty) {
                 postsResponse.documents.forEach {
                     it.toObject(Post::class.java)?.let { post ->
@@ -468,59 +490,94 @@ class HomeRepository @Inject constructor(
                 Log.d("AllPostsOfUser", "getAllPosts: Empty")
                 return null
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             return null
         }
     }
 
-    private var _profilesFromSearchQuery = MutableLiveData<NetworkResult<ArrayList<Pair<User, String?>>>>()
+    private var _profilesFromSearchQuery =
+        MutableLiveData<NetworkResult<ArrayList<Pair<User, String?>>>>()
     val profilesFromSearchQuery: LiveData<NetworkResult<ArrayList<Pair<User, String?>>>>
         get() = _profilesFromSearchQuery
 
-    val searchMap= HashMap<String, ArrayList<Pair<User, String?>>>()
+    val searchMap = HashMap<String, ArrayList<Pair<User, String?>>>()
 
-    suspend fun getProfileFromSearch(query: String){
+    suspend fun getProfileFromSearch(query: String) {
         try {
             _profilesFromSearchQuery.postValue(NetworkResult.Success(arrayListOf(), 200))
-            searchMap[query]?.let{ _profilesFromSearchQuery.postValue(NetworkResult.Success(it, statusCode = 200)) }
-            val response= firebaseFireStore.collection("Users")
-                .whereGreaterThanOrEqualTo("name",query)
+            searchMap[query]?.let {
+                _profilesFromSearchQuery.postValue(
+                    NetworkResult.Success(
+                        it,
+                        statusCode = 200
+                    )
+                )
+            }
+            val response = firebaseFireStore.collection("Users")
+                .whereGreaterThanOrEqualTo("name", query)
                 .get().await()
 
-            if (!response.isEmpty){
-                val profiles= ArrayList<Pair<User, String?>>()
+            if (!response.isEmpty) {
+                val profiles = ArrayList<Pair<User, String?>>()
                 response.documents.forEach {
-                    it.toObject(User::class.java)?.let { user->
+                    it.toObject(User::class.java)?.let { user ->
                         var mutualFollowers = "Followed by "
-                        var firstMutualFollower= true
-                        user.followers?.forEach { following->
-                            if (currentLoggedUser?.following?.get(following) !=null){
+                        var firstMutualFollower = true
+                        user.followers?.forEach { following ->
+                            if (currentLoggedUser?.following?.get(following) != null) {
                                 if (firstMutualFollower) {
                                     mutualFollowers += currentLoggedUser?.following?.get(following)?.name
-                                    firstMutualFollower= false
-                                }else{
-                                    mutualFollowers += ", ${currentLoggedUser?.following?.get(following)?.name}"
+                                    firstMutualFollower = false
+                                } else {
+                                    mutualFollowers += ", ${
+                                        currentLoggedUser?.following?.get(
+                                            following
+                                        )?.name
+                                    }"
                                 }
                             }
                         }
-                        profiles.add(Pair(user, if (mutualFollowers.length>12) mutualFollowers else null))
+                        profiles.add(
+                            Pair(
+                                user,
+                                if (mutualFollowers.length > 12) mutualFollowers else null
+                            )
+                        )
                     }
-                    if (profiles.isNotEmpty()){
-                        _profilesFromSearchQuery.postValue(NetworkResult.Success(profiles, statusCode = 200))
-                        searchMap[query]= profiles
-                    }else{
-                        _profilesFromSearchQuery.postValue(NetworkResult.Error(null, statusCode = 404))
+                    if (profiles.isNotEmpty()) {
+                        _profilesFromSearchQuery.postValue(
+                            NetworkResult.Success(
+                                profiles,
+                                statusCode = 200
+                            )
+                        )
+                        searchMap[query] = profiles
+                    } else {
+                        _profilesFromSearchQuery.postValue(
+                            NetworkResult.Error(
+                                null,
+                                statusCode = 404
+                            )
+                        )
                     }
                 }
-            }else{
+            } else {
                 _profilesFromSearchQuery.postValue(NetworkResult.Error(null, statusCode = 4001))
             }
-        }
-        catch (e: java.lang.IndexOutOfBoundsException){
+        } catch (e: java.lang.IndexOutOfBoundsException) {
             _profilesFromSearchQuery.postValue(NetworkResult.Error(null, statusCode = 500))
             Log.d("searchQueryException", "getProfileFromSearch: $e")
         }
 
+    }
+
+    suspend fun uploadFile(uri: Uri?,file: File?, path: String): String? {
+        return try {
+            firebaseStorage.child(path).putFile(uri?:Uri.fromFile(file))
+                .await().storage.downloadUrl.await().toString()
+        } catch (e: Exception) {
+            null;
+        }
     }
 
 }

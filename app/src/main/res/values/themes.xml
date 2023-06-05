@@ -13,6 +13,8 @@
         <item name="android:statusBarColor">?attr/colorPrimary</item>
         <item name="bottomSheetDialogTheme">@style/CustomBottomSheetDialog</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowIsTranslucent">true</item>
         <!-- Customize your theme here. -->
     </style>
 

@@ -32,6 +32,7 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityLoginBinding
 import com.sekhgmainuddin.timeshare.ui.home.MainActivity
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
+import com.sekhgmainuddin.timeshare.utils.Utils.changeTextColorGradient
 import com.sekhgmainuddin.timeshare.utils.Utils.slideVisibility
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -128,16 +129,6 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
-
-    private fun changeTextColorGradient(tv: TextView){
-        tv.setTextColor(getColor(R.color.orange))
-        val textShader: Shader = LinearGradient(
-            0f, 0f, tv.paint.measureText(tv.text.toString()), tv.textSize, intArrayOf(
-                getColor(R.color.orange), getColor(R.color.orangePink)
-            ), floatArrayOf(0f, 1f), Shader.TileMode.REPEAT
-        )
-        tv.paint.shader= textShader
-    }
 
     private fun animateSignInOptions() {
         CoroutineScope(Dispatchers.Main).launch {

@@ -1,11 +1,15 @@
 package com.sekhgmainuddin.timeshare.data.modals
 
+import com.sekhgmainuddin.timeshare.utils.enums.MessageStatus
+import com.sekhgmainuddin.timeshare.utils.enums.MessageType
+
 data class Chats(
+    val id: String = "",
     val chatId: String = "",
     val senderId: String = "",
-    val type: Int = 0,
+    val type: String = "",
     val message: String = "",
     val document: String? = null,
     val time: Long = 0L,
-    val messageStatus: Int = 0
+    var messageStatus: String = ""
 )

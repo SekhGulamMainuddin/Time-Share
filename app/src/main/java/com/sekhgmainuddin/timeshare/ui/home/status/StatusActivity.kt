@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.home
+package com.sekhgmainuddin.timeshare.ui.home.status
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

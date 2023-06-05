@@ -118,17 +118,13 @@ class LoginSignUpRepository @Inject constructor(
                 if (bitmap!=null){
                     uri = bitmap.saveAsJPG(firebaseAuth.uid.toString(),context) as Uri
                 }
-                val imageResponse = uri?.let {
+                val download_url = uri?.let {
 
                     storageReference.child(
                         "ProfileImage/" + firebaseAuth.uid + "." + getFileExtension(uri,context))
-                        .putFile(it).await()
+                        .putFile(it).await().storage.downloadUrl.await().toString()
                 }
-                val uriTask = imageResponse?.storage?.downloadUrl
-                while (!uriTask?.isSuccessful!!){}
-                val downloadUrl = uriTask.result
-                val download_url = downloadUrl.toString()
-                detailMap["imageUrl"] = download_url
+                detailMap["imageUrl"] = download_url!!
             } catch (e: Exception) {
                 _newUserDetailUpload.postValue(NetworkResult.Error("Image Upload Failed using Default Profile Image", statusCode = 409))
                 Log.d("imageUploadException", "uploadNewUserDetail: $e")

@@ -7,5 +7,6 @@ object Keys {
     }
 
     external fun apiKey(): String
+    external fun giphyKey(): String
 
 }

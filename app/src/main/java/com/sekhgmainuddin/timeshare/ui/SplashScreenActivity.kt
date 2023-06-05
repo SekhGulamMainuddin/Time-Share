@@ -12,6 +12,7 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivitySplashScreenBinding
 import com.sekhgmainuddin.timeshare.ui.home.MainActivity
 import com.sekhgmainuddin.timeshare.ui.loginandsignup.LoginActivity
+import com.sekhgmainuddin.timeshare.utils.Utils.changeTextColorGradient
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -29,6 +30,7 @@ class SplashScreenActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         Glide.with(this).load(R.drawable.time_share_icon).into(binding.splashImage)
+        changeTextColorGradient(binding.appNameTV)
 
         val sharedPreference= getSharedPreferences("time_share_app", MODE_PRIVATE)
 

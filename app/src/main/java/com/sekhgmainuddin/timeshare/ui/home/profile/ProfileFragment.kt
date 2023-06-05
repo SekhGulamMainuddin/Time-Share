@@ -231,8 +231,8 @@ class ProfileFragment : Fragment() {
                     loadFollowersFriendsFollowing()
                 }
             }
-            it.onFailure {
-                Toast.makeText(requireContext(), "$it", Toast.LENGTH_SHORT).show()
+            it.onFailure { t->
+                Toast.makeText(requireContext(), "$t", Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -27,6 +27,10 @@ import com.sekhgmainuddin.timeshare.ui.home.home.adapters.PostsAdapter
 import com.sekhgmainuddin.timeshare.ui.home.home.adapters.StatusAdapter
 import com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
@@ -66,8 +70,11 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
 
         postsAdapter= PostsAdapter(requireContext(), this)
         val layoutManager= LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.postRecyclerView.layoutManager= layoutManager
-        binding.postRecyclerView.adapter= postsAdapter
+        binding.apply {
+            postRecyclerView.layoutManager= layoutManager
+            postRecyclerView.adapter= postsAdapter
+
+        }
 
         viewModel.getUserData(null)
         viewModel.getUserData()

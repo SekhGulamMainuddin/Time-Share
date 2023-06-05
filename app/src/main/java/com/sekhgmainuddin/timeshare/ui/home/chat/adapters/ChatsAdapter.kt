@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
@@ -16,23 +17,18 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.utils.Constants.MSG_BY_OPPOSITE
 import com.sekhgmainuddin.timeshare.utils.Constants.MSG_BY_USER
-import com.sekhgmainuddin.timeshare.utils.Constants.MSG_OLD
-import com.sekhgmainuddin.timeshare.utils.Constants.MSG_RECEIVED
-import com.sekhgmainuddin.timeshare.utils.Constants.MSG_SEEN
-import com.sekhgmainuddin.timeshare.utils.Constants.MSG_SENT
-import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_FILE
-import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_IMAGE
-import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_IMAGE_AND_MESSAGE
-import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_MESSAGE
-import com.sekhgmainuddin.timeshare.utils.Constants.MSG_TYPE_PDF
+import com.sekhgmainuddin.timeshare.utils.Utils.getMessageTIme
+import com.sekhgmainuddin.timeshare.utils.enums.MessageStatus
+import com.sekhgmainuddin.timeshare.utils.enums.MessageType
 
-class ChatsAdapter(val context: Context, val chatProfileImage: String, val firebaseUserId: String) : ListAdapter<ChatEntity, ChatsAdapter.ChatsViewHolder>(
-    ChatsDiffCallBack()
-) {
+class ChatsAdapter(val context: Context, val chatProfileImage: String, val firebaseUserId: String, val showDialog: (ChatEntity) -> Unit) :
+    ListAdapter<ChatEntity, ChatsAdapter.ChatsViewHolder>(
+        ChatsDiffCallBack()
+    ) {
 
-    private class ChatsDiffCallBack: DiffUtil.ItemCallback<ChatEntity>() {
+    private class ChatsDiffCallBack : DiffUtil.ItemCallback<ChatEntity>() {
         override fun areItemsTheSame(oldItem: ChatEntity, newItem: ChatEntity): Boolean {
-            return oldItem==newItem
+            return oldItem == newItem
         }
 
         override fun areContentsTheSame(oldItem: ChatEntity, newItem: ChatEntity): Boolean {
@@ -43,13 +39,23 @@ class ChatsAdapter(val context: Context, val chatProfileImage: String, val fireb
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatsViewHolder {
         return if (viewType == MSG_BY_USER)
-            ChatsViewHolder(LayoutInflater.from(context).inflate(R.layout.chats_layout_user_end, parent, false))
+            ChatsViewHolder(
+                LayoutInflater.from(context).inflate(R.layout.chats_layout_user_end, parent, false)
+            )
         else
-            ChatsViewHolder(LayoutInflater.from(context).inflate(R.layout.chats_layout_opposite_end, parent, false))
+            ChatsViewHolder(
+                LayoutInflater.from(context)
+                    .inflate(R.layout.chats_layout_opposite_end, parent, false)
+            )
     }
 
     override fun onBindViewHolder(holder: ChatsViewHolder, position: Int) {
-        holder.bind(currentList[position])
+        val item = currentList[position]
+        holder.bind(item)
+        holder.itemView.setOnLongClickListener{
+            showDialog.invoke(item)
+            return@setOnLongClickListener true
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -58,50 +64,71 @@ class ChatsAdapter(val context: Context, val chatProfileImage: String, val fireb
         else MSG_BY_OPPOSITE
     }
 
-    inner class ChatsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        val messageTV= itemView.findViewById<TextView>(R.id.senderMessage)
-        val messageStatus= itemView.findViewById<ImageButton>(R.id.messageStatus)
+    inner class ChatsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val messageTV = itemView.findViewById<TextView>(R.id.textMessage)
+        val messageStatus = itemView.findViewById<ImageButton>(R.id.messageStatus)
+        val messageTime = itemView.findViewById<TextView>(R.id.messageTime)
+        val messageImage = itemView.findViewById<ImageView>(R.id.imageMessage)
 
-        fun bind(chatEntity: ChatEntity){
-            when(chatEntity.type){
-                MSG_TYPE_MESSAGE-> {
+        fun bind(chatEntity: ChatEntity) {
+            messageImage.isVisible= false
+            when (MessageType.valueOf(chatEntity.type)) {
+                MessageType.TEXT -> {
+                    messageTV.text = chatEntity.message
+                }
+                MessageType.IMAGE -> {
+                    messageImage.isVisible= true
                     messageTV.text= chatEntity.message
+                    if (chatEntity.message.isEmpty())
+                        messageTV.isVisible= false
+                    Glide.with(context).load(chatEntity.document).into(messageImage)
                 }
-                MSG_TYPE_IMAGE-> {
+                MessageType.GIF -> {
+                    messageImage.isVisible= true
+                    messageTV.isVisible= false
+                    Glide.with(context).load(chatEntity.document).into(messageImage)
+                }
+                MessageType.VIDEO -> {
 
                 }
-                MSG_TYPE_IMAGE_AND_MESSAGE-> {
+                MessageType.PDF -> {
+                    messageTV.isVisible= false
+                    messageImage.isVisible= true
+                    Glide.with(context).load(chatEntity.message).placeholder(R.drawable.pdf).into(messageImage)
+                }
+                MessageType.DOCUMENT -> {
 
                 }
-                MSG_TYPE_PDF-> {
-
-                }
-                MSG_TYPE_FILE-> {
-
-                }
+                MessageType.AUDIO -> {}
+                MessageType.DOCX -> {}
             }
-            if (chatEntity.senderId!= firebaseUserId){
-                messageStatus.isVisible= false
-                when(chatEntity.messageStatus){
-                    MSG_OLD-> {
-                        messageStatus.visibility= View.GONE
+            messageTime.text = chatEntity.time.getMessageTIme(context)
+            if (chatEntity.senderId == firebaseUserId) {
+                messageStatus.isVisible = true
+                when (MessageStatus.valueOf(chatEntity.messageStatus)) {
+                    MessageStatus.MSG_SENT -> {
+                        Glide.with(context).load(R.drawable.single_tick).into(messageStatus)
+                        messageStatus.imageTintList =
+                            ColorStateList.valueOf(context.getColor(R.color.white))
                     }
-                    MSG_SENT-> {
-                        messageStatus.imageTintList= ColorStateList.valueOf(context.getColor(R.color.profile_text_color))
+                    MessageStatus.MSG_RECEIVED -> {
+                        Glide.with(context).load(R.drawable.double_tick).into(messageStatus)
+                        messageStatus.imageTintList =
+                            ColorStateList.valueOf(context.getColor(R.color.white))
                     }
-                    MSG_RECEIVED-> {
-                        messageStatus.imageTintList= ColorStateList.valueOf(context.getColor(R.color.orange))
+                    MessageStatus.MSG_SEEN -> {
+                        Glide.with(context).load(R.drawable.double_tick).into(messageStatus)
+                        messageStatus.imageTintList =
+                            ColorStateList.valueOf(context.getColor(R.color.message_seen))
                     }
-                    MSG_SEEN-> {
-                        Glide.with(context).load(chatProfileImage).placeholder(R.drawable.default_profile_pic).into(messageStatus)
+                    MessageStatus.MSG_OLD -> {
+                        messageStatus.visibility = View.GONE
                     }
                 }
-            }else{
-                messageStatus.isVisible= true
-                messageStatus.setImageResource(R.drawable.ic_baseline_check_circle_24)
+            } else {
+                messageStatus.isVisible = false
             }
         }
-
     }
 
 }

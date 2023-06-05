@@ -7,6 +7,9 @@ import android.os.IBinder
 class UploadService: Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent!=null && intent.action!=null){
+
+        }
         return super.onStartCommand(intent, flags, startId)
     }
 

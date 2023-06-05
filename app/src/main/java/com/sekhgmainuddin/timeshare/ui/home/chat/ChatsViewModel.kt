@@ -1,15 +1,19 @@
 package com.sekhgmainuddin.timeshare.ui.home.chat
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.database.ServerValue
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDbDao
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
+import com.sekhgmainuddin.timeshare.data.modals.Chats
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.ui.home.HomeRepository
+import com.sekhgmainuddin.timeshare.utils.enums.MessageType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,16 +27,26 @@ class ChatsViewModel @Inject constructor(
     private val chatsRepository: ChatsRepository,
     private val dao: TimeShareDb
 ) :ViewModel(){
-    
+
     val user= chatsRepository.user
     val chatList= chatsRepository.chatsList
     val recentChatProfiles= chatsRepository.recentChatProfiles
 
     val sendMessageStatus= chatsRepository.messageSent
 
-    fun sendMessage(profileId: String, type: Int, message: String, document: String)= viewModelScope.launch(Dispatchers.IO){
+    fun sendMessage(profileId: String, type: MessageType, message: String, document: String)= viewModelScope.launch(Dispatchers.IO){
         chatsRepository.sendMessage(profileId, type, message, document)
         chatsRepository.updateRecentMessage(profileId, message, 0)
+    }
+
+    fun sendMultipleFileMessage(fileList: List<Uri>, receiverId: String){
+        fileList.forEach{
+            sendFileMessage(it,"", null, receiverId)
+        }
+    }
+
+    fun sendFileMessage(uri: Uri?, gif: String, type: MessageType?, receiverId: String) = viewModelScope.launch(Dispatchers.IO){
+        chatsRepository.sendMessageFile(uri, gif, type, receiverId)
     }
 
     @ExperimentalCoroutinesApi
@@ -40,13 +54,19 @@ class ChatsViewModel @Inject constructor(
         chatsRepository.fetchMessages(profileId).collectLatest {
             when{
                 it.isSuccess-> {
+                    val chatNotRead= ArrayList<Chats>()
                     if (it.getOrNull() != null){
                         for (chat in it.getOrNull()!!){
                             chatsRepository.insertChats(
-                                ChatEntity(
-                                chat.chatId, chat.senderId, chat.type, chat.message,
-                                chat.document, chat.time, chat.messageStatus))
+                                ChatEntity(chat.id,chat.chatId, chat.senderId, chat.type,
+                                    chat.message,chat.document, chat.time, chat.messageStatus))
+                            if (chat.messageStatus!="SEEN" && chat.senderId==profileId)
+                                chatNotRead.add(chat)
                         }
+                    }
+                    Log.d("markChatRead", "getLatestChats: ${chatNotRead.size}")
+                    if (!chatsRepository.updatingTheMessages){
+                        chatsRepository.markMessagesRead(chatNotRead, profileId)
                     }
                 }
                 it.isFailure-> {
@@ -88,7 +108,9 @@ class ChatsViewModel @Inject constructor(
 //        }
     }
 
-
+    fun deleteChat(chatEntity: ChatEntity) = viewModelScope.launch(Dispatchers.IO){
+        chatsRepository.deleteChat(chatEntity)
+    }
 
 
 }

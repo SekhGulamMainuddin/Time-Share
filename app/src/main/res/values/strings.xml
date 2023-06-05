@@ -97,6 +97,8 @@
     <string name="failed_to_fecth_posts">Failed to fetch posts. Please refresh.</string>
     <string name="add_status">Add Status</string>
     <string name="default_notification_channel_id">timesharenotificationchannel</string>
+    <string name="delete">Delete Message</string>
+    <string name="reply_to_message">Reply To Message</string>
 
 
 </resources>

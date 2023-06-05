@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -52,7 +53,7 @@ class ChatsListFragment : Fragment(), onClicked {
         binding.apply{
             chatsListRV.adapter = adapter
             messageTo.setOnClickListener {
-                findNavController().navigate(R.id.friendsListFragment)
+                findNavController().navigate(R.id.action_chatsListFragment_to_friendsListFragment)
             }
         }
     }

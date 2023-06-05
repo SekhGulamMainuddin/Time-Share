@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.os.postDelayed
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
@@ -50,7 +49,6 @@ class ReelCommentsFragment(private val reel: Reel): BottomSheetDialogFragment(){
         savedInstanceState: Bundle?
     ): View {
         _binding= FragmentReelCommentsBinding.inflate(inflater)
-        Log.d("reelcommentsFragment", "onCreateView: viewcreatedonce")
         return _binding!!.root
     }
 
@@ -110,7 +108,7 @@ class ReelCommentsFragment(private val reel: Reel): BottomSheetDialogFragment(){
             binding.commentTextAdd.isEnabled= true
             when(it){
                 is NetworkResult.Success->{
-                    binding.commentProgress.indeterminateTintList= ColorStateList.valueOf(requireContext().getColor(R.color.chat_active))
+                    binding.commentProgress.indeterminateTintList= ColorStateList.valueOf(requireContext().getColor(R.color.green))
                     Toast.makeText(requireContext(), "Comment Posted", Toast.LENGTH_SHORT).show()
                     Handler(Looper.getMainLooper()).postDelayed({
                         binding.commentProgress.isVisible= false
