@@ -158,6 +158,7 @@ class HomeRepository @Inject constructor(
         }
     }
 
+    var userProfileDetail: User? = null
     suspend fun getUserData() = callbackFlow {
         val subscriptionUser = firebaseUser?.uid?.let {
             firebaseFireStore.collection("Users").document(it)
@@ -166,6 +167,7 @@ class HomeRepository @Inject constructor(
                         snapshot.toObject(User::class.java)
                             ?.let { it1 ->
                                 trySend(Result.success(it1))
+                                userProfileDetail = it1
                             }
                     }
                     if (error != null)
@@ -571,12 +573,42 @@ class HomeRepository @Inject constructor(
 
     }
 
-    suspend fun uploadFile(uri: Uri?,file: File?, path: String): String? {
+    suspend fun uploadFile(uri: Uri?, file: File?, path: String): String? {
         return try {
-            firebaseStorage.child(path).putFile(uri?:Uri.fromFile(file))
+            firebaseStorage.child(path).putFile(uri ?: Uri.fromFile(file))
                 .await().storage.downloadUrl.await().toString()
         } catch (e: Exception) {
             null;
+        }
+    }
+
+    suspend fun checkVideoCall() = callbackFlow {
+        val videoCheck = firebaseUser?.uid?.let {
+            firebaseFireStore.collection("Call").document(it)
+                .addSnapshotListener { snapshot, error ->
+                    snapshot?.exists()?.let {
+                        snapshot.toObject(VideoCall::class.java)
+                            ?.let { it1 ->
+                                trySend(Result.success(it1))
+                            }
+                    }
+                    if (error != null)
+                        trySend(Result.failure(error))
+                }
+        }
+        awaitClose {
+            videoCheck?.remove()
+        }
+    }
+
+    suspend fun changeCallStatus() {
+        try {
+            firebaseUser?.uid?.let {
+                firebaseFireStore.collection("Call").document(it)
+                    .update(mapOf(Pair("answered", true))).await()
+            }
+        } catch (e: Exception) {
+            Log.d("changeVideoCallStatus", "changeVideoCallStatus: $e")
         }
     }
 

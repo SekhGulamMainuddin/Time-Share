@@ -2,7 +2,6 @@ package com.sekhgmainuddin.timeshare.ui.home.chat
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -20,6 +19,7 @@ import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
 import com.sekhgmainuddin.timeshare.data.modals.Chats
 import com.sekhgmainuddin.timeshare.data.modals.RecentProfileChats
 import com.sekhgmainuddin.timeshare.data.modals.User
+import com.sekhgmainuddin.timeshare.data.modals.VideoCall
 import com.sekhgmainuddin.timeshare.ui.home.HomeRepository
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.fileFromContentUri
@@ -37,6 +37,7 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import javax.inject.Inject
 
 class ChatsRepository @Inject constructor(
@@ -360,6 +361,67 @@ class ChatsRepository @Inject constructor(
             .await().also {
                 timeShareDbDao.deleteChat(chatEntity)
             }
+    }
+
+    suspend fun makeVideoCall(receiverProfile: User, token: String, uid: Int): Result<String> {
+        try {
+            val callId = UUID.randomUUID().toString()
+            firebaseUser?.uid?.let {
+                firestore.collection("Call").document(it).set(
+                    VideoCall(
+                        callId = callId,
+                        token = token,
+                        uid = uid,
+                        callerProfileId = it,
+                        receiverProfileId = receiverProfile.userId,
+                        answered = true
+                    )
+                ).await()
+                firestore.collection("Call").document(receiverProfile.userId).set(
+                    VideoCall(
+                        callId = callId,
+                        token = token,
+                        uid = uid,
+                        callerProfileId = it,
+                        receiverProfileId = receiverProfile.userId,
+                        answered = false
+                    )
+                ).await()
+            }
+
+            return Result.success(callId)
+        } catch (e: Exception) {
+            Log.d("makeVideoCall", "makeVideoCall: $e")
+            return Result.failure(e)
+        }
+
+    }
+
+    suspend fun deleteCallDetails(otherUserId: String) {
+        try {
+            firebaseUser?.uid?.let { firestore.collection("Call").document(it).delete().await() }
+            firestore.collection("Call").document(otherUserId).update(mapOf(Pair("uid", -1)))
+                .await()
+        } catch (e: Exception) {
+            Log.d("deleteVideoCall", "deleteVideoCallDetails: $e")
+        }
+    }
+
+    suspend fun observeCall() = callbackFlow {
+        val callSubscriber = firebaseUser?.uid?.let {
+            firestore.collection("Call").document(it).addSnapshotListener { snapshot, error ->
+                snapshot?.exists()?.let{
+                    snapshot.toObject(VideoCall::class.java)?.let {call->
+                        trySend(Result.success(call))
+                    }
+                }
+                if (error!=null){
+                    trySend(Result.failure(error))
+                }
+            }
+        }
+
+        awaitClose { callSubscriber?.remove() }
     }
 
 }

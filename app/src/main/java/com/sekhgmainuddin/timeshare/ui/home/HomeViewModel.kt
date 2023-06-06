@@ -291,4 +291,17 @@ class HomeViewModel @Inject constructor(
         homeRepository.getProfileFromSearch(query)
     }
 
+    val videoCall = MutableLiveData<Result<VideoCall>>()
+    fun checkVideoCall() = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.checkVideoCall().collectLatest {
+            if (it.isSuccess) {
+                it.getOrNull()?.let { call -> videoCall.postValue(Result.success(call)) }
+            }
+        }
+    }
+
+    fun changeCallStatus() = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.changeCallStatus()
+    }
+
 }

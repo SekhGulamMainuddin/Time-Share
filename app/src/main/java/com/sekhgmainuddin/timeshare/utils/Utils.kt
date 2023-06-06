@@ -38,6 +38,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import kotlin.random.Random
 
 
 object Utils {
@@ -257,6 +258,18 @@ object Utils {
         while (source.read(buf).also { length = it } > 0) {
             target.write(buf, 0, length)
         }
+    }
+
+    fun getRandomIDInteger(): Int{
+        var id= 1
+        while (true){
+            if(id > 21474836){
+                break
+            } else {
+                id= ((id*10)%2147483647 + (Random.nextInt(1,99999)%2147483647))%2147483647
+            }
+        }
+        return id
     }
 
 }

@@ -99,6 +99,10 @@
     <string name="default_notification_channel_id">timesharenotificationchannel</string>
     <string name="delete">Delete Message</string>
     <string name="reply_to_message">Reply To Message</string>
+    <string name="accept_video_call">Accept Video Call</string>
+    <string name="end_video_call">End Video Call</string>
+    <string name="switch_on_off_mic">Switch On/Off Mic</string>
+    <string name="switch_camera">Switch Camera</string>
 
 
 </resources>

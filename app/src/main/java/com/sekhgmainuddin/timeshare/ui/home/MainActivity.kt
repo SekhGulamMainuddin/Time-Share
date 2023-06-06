@@ -1,13 +1,22 @@
 package com.sekhgmainuddin.timeshare.ui.home
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityMainBinding
 import com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.AddNewPostReelStatusBottomSheetDialogFragment
+import com.sekhgmainuddin.timeshare.ui.home.chat.VideoCallActivity
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -15,37 +24,67 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private lateinit var addNewPostBottomSheetDialogFragment: AddNewPostReelStatusBottomSheetDialogFragment
+    private val viewModel by viewModels<HomeViewModel>()
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
+    private var userId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        userId = firebaseAuth.currentUser?.uid
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.mainScreenFragmentContainer) as NavHostFragment
+        navController = navHostFragment.navController
 
-        val navHostFragment= supportFragmentManager.findFragmentById(R.id.mainScreenFragmentContainer) as NavHostFragment
-        navController= navHostFragment.navController
-
-        addNewPostBottomSheetDialogFragment= AddNewPostReelStatusBottomSheetDialogFragment()
+        addNewPostBottomSheetDialogFragment = AddNewPostReelStatusBottomSheetDialogFragment()
 
         setUpBottomNavigationBar()
+        bindObserver()
+        viewModel.checkVideoCall()
+    }
 
+    private fun bindObserver() {
+        viewModel.videoCall.observe(this) {
+            it.onSuccess { call ->
+                Toast.makeText(this, "", Toast.LENGTH_SHORT).show()
+                if (call.receiverProfileId == userId && !call.answered) {
+                    startActivity(
+                        Intent(this, VideoCallActivity::class.java)
+                            .putExtra("agoraToken", call.token)
+                            .putExtra("profileId", call.callerProfileId)
+                            .putExtra("byMe", false)
+                            .putExtra("uid", call.uid)
+                            .putExtra("callId", call.callId)
+                    )
+                    viewModel.changeCallStatus()
+                }
+            }
+        }
     }
 
     private fun setUpBottomNavigationBar() {
         binding.bottomNavigation.setOnItemSelectedListener {
-            when(it.itemId){
-                R.id.home-> {
+            when (it.itemId) {
+                R.id.home -> {
                     navController.navigate(R.id.homeScreenFragment)
                 }
-                R.id.search-> {
+
+                R.id.search -> {
                     navController.navigate(R.id.searchFragment)
                 }
-                R.id.addPost-> {
+
+                R.id.addPost -> {
                     addNewPostBottomSheetDialogFragment.show(supportFragmentManager, "AddNewPost")
                 }
-                R.id.reels-> {
+
+                R.id.reels -> {
                     navController.navigate(R.id.reelsFragment)
                 }
-                R.id.profile-> {
+
+                R.id.profile -> {
                     navController.navigate(R.id.myProfileFragment)
                 }
             }

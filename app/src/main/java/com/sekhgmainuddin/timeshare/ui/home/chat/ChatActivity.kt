@@ -43,7 +43,10 @@ import com.sekhgmainuddin.timeshare.ui.home.chat.adapters.ChatsAdapter
 import com.sekhgmainuddin.timeshare.ui.home.chat.attachments.ImagePickerActivity
 import com.sekhgmainuddin.timeshare.utils.Keys
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
+import com.sekhgmainuddin.timeshare.utils.Utils
+import com.sekhgmainuddin.timeshare.utils.Utils.getRandomIDInteger
 import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
+import com.sekhgmainuddin.timeshare.utils.agora.RtcTokenBuilder2
 import com.sekhgmainuddin.timeshare.utils.enums.MessageType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -66,6 +69,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     lateinit var giphy: GiphyDialogFragment
 
     private lateinit var chatAdapter: ChatsAdapter
+
     private var profileId: String? = null
     private var profile: User? = null
     private var profileActiveStatus: Long = -1
@@ -74,11 +78,27 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     private var sTime = ""
     private lateinit var chatsDialog: Dialog
     private var selectedMessage: ChatEntity? = null
+    private lateinit var appCertificate: String
+    private lateinit var appId: String
+    private var expirationTimeInSeconds = 3600
+    private var token: String? = null
+    private var uid: Int? = null
+    private val tokenBuilder = RtcTokenBuilder2()
+    private lateinit var progressDialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        appCertificate = Keys.getAppCertificateAgora()
+        appId = Keys.getAppIdAgora()
+
+
+        progressDialog = Dialog(this)
+        progressDialog.setContentView(R.layout.progress_dialog)
+        progressDialog.setCancelable(false)
+        progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         chatsDialog = Dialog(this)
         chatsDialog.setContentView(R.layout.chats_dialog)
@@ -115,6 +135,21 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
         registerClickListeners()
         bindObserver()
 
+    }
+
+    private fun makeVideoCall() {
+        val timestamp = (System.currentTimeMillis() / 1000 + expirationTimeInSeconds).toInt()
+        uid = getRandomIDInteger()
+        token = tokenBuilder.buildTokenWithUid(
+            appId,
+            appCertificate,
+            "com.sekhgmainuddin.timeshare",
+            uid!!,
+            RtcTokenBuilder2.Role.ROLE_PUBLISHER,
+            timestamp,
+            timestamp
+        )
+        viewModel.makeVideoCall(profile!!, token!!, uid!!)
     }
 
     fun updateProfileData(user: User) {
@@ -172,7 +207,10 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                     ).show()
                 }
             }
-
+            videoCall.setOnClickListener {
+                makeVideoCall()
+                progressDialog.show()
+            }
             messageInputET.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence?,
@@ -199,7 +237,6 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
 
                 }
             })
-
             recordMessage.setRecordView(recordView)
             recordView.setOnRecordListener(object : OnRecordListener {
                 override fun onStart() {
@@ -266,7 +303,6 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
             galleryIntent.action = Intent.ACTION_GET_CONTENT
-
             gallery.setOnClickListener {
                 imageVideoResult.launch(galleryIntent)
             }
@@ -314,6 +350,28 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
         viewModel.chatList.observe(this) {
             chatAdapter.submitList(it)
             binding.chatsRecyclerView.scrollToPosition(chatAdapter.itemCount - 1)
+        }
+        viewModel.callSuccess.observe(this) {
+            it.onSuccess { c->
+                if (c.isNotEmpty()){
+                    progressDialog.dismiss()
+                    startActivity(
+                        Intent(this, VideoCallActivity::class.java)
+                            .putExtra("agoraToken", token)
+                            .putExtra("uid", uid)
+                            .putExtra("profileId", profileId)
+                            .putExtra("byMe", true)
+                            .putExtra("callId", c)
+                    )
+                }
+            }
+            it.onFailure {
+                Toast.makeText(
+                    this,
+                    "Failed to Do Video Call. Some Error Occurred",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -446,7 +504,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                     }
                     viewModel.sendMultipleFileMessage(list, profileId!!)
                 }
-            } else if (this@sendFiles.data?.data!=null) {
+            } else if (this@sendFiles.data?.data != null) {
                 viewModel.sendFileMessage(this@sendFiles.data?.data, "", null, profileId!!)
             } else {
                 //do nothing
