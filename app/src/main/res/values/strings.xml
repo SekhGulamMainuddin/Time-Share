@@ -103,6 +103,7 @@
     <string name="end_video_call">End Video Call</string>
     <string name="switch_on_off_mic">Switch On/Off Mic</string>
     <string name="switch_camera">Switch Camera</string>
+    <string name="user_image">User Image</string>
 
 
 </resources>

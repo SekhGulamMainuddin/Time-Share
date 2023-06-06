@@ -23,12 +23,10 @@ import io.agora.rtc2.video.VideoCanvas
 class VideoCallActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityVideoCallBinding
-    private lateinit var rtcEngine: RtcEngine
     private lateinit var permissionManager: ManagePermissions
     private var callId: String? = null
     private var appId: String? = null
     private var appCertificate: String? = null
-    private val channelName = "com.sekhgmainuddin.timeshare"
     private var token: String? = null
     private var uid: Int? = null
     private var isJoined = false
@@ -70,10 +68,13 @@ class VideoCallActivity : AppCompatActivity() {
             joinChannel()
         } else {
             showAndHide(false)
+            binding.endCall.isVisible= true
         }
 
         registerClickListeners()
         bindObservers()
+        viewModel.observeCall()
+
     }
 
     private fun bindObservers() {
@@ -106,7 +107,7 @@ class VideoCallActivity : AppCompatActivity() {
             }
             micOnOff.setOnClickListener {
                 mMuted = !mMuted
-                rtcEngine.muteLocalAudioStream(mMuted)
+                agoraEngine!!.muteLocalAudioStream(mMuted)
                 val res: Int = if (mMuted) {
                     R.drawable.baseline_mic_off_24
                 } else {
@@ -158,7 +159,7 @@ class VideoCallActivity : AppCompatActivity() {
             setupLocalVideo()
             localSurfaceView!!.visibility = View.VISIBLE
             agoraEngine!!.startPreview()
-            agoraEngine!!.joinChannel(token, channelName, uid!!, options)
+            agoraEngine!!.joinChannel(token, callId, uid!!, options)
         } else {
             Toast.makeText(applicationContext, "Permissions was not granted", Toast.LENGTH_SHORT)
                 .show()

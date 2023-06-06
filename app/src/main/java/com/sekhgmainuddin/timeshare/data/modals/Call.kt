@@ -1,6 +1,6 @@
 package com.sekhgmainuddin.timeshare.data.modals
 
-data class VideoCall (
+data class Call (
     var callId: String = "",
     var token: String = "",
     var uid: Int = 0,

@@ -19,13 +19,14 @@ import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
 import com.sekhgmainuddin.timeshare.data.modals.Chats
 import com.sekhgmainuddin.timeshare.data.modals.RecentProfileChats
 import com.sekhgmainuddin.timeshare.data.modals.User
-import com.sekhgmainuddin.timeshare.data.modals.VideoCall
+import com.sekhgmainuddin.timeshare.data.modals.Call
 import com.sekhgmainuddin.timeshare.ui.home.HomeRepository
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.fileFromContentUri
 import com.sekhgmainuddin.timeshare.utils.Utils.getFileExtension
 import com.sekhgmainuddin.timeshare.utils.Utils.getFirstPage
 import com.sekhgmainuddin.timeshare.utils.Utils.saveAsJPG
+import com.sekhgmainuddin.timeshare.utils.agora.RtcTokenBuilder2
 import com.sekhgmainuddin.timeshare.utils.enums.MessageStatus
 import com.sekhgmainuddin.timeshare.utils.enums.MessageType
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -363,33 +364,35 @@ class ChatsRepository @Inject constructor(
             }
     }
 
-    suspend fun makeVideoCall(receiverProfile: User, token: String, uid: Int): Result<String> {
+    suspend fun makeCall(receiverProfile: User, token: String, uid: Int, typeVideo: Boolean, callId: String): Result<Call> {
         try {
-            val callId = UUID.randomUUID().toString()
+            var call: Call? = null
             firebaseUser?.uid?.let {
+                call= Call(
+                    callId = callId,
+                    token = token,
+                    uid = uid,
+                    callerProfileId = it,
+                    receiverProfileId = receiverProfile.userId,
+                    answered = true,
+                    typeVideo = typeVideo
+                )
                 firestore.collection("Call").document(it).set(
-                    VideoCall(
-                        callId = callId,
-                        token = token,
-                        uid = uid,
-                        callerProfileId = it,
-                        receiverProfileId = receiverProfile.userId,
-                        answered = true
-                    )
+                    call!!
                 ).await()
                 firestore.collection("Call").document(receiverProfile.userId).set(
-                    VideoCall(
+                    Call(
                         callId = callId,
                         token = token,
                         uid = uid,
                         callerProfileId = it,
                         receiverProfileId = receiverProfile.userId,
-                        answered = false
+                        answered = false,
+                        typeVideo = typeVideo
                     )
                 ).await()
             }
-
-            return Result.success(callId)
+            return Result.success(call!!)
         } catch (e: Exception) {
             Log.d("makeVideoCall", "makeVideoCall: $e")
             return Result.failure(e)
@@ -411,7 +414,7 @@ class ChatsRepository @Inject constructor(
         val callSubscriber = firebaseUser?.uid?.let {
             firestore.collection("Call").document(it).addSnapshotListener { snapshot, error ->
                 snapshot?.exists()?.let{
-                    snapshot.toObject(VideoCall::class.java)?.let {call->
+                    snapshot.toObject(Call::class.java)?.let { call->
                         trySend(Result.success(call))
                     }
                 }

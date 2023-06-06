@@ -17,7 +17,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.view.Window
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -32,7 +31,6 @@ import com.bumptech.glide.Glide
 import com.devlomi.record_view.OnRecordListener
 import com.giphy.sdk.core.models.Media
 import com.giphy.sdk.ui.GPHContentType
-import com.giphy.sdk.ui.Giphy
 import com.giphy.sdk.ui.views.GiphyDialogFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.R
@@ -43,7 +41,6 @@ import com.sekhgmainuddin.timeshare.ui.home.chat.adapters.ChatsAdapter
 import com.sekhgmainuddin.timeshare.ui.home.chat.attachments.ImagePickerActivity
 import com.sekhgmainuddin.timeshare.utils.Keys
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
-import com.sekhgmainuddin.timeshare.utils.Utils
 import com.sekhgmainuddin.timeshare.utils.Utils.getRandomIDInteger
 import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
 import com.sekhgmainuddin.timeshare.utils.agora.RtcTokenBuilder2
@@ -69,7 +66,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     lateinit var giphy: GiphyDialogFragment
 
     private lateinit var chatAdapter: ChatsAdapter
-
+    private val tokenBuilder = RtcTokenBuilder2()
     private var profileId: String? = null
     private var profile: User? = null
     private var profileActiveStatus: Long = -1
@@ -82,8 +79,8 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     private lateinit var appId: String
     private var expirationTimeInSeconds = 3600
     private var token: String? = null
+    private var callId: String? = null
     private var uid: Int? = null
-    private val tokenBuilder = RtcTokenBuilder2()
     private lateinit var progressDialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,7 +134,8 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
 
     }
 
-    private fun makeVideoCall() {
+    private fun makeCall(typeVideoOrVoice: Boolean) {
+        callId = UUID.randomUUID().toString()
         val timestamp = (System.currentTimeMillis() / 1000 + expirationTimeInSeconds).toInt()
         uid = getRandomIDInteger()
         token = tokenBuilder.buildTokenWithUid(
@@ -149,7 +147,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
             timestamp,
             timestamp
         )
-        viewModel.makeVideoCall(profile!!, token!!, uid!!)
+        viewModel.makeCall(profile!!, token!!, uid!!, typeVideoOrVoice, callId!!)
     }
 
     fun updateProfileData(user: User) {
@@ -208,7 +206,11 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 }
             }
             videoCall.setOnClickListener {
-                makeVideoCall()
+                makeCall(true)
+                progressDialog.show()
+            }
+            voiceCall.setOnClickListener {
+                makeCall(false)
                 progressDialog.show()
             }
             messageInputET.addTextChangedListener(object : TextWatcher {
@@ -352,18 +354,17 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
             binding.chatsRecyclerView.scrollToPosition(chatAdapter.itemCount - 1)
         }
         viewModel.callSuccess.observe(this) {
-            it.onSuccess { c->
-                if (c.isNotEmpty()){
-                    progressDialog.dismiss()
-                    startActivity(
-                        Intent(this, VideoCallActivity::class.java)
-                            .putExtra("agoraToken", token)
-                            .putExtra("uid", uid)
-                            .putExtra("profileId", profileId)
-                            .putExtra("byMe", true)
-                            .putExtra("callId", c)
-                    )
-                }
+            it.onSuccess { c ->
+                progressDialog.dismiss()
+                startActivity(
+                    Intent(this,
+                        if (c.typeVideo) VideoCallActivity::class.java else VoiceCallActivity::class.java)
+                        .putExtra("agoraToken", token)
+                        .putExtra("uid", uid)
+                        .putExtra("profileId", profileId)
+                        .putExtra("byMe", true)
+                        .putExtra("callId", callId)
+                )
             }
             it.onFailure {
                 Toast.makeText(

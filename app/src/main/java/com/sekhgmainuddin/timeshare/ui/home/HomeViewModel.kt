@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
-import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -291,11 +290,11 @@ class HomeViewModel @Inject constructor(
         homeRepository.getProfileFromSearch(query)
     }
 
-    val videoCall = MutableLiveData<Result<VideoCall>>()
+    val call = MutableLiveData<Result<Call>>()
     fun checkVideoCall() = viewModelScope.launch(Dispatchers.IO) {
         homeRepository.checkVideoCall().collectLatest {
             if (it.isSuccess) {
-                it.getOrNull()?.let { call -> videoCall.postValue(Result.success(call)) }
+                it.getOrNull()?.let { call -> this@HomeViewModel.call.postValue(Result.success(call)) }
             }
         }
     }

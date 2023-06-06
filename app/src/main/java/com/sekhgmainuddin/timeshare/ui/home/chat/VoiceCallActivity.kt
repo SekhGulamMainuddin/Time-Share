@@ -1,85 +1,120 @@
 package com.sekhgmainuddin.timeshare.ui.home.chat
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityVoiceCallBinding
+import com.sekhgmainuddin.timeshare.utils.Keys
 import io.agora.rtc2.*
 
 class VoiceCallActivity : AppCompatActivity() {
 
-    // Fill the App ID of your project generated on Agora Console.
-    private val appId = ""
-
-    // Fill the channel name.
-    private val channelName = ""
-
-    // Fill the temp token generated on Agora Console.
-    private val token = ""
-
-    // An integer that identifies the local user.
-    private val uid = 0
-
-    // Track the status of your connection
-    private var isJoined = false
-
-    // Agora engine instance
-    private var agoraEngine: RtcEngine? = null
-
-    // UI elements
-    private var infoText: TextView? = null
-    private var joinLeaveButton: Button? = null
-
     private lateinit var binding: ActivityVoiceCallBinding
+    private val viewModel by viewModels<ChatsViewModel>()
+    private var callId: String? = null
+    private var appId: String? = null
+    private var appCertificate: String? = null
+    private var token: String? = null
+    private var uid: Int? = null
+    private var oppositeProfileId: String? = null
+    private var byMe: Boolean? = null
+    private var isJoined = false
+    private var agoraEngine: RtcEngine? = null
+    private var mMuted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityVoiceCallBinding.inflate(layoutInflater)
+        binding = ActivityVoiceCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-// If all the permissions are granted, initialize the RtcEngine object and join a channel.
+        appId = Keys.getAppIdAgora()
+        appCertificate = Keys.getAppCertificateAgora()
+        callId = intent.getStringExtra("callId")
+        oppositeProfileId = intent.getStringExtra("profileId")
+        token = intent.getStringExtra("agoraToken")
+        uid = intent.getIntExtra("uid", 0)
+        byMe = intent.getBooleanExtra("byMe", false)
+
         if (!checkSelfPermission()) {
-            ActivityCompat.requestPermissions(this, REQUESTED_PERMISSIONS, PERMISSION_REQ_ID);
+            ActivityCompat.requestPermissions(this, REQUESTED_PERMISSIONS, PERMISSION_REQ_ID)
         }
 
-        setupVoiceSDKEngine();
+        registerClickListeners()
+        setupVoiceSDKEngine()
+        bindObservers()
+        viewModel.observeCall()
 
-        // Set up access to the UI elements
-        joinLeaveButton = binding.joinLeaveButton
-        infoText = binding.infoText
+        if (byMe!!){
+            showAndHide(true)
+            joinChannel()
+        } else {
+            showAndHide(false)
+            binding.endCall.isVisible= true
+        }
+    }
 
+    private fun registerClickListeners() {
+        binding.apply {
+            acceptCall.setOnClickListener {
+                joinChannel()
+                showAndHide(true)
+            }
+            endCall.setOnClickListener {
+                leaveChannel()
+            }
+            micOnOff.setOnClickListener {
+                mMuted = !mMuted
+                agoraEngine!!.muteLocalAudioStream(mMuted)
+                val res: Int = if (mMuted) {
+                    R.drawable.baseline_mic_off_24
+                } else {
+                    R.drawable.baseline_mic_24
+                }
+                micOnOff.setImageResource(res)
+            }
+        }
+    }
+
+    private fun showAndHide(show: Boolean){
+        binding.apply {
+            acceptCall.isVisible= !show
+            endCall.isVisible= show
+            micOnOff.isVisible= show
+        }
+    }
+
+    private fun bindObservers() {
+        viewModel.callStatus.observe(this){
+            it.onSuccess { call ->
+                if (call.uid==-1){
+                    viewModel.deleteCall(callId!!)
+                }
+            }
+        }
     }
 
     private val mRtcEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
-        // Listen for the remote user joining the channel.
         override fun onUserJoined(uid: Int, elapsed: Int) {
-            runOnUiThread { infoText!!.text = "Remote user joined: $uid" }
+            showMessage("User Connected")
         }
 
         override fun onJoinChannelSuccess(channel: String, uid: Int, elapsed: Int) {
-            // Successfully joined a channel
             isJoined = true
-            showMessage("Joined Channel $channel")
-            runOnUiThread { infoText!!.text = "Waiting for a remote user to join" }
+            showMessage("Waiting For User")
         }
 
         override fun onUserOffline(uid: Int, reason: Int) {
-            // Listen for remote users leaving the channel
-            showMessage("Remote user offline $uid $reason")
-            if (isJoined) runOnUiThread { infoText!!.text = "Waiting for a remote user to join" }
+            showMessage("User Disconnected")
         }
 
         override fun onLeaveChannel(stats: RtcStats) {
-            // Listen for the local user leaving the channel
-            runOnUiThread { infoText!!.text = "Press the button to join a channel" }
             isJoined = false
         }
     }
@@ -87,27 +122,15 @@ class VoiceCallActivity : AppCompatActivity() {
     private fun joinChannel() {
         val options = ChannelMediaOptions()
         options.autoSubscribeAudio = true
-        // Set both clients as the BROADCASTER.
         options.clientRoleType = Constants.CLIENT_ROLE_BROADCASTER
-        // Set the channel profile as BROADCASTING.
         options.channelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING
-
-        // Join the channel with a temp token.
-        // You need to specify the user ID yourself, and ensure that it is unique in the channel.
-        agoraEngine!!.joinChannel(token, channelName, uid, options)
+        agoraEngine!!.joinChannel(token, callId, uid!!, options)
     }
 
-
-    fun joinLeaveChannel(view: View?) {
-        if (isJoined) {
-            agoraEngine!!.leaveChannel()
-            joinLeaveButton!!.text = "Join"
-        } else {
-            joinChannel()
-            joinLeaveButton!!.text = "Leave"
-        }
+    private fun leaveChannel() {
+        agoraEngine!!.leaveChannel()
+        viewModel.deleteCall(callId!!)
     }
-
 
     private fun setupVoiceSDKEngine() {
         try {
@@ -121,9 +144,8 @@ class VoiceCallActivity : AppCompatActivity() {
         }
     }
 
-
     private val PERMISSION_REQ_ID = 22
-    private val REQUESTED_PERMISSIONS = arrayOf<String>(
+    private val REQUESTED_PERMISSIONS = arrayOf(
         Manifest.permission.RECORD_AUDIO
     )
 
@@ -147,8 +169,6 @@ class VoiceCallActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         agoraEngine!!.leaveChannel()
-
-        // Destroy the engine in a sub-thread to avoid congestion
         Thread {
             RtcEngine.destroy()
             agoraEngine = null

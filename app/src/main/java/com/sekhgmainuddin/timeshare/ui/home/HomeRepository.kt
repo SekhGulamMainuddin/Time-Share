@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.io.File
 import javax.inject.Inject
-import kotlin.math.log
 
 class HomeRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
@@ -587,7 +586,7 @@ class HomeRepository @Inject constructor(
             firebaseFireStore.collection("Call").document(it)
                 .addSnapshotListener { snapshot, error ->
                     snapshot?.exists()?.let {
-                        snapshot.toObject(VideoCall::class.java)
+                        snapshot.toObject(Call::class.java)
                             ?.let { it1 ->
                                 trySend(Result.success(it1))
                             }

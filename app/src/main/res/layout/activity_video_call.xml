@@ -44,65 +44,63 @@
         app:layout_constraintEnd_toEndOf="parent"
         />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/acceptCall"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/baseline_call_24"
-        app:tint="@color/white"
+        android:orientation="horizontal"
+        android:layout_marginBottom="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="50dp"
-        android:contentDescription="@string/accept_video_call"
-        android:visibility="gone"
-        app:backgroundTint="@color/green"/>
+        >
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/endCall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/baseline_call_end_24"
-        app:tint="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="50dp"
-        android:contentDescription="@string/end_video_call"
-        app:backgroundTint="@color/red"
-        android:visibility="gone"
-        />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/micOnOff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_mic_24"
+            app:tint="@color/white"
+            android:layout_marginEnd="40dp"
+            android:contentDescription="@string/switch_on_off_mic"
+            app:backgroundTint="@color/phone_blue"
+            android:visibility="visible"
+            />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/micOnOff"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/baseline_mic_24"
-        app:tint="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/endCall"
-        android:layout_marginBottom="50dp"
-        android:layout_marginEnd="40dp"
-        android:contentDescription="@string/switch_on_off_mic"
-        app:backgroundTint="@color/phone_blue"
-        android:visibility="gone"
-        />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/endCall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_call_end_24"
+            app:tint="@color/white"
+            android:contentDescription="@string/end_video_call"
+            app:backgroundTint="@color/red"
+            android:visibility="visible"
+            android:layout_marginEnd="40dp"
+            />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/switchCamera"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/baseline_cameraswitch_24"
-        app:tint="@color/phone_blue"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/endCall"
-        android:layout_marginBottom="50dp"
-        android:layout_marginStart="40dp"
-        app:maxImageSize="30dp"
-        android:contentDescription="@string/switch_camera"
-        app:backgroundTint="@color/white"
-        android:visibility="gone"
-        />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/acceptCall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_call_24"
+            app:tint="@color/white"
+            android:contentDescription="@string/accept_video_call"
+            android:visibility="gone"
+            app:backgroundTint="@color/green"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/switchCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_cameraswitch_24"
+            app:tint="@color/phone_blue"
+            app:maxImageSize="30dp"
+            android:contentDescription="@string/switch_camera"
+            app:backgroundTint="@color/white"
+            android:visibility="visible"
+            />
+
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

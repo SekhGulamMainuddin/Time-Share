@@ -1,7 +1,6 @@
 package com.sekhgmainuddin.timeshare.ui.home.chat
 
 import android.net.Uri
-import android.provider.MediaStore.Video
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,7 +10,7 @@ import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
 import com.sekhgmainuddin.timeshare.data.modals.Chats
 import com.sekhgmainuddin.timeshare.data.modals.User
-import com.sekhgmainuddin.timeshare.data.modals.VideoCall
+import com.sekhgmainuddin.timeshare.data.modals.Call
 import com.sekhgmainuddin.timeshare.utils.enums.MessageType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -127,10 +126,10 @@ class ChatsViewModel @Inject constructor(
         chatsRepository.deleteChat(chatEntity)
     }
 
-    val callSuccess = MutableLiveData<Result<String>>()
-    fun makeVideoCall(receiverProfile: User, token: String, uid: Int) =
+    val callSuccess = MutableLiveData<Result<Call>>()
+    fun makeCall(receiverProfile: User, token: String, uid: Int, typeVideo: Boolean, callId: String) =
         viewModelScope.launch(Dispatchers.IO) {
-            val result = chatsRepository.makeVideoCall(receiverProfile, token, uid)
+            val result = chatsRepository.makeCall(receiverProfile, token, uid, typeVideo, callId)
             if (result.isSuccess) {
                 result.getOrNull()?.let{ callSuccess.postValue(Result.success(it)) }
             } else {
@@ -147,7 +146,7 @@ class ChatsViewModel @Inject constructor(
         chatsRepository.deleteCallDetails(callId)
     }
 
-    val callStatus= MutableLiveData<Result<VideoCall>>()
+    val callStatus= MutableLiveData<Result<Call>>()
     fun observeCall()= viewModelScope.launch(Dispatchers.IO){
         chatsRepository.observeCall().collectLatest { result->
             if (result.isSuccess){

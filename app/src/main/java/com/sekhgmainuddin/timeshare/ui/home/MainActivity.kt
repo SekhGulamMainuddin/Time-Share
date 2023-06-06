@@ -3,18 +3,16 @@ package com.sekhgmainuddin.timeshare.ui.home
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityMainBinding
 import com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.AddNewPostReelStatusBottomSheetDialogFragment
 import com.sekhgmainuddin.timeshare.ui.home.chat.VideoCallActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.VoiceCallActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -47,12 +45,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindObserver() {
-        viewModel.videoCall.observe(this) {
+        viewModel.call.observe(this) {
             it.onSuccess { call ->
                 Toast.makeText(this, "", Toast.LENGTH_SHORT).show()
                 if (call.receiverProfileId == userId && !call.answered) {
                     startActivity(
-                        Intent(this, VideoCallActivity::class.java)
+                        Intent(
+                            this,
+                            if (call.typeVideo) VideoCallActivity::class.java else VoiceCallActivity::class.java
+                        )
                             .putExtra("agoraToken", call.token)
                             .putExtra("profileId", call.callerProfileId)
                             .putExtra("byMe", false)
