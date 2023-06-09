@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/athens_gray"
     android:paddingTop="5dp"
-    tools:context=".ui.home.chat.fragments.ChatsListFragment">
+    tools:context=".ui.home.chat.ui.chatlist.fragments.ChatsListFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -55,16 +55,16 @@
                 />
 
             <ImageButton
-                android:id="@+id/sendMessageToMultipleContact"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:id="@+id/addGroup"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="@android:color/transparent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="20dp"
                 android:scaleType="centerInside"
                 app:layout_constraintTop_toTopOf="@id/chatListTitle"
                 app:layout_constraintBottom_toBottomOf="@id/chatListTitle"
-                android:src="@drawable/edit_icon"
+                android:src="@drawable/baseline_group_add_24"
                 app:tint="@color/green"
                 />
 

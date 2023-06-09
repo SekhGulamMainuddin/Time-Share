@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.workers
+package com.sekhgmainuddin.timeshare.ui.home.chat.backend.workers
 
 import android.content.Context
 import androidx.work.Worker

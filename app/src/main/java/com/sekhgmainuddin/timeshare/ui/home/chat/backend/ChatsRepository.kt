@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat
+package com.sekhgmainuddin.timeshare.ui.home.chat.backend
 
 import android.content.Context
 import android.net.Uri
@@ -11,30 +11,36 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
 import com.sekhgmainuddin.timeshare.data.modals.Chats
 import com.sekhgmainuddin.timeshare.data.modals.RecentProfileChats
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.data.modals.Call
+import com.sekhgmainuddin.timeshare.data.modals.Group
+import com.sekhgmainuddin.timeshare.data.modals.RecentGroupChats
 import com.sekhgmainuddin.timeshare.ui.home.HomeRepository
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.fileFromContentUri
 import com.sekhgmainuddin.timeshare.utils.Utils.getFileExtension
 import com.sekhgmainuddin.timeshare.utils.Utils.getFirstPage
 import com.sekhgmainuddin.timeshare.utils.Utils.saveAsJPG
-import com.sekhgmainuddin.timeshare.utils.agora.RtcTokenBuilder2
 import com.sekhgmainuddin.timeshare.utils.enums.MessageStatus
 import com.sekhgmainuddin.timeshare.utils.enums.MessageType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -50,6 +56,7 @@ class ChatsRepository @Inject constructor(
     private val homeRepository: HomeRepository,
     @ApplicationContext val context: Context
 ) {
+
     init {
         CoroutineScope(Dispatchers.IO).launch {
             timeShareDb.getDao().deleteAllChats()
@@ -59,6 +66,7 @@ class ChatsRepository @Inject constructor(
     private val firebaseUser = firebaseAuth.currentUser
     private val timeShareDbDao = timeShareDb.getDao()
 
+    val groups = timeShareDbDao.getGroups()
     val user = timeShareDbDao.getUser()
     val chatsList = timeShareDbDao.getChats()
     val recentChatProfiles = timeShareDbDao.getRecentChatsList()
@@ -72,37 +80,45 @@ class ChatsRepository @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    suspend fun getRecentProfileChats() = callbackFlow<Result<List<RecentProfileChats>>> {
-        val recentProfileChatsListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val recentProfileChatsList = ArrayList<RecentProfileChats>()
-                if (snapshot.hasChildren()) {
-                    for (i in snapshot.children) {
-                        i.getValue(RecentProfileChats::class.java)?.let { profileChat ->
-                            recentProfileChatsList.add(profileChat)
+    suspend fun getRecentProfileChats() =
+        callbackFlow<Result<List<Pair<RecentProfileChats?, RecentGroupChats?>>>> {
+            val recentProfileChatsListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val recentChatsList =
+                        ArrayList<Pair<RecentProfileChats?, RecentGroupChats?>>()
+                    if (snapshot.hasChildren()) {
+                        for (i in snapshot.children) {
+                            if (i.hasChild("group")) {
+                                i.getValue(RecentGroupChats::class.java)?.let { groupChat ->
+                                    recentChatsList.add(Pair(null, groupChat))
+                                }
+                            } else {
+                                i.getValue(RecentProfileChats::class.java)?.let { profileChat ->
+                                    recentChatsList.add(Pair(profileChat, null))
+                                }
+                            }
                         }
                     }
+                    this@callbackFlow.trySendBlocking(Result.success(recentChatsList))
                 }
-                this@callbackFlow.trySendBlocking(Result.success(recentProfileChatsList))
+
+                override fun onCancelled(error: DatabaseError) {
+                    this@callbackFlow.trySendBlocking(Result.failure(error.toException()))
+                }
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                this@callbackFlow.trySendBlocking(Result.failure(error.toException()))
-            }
-        }
-
-        firebaseUser?.let {
-            databaseReference.child("ChatsList").child(it.uid)
-                .addValueEventListener(recentProfileChatsListener)
-        }
-
-        awaitClose {
             firebaseUser?.let {
                 databaseReference.child("ChatsList").child(it.uid)
-                    .removeEventListener(recentProfileChatsListener)
+                    .addValueEventListener(recentProfileChatsListener)
+            }
+
+            awaitClose {
+                firebaseUser?.let {
+                    databaseReference.child("ChatsList").child(it.uid)
+                        .removeEventListener(recentProfileChatsListener)
+                }
             }
         }
-    }
 
     private var _messageSent = MutableLiveData<NetworkResult<Boolean>>()
     val messageSent: LiveData<NetworkResult<Boolean>>
@@ -112,14 +128,16 @@ class ChatsRepository @Inject constructor(
         profileId: String,
         type: MessageType,
         message: String,
-        document: String
+        document: String,
+        isGroup: Boolean,
+        groupMembers: List<String>
     ) {
         var chat: Chats? = null
         var chatId: String? = null
         val time = System.currentTimeMillis()
         var id = ""
         firebaseUser?.uid?.let { fUid ->
-            chatId = getChatId(profileId)
+            chatId = if (isGroup) profileId else getChatId(profileId)
             id = "$fUid$time"
             chat = chatId?.let {
                 Chats(
@@ -139,6 +157,7 @@ class ChatsRepository @Inject constructor(
                 databaseReference.child("Chats").child(it).child(id)
                     .setValue(chat).await()
             }
+            updateRecentMessage(profileId, message, 0, isGroup, groupMembers)
             _messageSent.postValue(NetworkResult.Success(true, 201))
         } catch (e: Exception) {
             Log.d("sendMessageException", "sendMessage: $e")
@@ -149,24 +168,42 @@ class ChatsRepository @Inject constructor(
     suspend fun updateRecentMessage(
         profileId: String,
         recentMessage: String,
-        numberOfUnseenMessage: Int
+        numberOfUnseenMessage: Int,
+        isGroupMessage: Boolean,
+        ifGroupParticipantsList: List<String> = emptyList()
     ) {
         try {
-            firebaseUser?.let {
-                databaseReference.child("ChatsList").child(it.uid)
-                    .child(profileId).setValue(
-                        RecentProfileChats(
-                            profileId, recentMessage,
-                            System.currentTimeMillis(), numberOfUnseenMessage + 1
-                        )
-                    ).await()
-                databaseReference.child("ChatsList").child(profileId)
-                    .child(it.uid).setValue(
-                        RecentProfileChats(
-                            it.uid, recentMessage,
-                            System.currentTimeMillis(), numberOfUnseenMessage + 1
-                        )
-                    ).await()
+            if (isGroupMessage) {
+                firebaseUser?.uid?.let { uid ->
+                    ifGroupParticipantsList.forEach {
+                        databaseReference.child("ChatsList").child(it)
+                            .child(profileId).setValue(
+                                RecentGroupChats(
+                                    profileId, recentMessage,
+                                    System.currentTimeMillis(), numberOfUnseenMessage + 1,
+                                    true,
+                                    uid
+                                )
+                            ).await()
+                    }
+                }
+            } else {
+                firebaseUser?.let {
+                    databaseReference.child("ChatsList").child(it.uid)
+                        .child(profileId).setValue(
+                            RecentProfileChats(
+                                profileId, recentMessage,
+                                System.currentTimeMillis(), numberOfUnseenMessage + 1
+                            )
+                        ).await()
+                    databaseReference.child("ChatsList").child(profileId)
+                        .child(it.uid).setValue(
+                            RecentProfileChats(
+                                it.uid, recentMessage,
+                                System.currentTimeMillis(), numberOfUnseenMessage + 1
+                            )
+                        ).await()
+                }
             }
         } catch (e: Exception) {
             Log.d("updateRecentException", "updateRecentMessage: $e  ${e.message}")
@@ -196,7 +233,7 @@ class ChatsRepository @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    suspend fun fetchMessages(profileId: String) = callbackFlow<Result<List<Chats>>> {
+    suspend fun fetchMessages(profileId: String, isGroup: Boolean) = callbackFlow<Result<List<Chats>>> {
         val chatListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val chatsList = ArrayList<Chats>()
@@ -215,7 +252,7 @@ class ChatsRepository @Inject constructor(
             }
         }
 
-        val chatId: String? = getChatId(profileId)
+        val chatId: String? = if (isGroup) profileId else getChatId(profileId)
         Log.d("chatsList", "fetchMessages: $chatId")
         chatId?.let { it ->
             databaseReference.child("Chats").child(it)
@@ -242,12 +279,25 @@ class ChatsRepository @Inject constructor(
         return null
     }
 
+    suspend fun getGroupDetails(groupId: String): Group? {
+        try {
+            val response = firestore.collection("Groups").document(groupId).get().await()
+            if (response.exists())
+                return response.toObject(Group::class.java)
+        } catch (e: Exception) {
+            Log.d("profileDetailException", "getProfileDetails: $e")
+        }
+        return null
+    }
+
 
     suspend fun sendMessageFile(
         uri: Uri?,
         gif: String,
         typeofMessage: MessageType?,
-        receiverId: String
+        receiverId: String,
+        isGroupMessage: Boolean,
+        groupMembers: List<String>
     ) {
         try {
             val type = typeofMessage ?: (
@@ -262,7 +312,7 @@ class ChatsRepository @Inject constructor(
                         }
                     }
                     )
-            val chatId = getChatId(receiverId)
+            val chatId = if (isGroupMessage) receiverId else getChatId(receiverId)
             val currentTime = System.currentTimeMillis()
             val path: String = if (uri == null) gif else "Chats/${chatId}/${
                 type.name + currentTime.toString() + "." + getFileExtension(uri, context)
@@ -301,7 +351,7 @@ class ChatsRepository @Inject constructor(
             )
             databaseReference.child("Chats").child(chatId).child("${firebaseUser.uid}$currentTime")
                 .setValue(chat).await()
-            updateRecentMessage(receiverId, "${type.name} ", 0)
+            updateRecentMessage(receiverId, "${type.name} ", 0, isGroupMessage, groupMembers)
             _messageSent.postValue(NetworkResult.Success(true, 201))
         } catch (e: Exception) {
             Log.d("sendFileMessageException", "sendMessageFile: $e")
@@ -309,7 +359,7 @@ class ChatsRepository @Inject constructor(
         }
     }
 
-    fun getChatId(profileId: String): String? {
+    fun getChatId(profileId: String, isGroup: Boolean = false): String? {
         var chatId: String? = null
         firebaseUser?.uid?.let {
             if (it.compareTo(profileId) > 0)
@@ -364,11 +414,17 @@ class ChatsRepository @Inject constructor(
             }
     }
 
-    suspend fun makeCall(receiverProfile: User, token: String, uid: Int, typeVideo: Boolean, callId: String): Result<Call> {
+    suspend fun makeCall(
+        receiverProfile: User,
+        token: String,
+        uid: Int,
+        typeVideo: Boolean,
+        callId: String
+    ): Result<Call> {
         try {
             var call: Call? = null
             firebaseUser?.uid?.let {
-                call= Call(
+                call = Call(
                     callId = callId,
                     token = token,
                     uid = uid,
@@ -413,18 +469,75 @@ class ChatsRepository @Inject constructor(
     suspend fun observeCall() = callbackFlow {
         val callSubscriber = firebaseUser?.uid?.let {
             firestore.collection("Call").document(it).addSnapshotListener { snapshot, error ->
-                snapshot?.exists()?.let{
-                    snapshot.toObject(Call::class.java)?.let { call->
+                snapshot?.exists()?.let {
+                    snapshot.toObject(Call::class.java)?.let { call ->
                         trySend(Result.success(call))
                     }
                 }
-                if (error!=null){
+                if (error != null) {
                     trySend(Result.failure(error))
                 }
             }
         }
 
         awaitClose { callSubscriber?.remove() }
+    }
+
+    private var _createGroupResult = MutableLiveData<Result<Group>>()
+    val createGroupResult: LiveData<Result<Group>>
+        get() = _createGroupResult
+
+    suspend fun createGroup(
+        groupName: String,
+        groupDesc: String,
+        groupImage: Uri?,
+        groupMembers: List<String>
+    ) = coroutineScope {
+        try {
+            val groupId = UUID.randomUUID().toString()
+            val imageUrl =
+                if (groupImage == null) "https://cdn-icons-png.flaticon.com/512/6387/6387947.png" else homeRepository.uploadFile(
+                    groupImage,
+                    null,
+                    "Groups/$groupId/groupImage.${getFileExtension(groupImage, context)}"
+                )
+            val group = Group(
+                groupId,
+                groupName,
+                imageUrl ?: "",
+                groupDesc,
+                groupMembers
+            )
+
+            awaitAll(
+                async {
+                    firestore.collection("Groups").document(groupId).set(group).await()
+                },
+                async {
+                    groupMembers.forEach {
+                        firestore.collection("Users").document(it)
+                            .update("groups", FieldValue.arrayUnion(groupId)).await()
+                    }
+                },
+                async { updateRecentMessage(groupId, "-1", 0, true, groupMembers) },
+                async {
+                    val userMap = homeRepository.getUserDataById(groupMembers.toSet())
+                    timeShareDbDao.insertGroup(
+                        GroupEntity(
+                            groupId,
+                            groupName,
+                            imageUrl ?: "",
+                            groupDesc,
+                            userMap
+                        )
+                    )
+                },
+            )
+            _createGroupResult.postValue(Result.success(group))
+        } catch (e: Exception) {
+            Log.d("createGroup", "createGroupException: $e")
+            _createGroupResult.postValue(Result.failure(e))
+        }
     }
 
 }

@@ -1,17 +1,16 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.fragments
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.fragments
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.sekhgmainuddin.timeshare.databinding.FragmentFriendsListBinding
-import com.sekhgmainuddin.timeshare.ui.home.chat.ChatActivity
-import com.sekhgmainuddin.timeshare.ui.home.chat.ChatsViewModel
-import com.sekhgmainuddin.timeshare.ui.home.chat.adapters.FriendsListAdapter
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.oneononechat.ChatActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.FriendsListAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

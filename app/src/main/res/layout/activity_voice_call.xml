@@ -5,7 +5,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.chat.VoiceCallActivity">
+    tools:context=".ui.home.chat.ui.VoiceCallActivity">
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/voiceCallingAnimation"

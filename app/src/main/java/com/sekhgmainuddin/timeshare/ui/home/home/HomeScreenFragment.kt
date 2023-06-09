@@ -5,32 +5,23 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.modals.Post
 import com.sekhgmainuddin.timeshare.data.modals.Status
 import com.sekhgmainuddin.timeshare.databinding.FragmentHomeScreenBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
-import com.sekhgmainuddin.timeshare.ui.home.chat.ChatListActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.ChatListActivity
 import com.sekhgmainuddin.timeshare.ui.home.home.adapters.PostsAdapter
-import com.sekhgmainuddin.timeshare.ui.home.home.adapters.StatusAdapter
 import com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {

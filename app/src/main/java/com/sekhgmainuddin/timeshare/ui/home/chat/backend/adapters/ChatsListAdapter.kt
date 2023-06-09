@@ -1,6 +1,7 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.adapters
+package com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,7 +38,6 @@ class ChatsListAdapter(val context: Context, val onClicked: onClicked): ListAdap
 
     override fun onBindViewHolder(holder: ChatsListViewHolder, position: Int) {
         val currentItem= currentList[position]
-        holder.msgHeaderTV.isVisible = position==0
         Glide.with(context).load(currentItem.profileImageUrl).placeholder(R.drawable.default_profile_pic).into(holder.profileImage)
         holder.profileRecentMessage.text= currentItem.recentMessage
         holder.unseenMsgCount.text= currentItem.numberOfUnseenMessages.toString()
@@ -45,13 +45,12 @@ class ChatsListAdapter(val context: Context, val onClicked: onClicked): ListAdap
         holder.profilename.text= currentItem.profileName
         holder.lastMessageTime.text= currentItem.lastMessageTime.getTimeAgo()
         holder.itemView.setOnClickListener {
-            onClicked.onProfileClicked(currentItem.profileId, currentItem.profileName, currentItem.profileImageUrl)
+            onClicked.onProfileClicked(currentItem.profileId, currentItem.profileName, currentItem.profileImageUrl, currentItem.typeGroup)
         }
     }
 
     inner class ChatsListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val profileImage= itemView.findViewById<ShapeableImageView>(R.id.profileImage)
-        val msgHeaderTV= itemView.findViewById<TextView>(R.id.messagesTV)
         val profilename= itemView.findViewById<TextView>(R.id.profileName)
         val profileRecentMessage= itemView.findViewById<TextView>(R.id.profileRecentMessage)
         val unseenMsgCount= itemView.findViewById<MaterialButton>(R.id.numberOfUnreadMessages)
@@ -60,5 +59,5 @@ class ChatsListAdapter(val context: Context, val onClicked: onClicked): ListAdap
 
 }
 interface onClicked{
-    fun onProfileClicked(profileId: String, profileName: String, profileImageUrl: String)
+    fun onProfileClicked(profileId: String, profileName: String, profileImageUrl: String, isGroup: Boolean)
 }

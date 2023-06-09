@@ -22,4 +22,10 @@ class Converter {
     @TypeConverter
     fun toUserList(value: String) = Json.decodeFromString<Map<String, User>>(value)
 
+    @TypeConverter
+    fun fromGroupIDList(value : List<String>) = Json.encodeToString(value)
+
+    @TypeConverter
+    fun toGroupIDList(value: String) = Json.decodeFromString<List<String>>(value)
+
 }

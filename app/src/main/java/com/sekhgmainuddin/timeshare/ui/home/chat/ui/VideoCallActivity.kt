@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityVideoCallBinding
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
 import com.sekhgmainuddin.timeshare.utils.Keys
 import com.sekhgmainuddin.timeshare.utils.ManagePermissions
 import dagger.hilt.android.AndroidEntryPoint

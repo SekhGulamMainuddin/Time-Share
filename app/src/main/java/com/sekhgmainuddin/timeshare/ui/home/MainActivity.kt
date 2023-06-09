@@ -11,8 +11,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityMainBinding
 import com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.AddNewPostReelStatusBottomSheetDialogFragment
-import com.sekhgmainuddin.timeshare.ui.home.chat.VideoCallActivity
-import com.sekhgmainuddin.timeshare.ui.home.chat.VoiceCallActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.VideoCallActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.VoiceCallActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

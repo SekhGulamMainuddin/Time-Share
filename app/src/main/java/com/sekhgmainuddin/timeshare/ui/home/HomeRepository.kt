@@ -12,6 +12,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.StorageReference
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
+import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
@@ -36,7 +37,6 @@ class HomeRepository @Inject constructor(
 
     private val firebaseUser = firebaseAuth.currentUser
     private val timeShareDbDao = timeShareDb.getDao()
-
 
     val allPosts = timeShareDbDao.getAllPosts()
 
@@ -162,7 +162,7 @@ class HomeRepository @Inject constructor(
         val subscriptionUser = firebaseUser?.uid?.let {
             firebaseFireStore.collection("Users").document(it)
                 .addSnapshotListener { snapshot, error ->
-                    snapshot?.exists()?.let {
+                    if (snapshot?.exists() == true) {
                         snapshot.toObject(User::class.java)
                             ?.let { it1 ->
                                 trySend(Result.success(it1))
@@ -174,6 +174,29 @@ class HomeRepository @Inject constructor(
                 }
         }
         awaitClose { subscriptionUser?.remove() }
+    }
+
+    suspend fun getGroupDetails(groupIds: List<String>) {
+        try {
+            groupIds.forEach {
+                val groupDetails = firebaseFireStore.collection("Groups").document(it).get().await()
+                if (groupDetails.exists()) {
+                    groupDetails.toObject(Group::class.java)?.apply {
+                        val userMap = getUserDataById(groupMembers.toSet())
+                        val group= GroupEntity(
+                            groupId,
+                            groupName,
+                            groupImageUrl,
+                            groupDesc,
+                            userMap
+                        )
+                        timeShareDbDao.insertGroup(group)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+
+        }
     }
 
     private var _addPostStatus = MutableLiveData<NetworkResult<Boolean>>()
@@ -585,7 +608,7 @@ class HomeRepository @Inject constructor(
         val videoCheck = firebaseUser?.uid?.let {
             firebaseFireStore.collection("Call").document(it)
                 .addSnapshotListener { snapshot, error ->
-                    snapshot?.exists()?.let {
+                    if (snapshot?.exists() == true) {
                         snapshot.toObject(Call::class.java)
                             ?.let { it1 ->
                                 trySend(Result.success(it1))

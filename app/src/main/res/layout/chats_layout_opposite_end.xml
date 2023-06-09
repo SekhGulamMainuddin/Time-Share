@@ -3,8 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingVertical="2dp"
-    android:paddingHorizontal="2dp"
+    android:paddingHorizontal="1dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/senderImage"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="invisible"
+        android:scaleType="centerCrop"
+        />
 
     <LinearLayout
         android:id="@+id/linearLayoutChat"
@@ -12,10 +23,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/senderImage"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/guideline"
-        android:layout_marginStart="18dp">
+        android:layout_marginStart="2dp"
+        app:layout_constraintEnd_toEndOf="@id/guideline">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -25,6 +36,20 @@
             android:paddingEnd="15dp"
             android:background="@drawable/chat_start_opposite_end"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/senderName"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/my_name_is"
+                android:maxLines="1"
+                android:maxEms="10"
+                android:ellipsize="end"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:visibility="gone"
+                />
 
             <ImageView
                 android:id="@+id/imageMessage"
@@ -44,37 +69,17 @@
                 android:textSize="16sp"
                 />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/messageTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/messageStatus"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:scaleType="centerInside"
-                    app:layout_constraintEnd_toStartOf="@id/linearLayoutChat"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintBottom_toBottomOf="@id/linearLayoutChat"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_baseline_check_circle_24"
-                    android:layout_marginEnd="2dp"
-                    android:visibility="gone"/>
-
-                <TextView
-                    android:id="@+id/messageTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="10sp"
-                    android:text="@string/ago"
-                    android:textColor="@color/white"
-                    android:textStyle="italic"
-                    android:layout_marginStart="5dp"
-                    />
-
-
-            </LinearLayout>
+                android:textSize="10sp"
+                android:text="@string/ago"
+                android:textColor="@color/white"
+                android:textStyle="italic"
+                android:layout_marginStart="5dp"
+                android:layout_gravity="end"
+                />
 
         </LinearLayout>
 

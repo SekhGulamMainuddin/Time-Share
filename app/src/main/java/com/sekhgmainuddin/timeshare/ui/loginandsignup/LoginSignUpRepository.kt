@@ -63,10 +63,10 @@ class LoginSignUpRepository @Inject constructor(
                     user?.phoneNumber ?: "",
                     user?.photoUrl.toString(),
                     "",
-                    null,
-                    null,
+                    arrayListOf(),
+                    "",
                     1,
-                    null
+                    arrayListOf()
                 )
                 user?.uid?.let {
                     newUser.userId= it

@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/chatsListFragment"
-        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.fragments.ChatsListFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.fragments.ChatsListFragment"
         android:label="fragment_chats_list"
         tools:layout="@layout/fragment_chats_list"
         >
@@ -21,21 +21,31 @@
         <action
             android:id="@+id/action_chatsListFragment_to_friendsListFragment"
             app:destination="@id/friendsListFragment" />
+        <action
+            android:id="@+id/action_chatsListFragment_to_addGroupFragment"
+            app:destination="@id/addGroupFragment" />
     </fragment>
     <fragment
         android:id="@+id/voiceCallFragment"
-        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.fragments.VoiceCallFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.fragments.VoiceCallFragment"
         android:label="fragment_voice_call"
         tools:layout="@layout/fragment_voice_call"
         />
     <fragment
         android:id="@+id/videoCallFragment"
-        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.fragments.VideoCallFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.fragments.VideoCallFragment"
         android:label="fragment_video_call"
         tools:layout="@layout/fragment_video_call" />
     <fragment
         android:id="@+id/friendsListFragment"
-        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.fragments.FriendsListFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.fragments.FriendsListFragment"
         android:label="fragment_friends_list"
         tools:layout="@layout/fragment_friends_list" />
+    <fragment
+        android:id="@+id/addGroupFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.groupchat.fragments.AddGroupFragment"
+        android:label="fragment_add_group"
+        tools:layout="@layout/fragment_add_group" />
+
+
 </navigation>

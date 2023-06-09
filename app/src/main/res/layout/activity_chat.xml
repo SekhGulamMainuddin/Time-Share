@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/athens_gray"
-    tools:context=".ui.home.chat.ChatActivity">
+    android:background="@drawable/default_chat_background"
+    tools:context=".ui.home.chat.ui.oneononechat.ChatActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -14,13 +14,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/white"
-        android:padding="8dp"
+        android:background="#09FFFFFF"
+        android:padding="10dp"
+        app:elevation="0dp"
         >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:elevation="0dp">
 
             <ImageButton
                 android:id="@+id/backButton"
@@ -30,7 +33,8 @@
                 android:src="@drawable/ic_round_arrow_back_ios_new_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/profileImage"
@@ -51,7 +55,7 @@
                 android:layout_marginStart="15dp"
                 android:text="@string/name"
                 android:maxLines="1"
-                android:textColor="@color/profile_text_color"
+                android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="2dp"
@@ -71,6 +75,7 @@
                 android:text="@string/active"
                 android:textSize="14sp"
                 android:layout_marginEnd="25dp"
+                android:textColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/profileImage"
                 app:layout_constraintEnd_toStartOf="@id/voiceCall"
@@ -87,7 +92,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginEnd="10dp"
-                />
+                app:tint="@color/white" />
 
             <ImageButton
                 android:id="@+id/voiceCall"
@@ -101,7 +106,7 @@
                 app:layout_constraintEnd_toStartOf="@id/videoCall"
                 android:background="@android:color/transparent"
                 android:layout_marginEnd="15dp"
-                />
+                app:tint="@color/white" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

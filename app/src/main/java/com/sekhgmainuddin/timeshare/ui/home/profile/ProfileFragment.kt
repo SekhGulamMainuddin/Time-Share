@@ -36,7 +36,7 @@ class ProfileFragment : Fragment() {
     private var userData: User? = null
     private var userDetails: UserWithFriendFollowerAndFollowingLists? = null
     private lateinit var progressDialog: Dialog
-    private var userId: String?= null
+    private var userId: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,12 +44,12 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater)
-        userData= if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getSerializable("searchUser",User::class.java)
-        }else{
+        userData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getSerializable("searchUser", User::class.java)
+        } else {
             arguments?.getSerializable("searchUser") as User
         }
-        userId= userData?.userId
+        userId = userData?.userId
         return _binding!!.root
     }
 
@@ -62,7 +62,7 @@ class ProfileFragment : Fragment() {
         progressDialog.show()
 
         userId?.let {
-            viewModel.getUserReels(userId= it)
+            viewModel.getUserReels(userId = it)
             viewModel.getAllPosts(userId = it)
             viewModel.getUserData(it)
             bindObservers()
@@ -109,9 +109,9 @@ class ProfileFragment : Fragment() {
     private fun loadFollowersFriendsFollowing() {
 
         binding.apply {
-            followerCount.text = (userData?.followers?.size?:"0").toString()
-            followingCount.text =   (userData?.following?.size?:"0").toString()
-            friendCount.text = (userData?.friends?.size?:"0").toString()
+            followerCount.text = (userData?.followers?.size ?: "0").toString()
+            followingCount.text = (userData?.following?.size ?: "0").toString()
+            friendCount.text = (userData?.friends?.size ?: "0").toString()
             followerOneImage.isVisible = false
             followerTwoImage.isVisible = false
             followerThreeImage.isVisible = false
@@ -137,6 +137,7 @@ class ProfileFragment : Fragment() {
                             user.followers[followersKeys[0]]?.imageUrl ?: ""
                         )
                     }
+
                     2 -> {
                         followerOneImage.isVisible = true
                         followerTwoImage.isVisible = true
@@ -145,11 +146,14 @@ class ProfileFragment : Fragment() {
                         )
                         followerTwoImage.loadImage(user.followers[followersKeys[1]]?.imageUrl ?: "")
                     }
+
                     else -> {
                         followerThreeImage.isVisible = true
                         followerTwoImage.isVisible = true
                         followerOneImage.isVisible = true
-                        followerThreeImage.loadImage(user.followers[followersKeys[0]]?.imageUrl ?: "")
+                        followerThreeImage.loadImage(
+                            user.followers[followersKeys[0]]?.imageUrl ?: ""
+                        )
                         followerTwoImage.loadImage(user.followers[followersKeys[1]]?.imageUrl ?: "")
                         followerOneImage.loadImage(user.followers[followersKeys[2]]?.imageUrl ?: "")
                     }
@@ -161,6 +165,7 @@ class ProfileFragment : Fragment() {
                             user.following[followingKeys[0]]?.imageUrl ?: ""
                         )
                     }
+
                     2 -> {
                         followingOneImage.isVisible = true
                         followingTwoImage.isVisible = true
@@ -171,6 +176,7 @@ class ProfileFragment : Fragment() {
                             user.following[followingKeys[1]]?.imageUrl ?: ""
                         )
                     }
+
                     else -> {
                         followingThreeImage.isVisible = true
                         followingTwoImage.isVisible = true
@@ -191,12 +197,14 @@ class ProfileFragment : Fragment() {
                         friendsOneImage.isVisible = true
                         friendsOneImage.loadImage(user.friends[friendsKeys[0]]?.imageUrl ?: "")
                     }
+
                     2 -> {
                         friendsOneImage.isVisible = true
                         friendsTwoImage.isVisible = true
                         friendsOneImage.loadImage(user.friends[friendsKeys[0]]?.imageUrl ?: "")
                         friendsTwoImage.loadImage(user.friends[friendsKeys[1]]?.imageUrl ?: "")
                     }
+
                     else -> {
                         friendsThreeImage.isVisible = true
                         friendsTwoImage.isVisible = true
@@ -213,7 +221,7 @@ class ProfileFragment : Fragment() {
     private fun bindObservers() {
         viewModel.searchUserDetails.observe(viewLifecycleOwner) {
             progressDialog.dismiss()
-            it.onSuccess{_->
+            it.onSuccess { _ ->
                 it.getOrNull()?.let { user ->
                     userDetails = user
                     userData = User(
@@ -222,16 +230,16 @@ class ProfileFragment : Fragment() {
                         user.email,
                         user.phone,
                         user.imageUrl,
-                        user.bio,
-                        user.interests,
-                        user.location,
+                        user.bio ?: "",
+                        user.interests ?: arrayListOf(),
+                        user.location ?: "",
                         user.activeStatus
                     )
                     loadDataToViews()
                     loadFollowersFriendsFollowing()
                 }
             }
-            it.onFailure { t->
+            it.onFailure { t ->
                 Toast.makeText(requireContext(), "$t", Toast.LENGTH_SHORT).show()
             }
         }

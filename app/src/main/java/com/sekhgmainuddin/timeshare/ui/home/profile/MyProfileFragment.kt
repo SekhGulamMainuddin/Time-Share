@@ -213,9 +213,9 @@ class MyProfileFragment : Fragment() {
                         user.email,
                         user.phone,
                         user.imageUrl,
-                        user.bio,
-                        user.interests,
-                        user.location,
+                        user.bio?:"",
+                        user.interests?: arrayListOf(),
+                        user.location?:"",
                         user.activeStatus
                     )
                     loadDataToViews()

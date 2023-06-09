@@ -1,13 +1,13 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityListChatBinding
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

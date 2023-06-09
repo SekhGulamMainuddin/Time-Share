@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui.oneononechat
 
 import android.Manifest
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -35,10 +35,15 @@ import com.giphy.sdk.ui.views.GiphyDialogFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.databinding.ActivityChatBinding
-import com.sekhgmainuddin.timeshare.ui.home.chat.adapters.ChatsAdapter
-import com.sekhgmainuddin.timeshare.ui.home.chat.attachments.ImagePickerActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.VideoCallActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.VoiceCallActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.ChatsAdapter
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.attachments.ImagePickerActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.GroupChatsAdapter
 import com.sekhgmainuddin.timeshare.utils.Keys
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.getRandomIDInteger
@@ -66,9 +71,12 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     lateinit var giphy: GiphyDialogFragment
 
     private lateinit var chatAdapter: ChatsAdapter
+    private lateinit var groupChatsAdapter: GroupChatsAdapter
     private val tokenBuilder = RtcTokenBuilder2()
     private var profileId: String? = null
     private var profile: User? = null
+    private var isGroup: Boolean = false
+    private var profileGroup: GroupEntity? = null
     private var profileActiveStatus: Long = -1
     private var mediaRecorder: MediaRecorder? = null
     private var audioPath = ""
@@ -82,6 +90,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     private var callId: String? = null
     private var uid: Int? = null
     private lateinit var progressDialog: Dialog
+    private lateinit var chatId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,24 +123,27 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
 
         imagePickerBottomSheet = ImagePickerActivity()
 
-        val bundle = intent.getBundleExtra("profileBundle")
-        profileId = bundle?.getString("profileId")
-        profile = if (SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            bundle?.getSerializable("profile", User::class.java)
-        else
-            bundle?.getSerializable("profile") as User
+        val bundle = intent.getBundleExtra("profileBundle")!!
+        isGroup = bundle.getBoolean("isGroup", false)
+        profileId = bundle.getString("profileId")
+        if (isGroup) {
+            profileGroup = if (SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                bundle.getSerializable("profile", GroupEntity::class.java)
+            else
+                bundle.getSerializable("profile") as GroupEntity
+            updateProfileData()
+        } else {
+            profile = if (SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                bundle.getSerializable("profile", User::class.java)
+            else
+                bundle.getSerializable("profile") as User
+            updateProfileData()
+        }
+        chatId= getChatId()!!
 
-        updateProfileData(
-            User(
-                name = profile?.name ?: "",
-                imageUrl = profile?.imageUrl ?: "",
-                activeStatus = profile?.activeStatus ?: -1
-            )
-        )
         loadData()
         registerClickListeners()
         bindObserver()
-
     }
 
     private fun makeCall(typeVideoOrVoice: Boolean) {
@@ -150,38 +162,60 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
         viewModel.makeCall(profile!!, token!!, uid!!, typeVideoOrVoice, callId!!)
     }
 
-    fun updateProfileData(user: User) {
+    fun updateProfileData() {
         binding.apply {
-            profileName.text = profile?.name ?: ""
-            Glide.with(this@ChatActivity).load(profile?.imageUrl ?: "")
+            profileName.text = if (profile != null) profile?.name else profileGroup?.groupName
+            Glide.with(this@ChatActivity)
+                .load(if (profile == null) profileGroup?.groupImageUrl else profile?.imageUrl)
                 .placeholder(R.drawable.default_profile_pic)
                 .into(profileImage)
-            if (user.activeStatus != profileActiveStatus) {
-                profileActiveStatus = user.activeStatus
-                val status = when (profileActiveStatus) {
-                    -1L, 0L -> ""
-                    1L -> "Active"
-                    else -> profileActiveStatus.getTimeAgo()!!
+            if (profile == null) {
+                val userList = profileGroup?.groupMembers?.values?.map {
+                    return@map it.name.substring(
+                        0,
+                        it.name.lastIndexOf(' ')
+                    )
+                }.toString()
+                profileStatus.text = userList.substring(1, userList.length - 1)
+            } else {
+                if (profile?.activeStatus != profileActiveStatus) {
+                    profileActiveStatus = profile?.activeStatus!!
+                    val status = when (profileActiveStatus) {
+                        -1L, 0L -> ""
+                        1L -> "Active"
+                        else -> profileActiveStatus.getTimeAgo()!!
+                    }
+                    profileStatus.text = status
+                    profileStatus.isVisible = status == ""
                 }
-                profileStatus.text = status
-                profileStatus.isVisible = status == ""
             }
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun loadData() {
-
-        chatAdapter = ChatsAdapter(this, profile?.imageUrl ?: "", firebaseAuth.currentUser?.uid!!) {
-            selectedMessage = it
-            chatsDialog.show()
-        }
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         layoutManager.stackFromEnd = true
         binding.chatsRecyclerView.layoutManager = layoutManager
-        binding.chatsRecyclerView.adapter = chatAdapter
+        if (isGroup) {
+            groupChatsAdapter = GroupChatsAdapter(
+                profileGroup!!.groupMembers,
+                this,
+                firebaseAuth.currentUser?.uid!!
+            ) {
+                selectedMessage = it
+                chatsDialog.show()
+            }
+            binding.chatsRecyclerView.adapter = groupChatsAdapter
+        } else {
+            chatAdapter = ChatsAdapter(this, firebaseAuth.currentUser?.uid!!) {
+                selectedMessage = it
+                chatsDialog.show()
+            }
+            binding.chatsRecyclerView.adapter = chatAdapter
+        }
 
-        viewModel.getLatestChats(profileId!!)
+        viewModel.getLatestChats(profileId!!, isGroup)
 
     }
 
@@ -194,7 +228,9 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 if (messageInputET.text.toString().isNotEmpty()) {
                     viewModel.sendMessage(
                         profileId!!, MessageType.TEXT,
-                        messageInputET.text.toString().trim(), ""
+                        messageInputET.text.toString().trim(), "",
+                        isGroup,
+                        profileGroup?.groupMembers?.keys?.toList() ?: emptyList()
                     )
                     messageInputET.text.clear()
                 } else {
@@ -343,22 +379,33 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 is NetworkResult.Error -> {
                     Toast.makeText(this, "Some Error Occurred", Toast.LENGTH_SHORT).show()
                 }
-
                 is NetworkResult.Loading -> {
 
                 }
             }
         }
-        viewModel.chatList.observe(this) {
-            chatAdapter.submitList(it)
-            binding.chatsRecyclerView.scrollToPosition(chatAdapter.itemCount - 1)
+        viewModel.chatList.observe(this) { l->
+            val list= ArrayList<ChatEntity>()
+            l.forEach {
+                if (it.chatId.equals(chatId))
+                    list.add(it)
+            }
+            if (isGroup) {
+                groupChatsAdapter.submitList(list)
+                binding.chatsRecyclerView.scrollToPosition(groupChatsAdapter.itemCount - 1)
+            } else {
+                chatAdapter.submitList(list)
+                binding.chatsRecyclerView.scrollToPosition(chatAdapter.itemCount - 1)
+            }
         }
         viewModel.callSuccess.observe(this) {
             it.onSuccess { c ->
                 progressDialog.dismiss()
                 startActivity(
-                    Intent(this,
-                        if (c.typeVideo) VideoCallActivity::class.java else VoiceCallActivity::class.java)
+                    Intent(
+                        this,
+                        if (c.typeVideo) VideoCallActivity::class.java else VoiceCallActivity::class.java
+                    )
                         .putExtra("agoraToken", token)
                         .putExtra("uid", uid)
                         .putExtra("profileId", profileId)
@@ -491,7 +538,14 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
         media.url?.let {
             val gifUrl =
                 "https://i.giphy.com/media/${it.substring(it.lastIndexOf('-') + 1)}/200.gif"
-            viewModel.sendFileMessage(null, gifUrl, MessageType.GIF, profileId!!)
+            viewModel.sendFileMessage(
+                null,
+                gifUrl,
+                MessageType.GIF,
+                profileId!!,
+                isGroup,
+                profileGroup?.groupMembers?.keys?.toList() ?: emptyList()
+            )
         }
     }
 
@@ -503,14 +557,37 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                     for (i in 0 until data.itemCount) {
                         list.add(data.getItemAt(i).uri)
                     }
-                    viewModel.sendMultipleFileMessage(list, profileId!!)
+                    viewModel.sendMultipleFileMessage(
+                        list,
+                        profileId!!,
+                        isGroup,
+                        profileGroup?.groupMembers?.keys?.toList() ?: emptyList()
+                    )
                 }
             } else if (this@sendFiles.data?.data != null) {
-                viewModel.sendFileMessage(this@sendFiles.data?.data, "", null, profileId!!)
+                viewModel.sendFileMessage(
+                    this@sendFiles.data?.data,
+                    "",
+                    null,
+                    profileId!!,
+                    isGroup,
+                    profileGroup?.groupMembers?.keys?.toList() ?: emptyList()
+                )
             } else {
                 //do nothing
             }
         }
+    }
+
+    fun getChatId() = if (profile != null) {
+        firebaseAuth.currentUser?.uid?.let {
+            if (it.compareTo(profileId!!) > 0)
+                it + profileId
+            else
+                profileId + it
+        }
+    } else {
+        profileId
     }
 
 }

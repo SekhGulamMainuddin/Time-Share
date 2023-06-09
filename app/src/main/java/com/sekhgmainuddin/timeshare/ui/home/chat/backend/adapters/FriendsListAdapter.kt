@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.adapters
+package com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -12,7 +12,9 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.databinding.FriendsLayoutRvBinding
 
-class FriendsListAdapter(val context: Context, val userSelected : (Pair<String, User>) -> Unit): ListAdapter<Pair<String, User>, FriendsListAdapter.FriendsViewHolder>(FriendsDiffCallBack()) {
+class FriendsListAdapter(val context: Context, val userSelected : (Pair<String, User>) -> Unit): ListAdapter<Pair<String, User>, FriendsListAdapter.FriendsViewHolder>(
+    FriendsDiffCallBack()
+) {
 
     private class FriendsDiffCallBack: DiffUtil.ItemCallback<Pair<String, User>>(){
         override fun areItemsTheSame(oldItem: Pair<String, User>, newItem: Pair<String, User>): Boolean {

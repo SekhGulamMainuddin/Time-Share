@@ -104,6 +104,14 @@
     <string name="switch_on_off_mic">Switch On/Off Mic</string>
     <string name="switch_camera">Switch Camera</string>
     <string name="user_image">User Image</string>
+    <string name="new_group">New Group</string>
+    <string name="change_group_icon">Change Group Icon</string>
+    <string name="group_name">Group Name</string>
+    <string name="provide_a_group_subject_and_optional_ngroup_icon">Provide a group subject and optional\ngroup icon</string>
+    <string name="participants">Participants</string>
+    <string name="next_button">Next Button</string>
+    <string name="add_a_group_description">Add a group description</string>
+    <string name="profile_selected_as_participant">Profile Selected as Participant</string>
 
 
 </resources>

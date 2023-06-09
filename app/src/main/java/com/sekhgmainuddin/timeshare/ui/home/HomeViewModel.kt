@@ -34,6 +34,9 @@ class HomeViewModel @Inject constructor(
             if (result.isSuccess) {
                 result.getOrNull()?.let {
                     userData.postValue(it)
+                    if (it.groups.isNotEmpty()){
+                        homeRepository.getGroupDetails(it.groups)
+                    }
                 }
                 Log.d("AllPostsOfUser", "getUserData: ${result.getOrNull()}")
             }
