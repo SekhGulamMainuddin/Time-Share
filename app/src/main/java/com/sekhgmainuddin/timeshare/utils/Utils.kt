@@ -260,16 +260,13 @@ object Utils {
         }
     }
 
-    fun getRandomIDInteger(): Int{
-        var id= 1
-        while (true){
-            if(id > 21474836){
-                break
-            } else {
-                id= ((id*10)%2147483647 + (Random.nextInt(1,99999)%2147483647))%2147483647
-            }
-        }
-        return id
+    fun File.getFileDuration(context: Context) : Long? {
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(context, Uri.fromFile(this));
+        val time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        val timeInMillisec = time?.toLong()
+        retriever.release()
+        return timeInMillisec
     }
 
 }

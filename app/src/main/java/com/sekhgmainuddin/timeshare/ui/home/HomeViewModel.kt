@@ -306,4 +306,6 @@ class HomeViewModel @Inject constructor(
         homeRepository.changeCallStatus(mic, profileId)
     }
 
+    val statusListWithUserDetail = homeRepository.statusListWithUserDetail
+
 }

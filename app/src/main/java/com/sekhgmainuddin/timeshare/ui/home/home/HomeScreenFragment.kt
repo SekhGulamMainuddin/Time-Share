@@ -91,7 +91,7 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
     private fun bindObservers() {
 
         viewModel.userData.observe(viewLifecycleOwner) {
-            it.friends?.let { friends ->
+            it.friends.let { friends ->
                 if (friends!=oldFriendList) {
                     viewModel.getLatestPosts(friends)
                     oldFriendList.clear()
@@ -113,7 +113,9 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
                 Toast.makeText(requireContext(), "Failed to fetch user details", Toast.LENGTH_SHORT).show()
             }
         }
-
+        viewModel.statusListWithUserDetail.observe(viewLifecycleOwner) {
+            //to be updated
+        }
     }
 
     fun registerListeners(){

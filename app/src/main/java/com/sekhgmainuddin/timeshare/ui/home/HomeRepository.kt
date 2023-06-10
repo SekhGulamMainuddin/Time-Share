@@ -94,24 +94,24 @@ class HomeRepository @Inject constructor(
                 val otherUserList = ArrayList<String>()
                 val user = response.toObject(User::class.java)
                 user?.apply {
-                    friends?.let { otherUserList.addAll(it) }
-                    followers?.let { otherUserList.addAll(it) }
-                    following?.let { otherUserList.addAll(it) }
+                    friends.let { otherUserList.addAll(it) }
+                    followers.let { otherUserList.addAll(it) }
+                    following.let { otherUserList.addAll(it) }
                     getUserDataById(otherUserList.toSet()).let { otherUsers ->
                         val friendList = HashMap<String, User>()
                         val followersList = HashMap<String, User>()
                         val followingList = HashMap<String, User>()
-                        friends?.forEach { id ->
+                        friends.forEach { id ->
                             otherUsers[id]?.let { user ->
                                 friendList[id] = user
                             }
                         }
-                        followers?.forEach { id ->
+                        followers.forEach { id ->
                             otherUsers[id]?.let { user ->
                                 followersList[id] = user
                             }
                         }
-                        following?.forEach { id ->
+                        following.forEach { id ->
                             otherUsers[id]?.let { user ->
                                 followingList[id] = user
                             }
@@ -132,7 +132,9 @@ class HomeRepository @Inject constructor(
                         )
                         if (user_Id == null) {
                             currentLoggedUser = userDetails
-                            insert(UserEntity(userDetails.userId, userDetails.friends))
+                            insert(UserEntity(userDetails.userId,
+                                User(name, userId, email, phone, imageUrl, bio, interests, location, activeStatus, friends, followers, following),
+                                userDetails.friends,userDetails.following))
                             Log.d(
                                 "userDetails",
                                 "getUserData: $followersList $followingList $friendList"
@@ -145,6 +147,9 @@ class HomeRepository @Inject constructor(
                             )
                             _searchUserDetails.postValue(Result.success(userDetails))
                         }
+                    }
+                    if (user_Id==null){
+                        getStatus(friends + following + listOf(firebaseUser?.uid!!))
                     }
                 }
             }
@@ -638,6 +643,32 @@ class HomeRepository @Inject constructor(
             }
         } catch (e: Exception) {
             Log.d("changeVideoCallStatus", "changeVideoCallStatus: $e")
+        }
+    }
+
+    val userData= timeShareDbDao.getUser()
+
+    private var _statusListWithUserDetail = MutableLiveData<List<Pair<List<Status>, User>>>()
+    val statusListWithUserDetail: LiveData<List<Pair<List<Status>, User>>>
+        get() = _statusListWithUserDetail
+
+    suspend fun getStatus(profiles: List<String>) {
+        try {
+            val statusList= ArrayList<Pair<List<Status>, User>>()
+            profiles.forEach { id->
+                val status= firebaseFireStore.collection("Status").document(id).get().await()
+                if (status.exists()){
+                    status.toObject(StatusList::class.java)?.let {
+                        val following= userData.value?.get(0)?.following?.get(id)
+                        val friend= userData.value?.get(0)?.friends?.get(id)
+                        val user= userData.value?.get(0)?.user
+                        statusList.add(Pair(it.status, if (id==firebaseUser?.uid!!) user!! else following?:friend!!))
+                    }
+                }
+            }
+
+        } catch (e: Exception){
+            Log.d("getStatus", "getStatus: $e")
         }
     }
 

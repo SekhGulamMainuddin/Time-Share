@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
     private fun bindObserver() {
         viewModel.call.observe(this) {
             it.onSuccess { call ->
-                Toast.makeText(this, "", Toast.LENGTH_SHORT).show()
                 if (call.receiverProfileId == userId && !call.answered) {
                     startActivity(
                         Intent(this, if (call.isGroupCall) GroupCallActivity::class.java else CallActivity::class.java)

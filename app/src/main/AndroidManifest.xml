@@ -53,7 +53,15 @@
             android:exported="false" />
         <activity
             android:name=".ui.home.status.StatusActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.home.addnewpostreelorstatus.AddNewStatusActivity"
             android:exported="false" />
@@ -115,11 +123,7 @@
         <activity
             android:name=".ui.SplashScreenActivity"
             android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.home.MainActivity"

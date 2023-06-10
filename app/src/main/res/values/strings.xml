@@ -116,6 +116,7 @@
     <string name="opposite_person_profile_image">Opposite Person Profile Image</string>
     <string name="call_from_or_to_opposite_profile_name">Call from or to Opposite Profile Name</string>
     <string name="remote_user_mic_muted">Remote user Mic Muted</string>
+    <string name="time_today_yesterday_am_pm">Time-Today-Yesterday am pm</string>
 
 
 </resources>
