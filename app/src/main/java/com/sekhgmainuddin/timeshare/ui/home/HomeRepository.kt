@@ -183,7 +183,7 @@ class HomeRepository @Inject constructor(
                 if (groupDetails.exists()) {
                     groupDetails.toObject(Group::class.java)?.apply {
                         val userMap = getUserDataById(groupMembers.toSet())
-                        val group= GroupEntity(
+                        val group = GroupEntity(
                             groupId,
                             groupName,
                             groupImageUrl,
@@ -623,11 +623,18 @@ class HomeRepository @Inject constructor(
         }
     }
 
-    suspend fun changeCallStatus() {
+    suspend fun changeCallStatus(mic: Boolean?, profileId: String?) {
         try {
             firebaseUser?.uid?.let {
-                firebaseFireStore.collection("Call").document(it)
-                    .update(mapOf(Pair("answered", true))).await()
+                if (mic==null && profileId==null){
+                    firebaseFireStore.collection("Call").document(it)
+                        .update(mapOf(Pair("answered", true))).await()
+                }else{
+                    firebaseFireStore.collection("Call").document(it)
+                        .update(mapOf(Pair("myMicStatus", mic))).await()
+                    firebaseFireStore.collection("Call").document(profileId!!)
+                        .update(mapOf(Pair("oppositeMicStatus", mic))).await()
+                }
             }
         } catch (e: Exception) {
             Log.d("changeVideoCallStatus", "changeVideoCallStatus: $e")

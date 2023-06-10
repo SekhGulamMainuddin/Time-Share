@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.ui.oneononechat
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui
 
 import android.Manifest
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -38,15 +38,12 @@ import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.databinding.ActivityChatBinding
-import com.sekhgmainuddin.timeshare.ui.home.chat.ui.VideoCallActivity
-import com.sekhgmainuddin.timeshare.ui.home.chat.ui.VoiceCallActivity
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.ChatsAdapter
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.attachments.ImagePickerActivity
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.GroupChatsAdapter
 import com.sekhgmainuddin.timeshare.utils.Keys
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
-import com.sekhgmainuddin.timeshare.utils.Utils.getRandomIDInteger
 import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
 import com.sekhgmainuddin.timeshare.utils.agora.RtcTokenBuilder2
 import com.sekhgmainuddin.timeshare.utils.enums.MessageType
@@ -88,7 +85,6 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     private var expirationTimeInSeconds = 3600
     private var token: String? = null
     private var callId: String? = null
-    private var uid: Int? = null
     private lateinit var progressDialog: Dialog
     private lateinit var chatId: String
 
@@ -99,7 +95,6 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
 
         appCertificate = Keys.getAppCertificateAgora()
         appId = Keys.getAppIdAgora()
-
 
         progressDialog = Dialog(this)
         progressDialog.setContentView(R.layout.progress_dialog)
@@ -139,7 +134,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 bundle.getSerializable("profile") as User
             updateProfileData()
         }
-        chatId= getChatId()!!
+        chatId = getChatId()!!
 
         loadData()
         registerClickListeners()
@@ -149,17 +144,17 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     private fun makeCall(typeVideoOrVoice: Boolean) {
         callId = UUID.randomUUID().toString()
         val timestamp = (System.currentTimeMillis() / 1000 + expirationTimeInSeconds).toInt()
-        uid = getRandomIDInteger()
         token = tokenBuilder.buildTokenWithUid(
             appId,
             appCertificate,
-            "com.sekhgmainuddin.timeshare",
-            uid!!,
+            callId,
+            0,
             RtcTokenBuilder2.Role.ROLE_PUBLISHER,
             timestamp,
             timestamp
         )
-        viewModel.makeCall(profile!!, token!!, uid!!, typeVideoOrVoice, callId!!)
+        viewModel.makeCall(profile, token!!, 0, typeVideoOrVoice, callId!!, profileGroup)
+
     }
 
     fun updateProfileData() {
@@ -379,13 +374,14 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 is NetworkResult.Error -> {
                     Toast.makeText(this, "Some Error Occurred", Toast.LENGTH_SHORT).show()
                 }
+
                 is NetworkResult.Loading -> {
 
                 }
             }
         }
-        viewModel.chatList.observe(this) { l->
-            val list= ArrayList<ChatEntity>()
+        viewModel.chatList.observe(this) { l ->
+            val list = ArrayList<ChatEntity>()
             l.forEach {
                 if (it.chatId.equals(chatId))
                     list.add(it)
@@ -402,15 +398,14 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
             it.onSuccess { c ->
                 progressDialog.dismiss()
                 startActivity(
-                    Intent(
-                        this,
-                        if (c.typeVideo) VideoCallActivity::class.java else VoiceCallActivity::class.java
-                    )
+                    Intent(this,CallActivity::class.java)
                         .putExtra("agoraToken", token)
-                        .putExtra("uid", uid)
                         .putExtra("profileId", profileId)
                         .putExtra("byMe", true)
                         .putExtra("callId", callId)
+                        .putExtra("typeVideo", c.typeVideo)
+                        .putExtra("profileImage", c.receiverProfileImage)
+                        .putExtra("profileName", c.receiverName)
                 )
             }
             it.onFailure {

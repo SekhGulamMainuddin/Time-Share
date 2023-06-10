@@ -30,7 +30,7 @@
         android:rotation="180"
         android:scaleType="centerCrop"
         android:src="@drawable/group_default_background"
-        app:layout_constraintBottom_toTopOf="@id/guideline40"
+        app:layout_constraintBottom_toTopOf="@id/addGroupContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -39,118 +39,145 @@
         android:id="@+id/groupNameEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/group_name"
         android:layout_marginHorizontal="50dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolBar"
-        android:textStyle="normal"
-        android:textSize="18sp"
-        android:textColorHint="@color/white"
-        android:textColor="@color/white"
         android:layout_marginTop="30dp"
-        android:maxLines="1"
         android:background="@drawable/selected_post_reel_dialog_background"
         android:backgroundTint="@color/mid_black"
+        android:hint="@string/group_name"
+        android:maxLines="1"
         android:paddingHorizontal="15dp"
         android:paddingVertical="8dp"
-        />
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textSize="18sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toTopOf="@+id/groupDescEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/groupIconSet"
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/clearGroupName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/groupNameEditText"
+        android:layout_marginEnd="15dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_baseline_cancel_24"
         app:layout_constraintBottom_toBottomOf="@id/groupNameEditText"
         app:layout_constraintEnd_toEndOf="@id/groupNameEditText"
-        android:layout_marginEnd="15dp"
-        android:src="@drawable/ic_baseline_cancel_24"
+        app:layout_constraintTop_toTopOf="@id/groupNameEditText"
         app:tint="@color/white"
-        android:background="@android:color/transparent"/>
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/groupDescEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/add_a_group_description"
         android:layout_marginHorizontal="50dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/groupNameEditText"
-        android:textStyle="normal"
-        android:textSize="18sp"
-        android:maxLines="1"
-        android:textColorHint="@color/white"
-        android:textColor="@color/white"
         android:layout_marginTop="10dp"
         android:background="@drawable/selected_post_reel_dialog_background"
         android:backgroundTint="@color/mid_black"
+        android:hint="@string/add_a_group_description"
+        android:maxLines="1"
         android:paddingHorizontal="15dp"
         android:paddingVertical="8dp"
-        />
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textSize="18sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toTopOf="@+id/backgroundImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/groupNameEditText"
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/clearGroupDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/groupDescEditText"
+        android:layout_marginEnd="15dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_baseline_cancel_24"
         app:layout_constraintBottom_toBottomOf="@id/groupDescEditText"
         app:layout_constraintEnd_toEndOf="@id/groupDescEditText"
-        android:layout_marginEnd="15dp"
-        android:src="@drawable/ic_baseline_cancel_24"
+        app:layout_constraintTop_toTopOf="@id/groupDescEditText"
         app:tint="@color/white"
-        android:background="@android:color/transparent"/>
+        android:visibility="gone"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/currentSelectedParticipants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="@id/guideline40"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:paddingHorizontal="20dp"
+        app:layout_constraintStart_toStartOf="parent"
         tools:listitem="@layout/selected_participants_item"
-        />
+        android:visibility="gone"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline40"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.40" />
+        app:layout_constraintGuide_percent="0.4" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/groupIconSet"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/profile_icon"
+        android:visibility="gone"
+        app:contentPadding="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/groupNameEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backgroundImage"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+        app:strokeColor="@color/black"
+        app:strokeWidth="1dp"
+        app:tint="@color/mid_black" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/groupIcon"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/profile_icon"
-        app:contentPadding="5dp"
         android:layout_marginBottom="10dp"
+        android:src="@drawable/profile_icon"
+        android:visibility="gone"
+        app:contentPadding="5dp"
         app:layout_constraintBottom_toTopOf="@id/groupName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolBar"
         app:layout_constraintVertical_chainStyle="packed"
         app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
-        app:tint="@color/mid_black"
         app:strokeColor="@color/black"
         app:strokeWidth="1dp"
-        android:visibility="gone"/>
+        app:tint="@color/mid_black" />
 
     <ImageButton
         android:id="@+id/editGroupIcon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="-10dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/change_group_icon"
         android:scaleType="fitXY"
         android:src="@drawable/edit_icon"
-        app:layout_constraintBottom_toBottomOf="@id/groupIcon"
-        app:layout_constraintEnd_toEndOf="@id/groupIcon"
-        app:tint="@color/gph_white"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/groupIconSet"
+        app:layout_constraintEnd_toEndOf="@id/groupIconSet"
+        app:tint="@color/white" />
 
     <TextView
         android:id="@+id/groupName"
@@ -160,6 +187,7 @@
         android:background="@android:color/transparent"
         android:hint="@string/group_name"
         android:maxLines="1"
+        android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -169,77 +197,75 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/groupIcon" />
 
-
     <TextView
         android:id="@+id/groupDesc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="5dp"
         android:background="@android:color/transparent"
         android:hint="@string/provide_a_group_subject_and_optional_ngroup_icon"
+        android:maxLines="2"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="16sp"
-        android:maxLines="2"
-        android:layout_marginTop="5dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/guideline40"
+        app:layout_constraintBottom_toTopOf="@id/currentSelectedParticipants"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/groupName" />
 
     <LinearLayout
-        android:id="@+id/addGroupFragmentContainer"
+        android:id="@+id/addGroupContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/guideline40"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:background="@drawable/add_group_background"
+        android:orientation="vertical"
         android:paddingHorizontal="20dp"
-        >
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline40"
+        android:visibility="gone">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/selectParticipantsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:orientation="vertical"
+            android:paddingTop="10dp"
             android:visibility="gone"
-            tools:listitem="@layout/group_participants_item"
-            />
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/group_participants_item" />
 
         <LinearLayout
             android:id="@+id/participantsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="15dp"
             android:gravity="center_vertical"
-            android:layout_marginTop="15dp">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/participantsCountTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/participants"
-                android:textSize="28sp"
-                android:textStyle="bold"
                 android:textColor="@color/white"
-                />
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/participantsCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
-                android:padding="7dp"
                 android:background="@drawable/participants_count_background"
+                android:padding="7dp"
                 android:text="@string/like_count_text"
-                android:textStyle="bold"
                 android:textColor="@color/white"
-                />
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -247,14 +273,12 @@
             android:id="@+id/selectedParticipantsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            android:layout_weight="1"
             android:layout_marginTop="10dp"
-            android:visibility="visible"
+            android:layout_weight="1"
+            android:visibility="gone"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             tools:listitem="@layout/selected_participants_item"
-            tools:orientation="vertical"
-            tools:spanCount="4"
-            />
+            tools:spanCount="4" />
 
     </LinearLayout>
 
@@ -262,12 +286,12 @@
         android:id="@+id/nextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:contentDescription="@string/next_button"
         android:src="@drawable/baseline_arrow_forward_24"
-        app:tint="@color/white"
         app:backgroundTint="@color/orange"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="20dp"
-        android:contentDescription="@string/next_button" />
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

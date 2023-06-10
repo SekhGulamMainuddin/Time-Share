@@ -302,8 +302,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun changeCallStatus() = viewModelScope.launch(Dispatchers.IO) {
-        homeRepository.changeCallStatus()
+    fun changeCallStatus(mic: Boolean? = null, profileId: String? = null) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.changeCallStatus(mic, profileId)
     }
 
 }

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
 import com.sekhgmainuddin.timeshare.data.modals.Chats
 import com.sekhgmainuddin.timeshare.data.modals.User
@@ -15,6 +16,7 @@ import com.sekhgmainuddin.timeshare.utils.enums.MessageType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,6 +32,7 @@ class ChatsViewModel @Inject constructor(
     val chatList = chatsRepository.chatsList
     val recentChatProfiles = chatsRepository.recentChatProfiles
     val groups = chatsRepository.groups
+    val friendsList= HashMap<String, User>()
 
     val sendMessageStatus = chatsRepository.messageSent
 
@@ -168,14 +171,15 @@ class ChatsViewModel @Inject constructor(
 
     val callSuccess = MutableLiveData<Result<Call>>()
     fun makeCall(
-        receiverProfile: User,
+        receiverProfile: User?,
         token: String,
         uid: Int,
         typeVideo: Boolean,
-        callId: String
+        callId: String,
+        group: GroupEntity?
     ) =
         viewModelScope.launch(Dispatchers.IO) {
-            val result = chatsRepository.makeCall(receiverProfile, token, uid, typeVideo, callId)
+            val result = chatsRepository.makeCall(receiverProfile, token, uid, typeVideo, callId, group)
             if (result.isSuccess) {
                 result.getOrNull()?.let { callSuccess.postValue(Result.success(it)) }
             } else {
@@ -188,8 +192,9 @@ class ChatsViewModel @Inject constructor(
             }
         }
 
-    fun deleteCall(callId: String) = viewModelScope.launch(Dispatchers.IO) {
-        chatsRepository.deleteCallDetails(callId)
+    val deleteCallResult= chatsRepository.deleteCallResult
+    fun deleteCall(otherUserId: String) = viewModelScope.launch(Dispatchers.IO) {
+        chatsRepository.deleteCallDetails(otherUserId)
     }
 
     val callStatus = MutableLiveData<Result<Call>>()
@@ -203,15 +208,17 @@ class ChatsViewModel @Inject constructor(
         }
     }
 
-    val result= chatsRepository.createGroupResult
+    val resultGroupStatus= chatsRepository.createGroupResult
     fun createGroup(
         groupName: String,
         groupDesc: String,
         groupImage: Uri?,
-        groupMembers: List<String>
+        groupMembers: MutableList<String>
     ) = viewModelScope.launch(Dispatchers.IO){
         chatsRepository.createGroup(groupName, groupDesc, groupImage, groupMembers)
     }
 
+    var groupName= ""
+    var groupDesc= ""
 
 }

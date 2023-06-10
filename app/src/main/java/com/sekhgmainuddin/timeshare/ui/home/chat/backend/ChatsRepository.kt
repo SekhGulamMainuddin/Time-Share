@@ -233,40 +233,41 @@ class ChatsRepository @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    suspend fun fetchMessages(profileId: String, isGroup: Boolean) = callbackFlow<Result<List<Chats>>> {
-        val chatListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val chatsList = ArrayList<Chats>()
-                if (snapshot.hasChildren()) {
-                    for (i in snapshot.children) {
-                        i.getValue(Chats::class.java)?.let { chat ->
-                            chatsList.add(chat)
+    suspend fun fetchMessages(profileId: String, isGroup: Boolean) =
+        callbackFlow<Result<List<Chats>>> {
+            val chatListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val chatsList = ArrayList<Chats>()
+                    if (snapshot.hasChildren()) {
+                        for (i in snapshot.children) {
+                            i.getValue(Chats::class.java)?.let { chat ->
+                                chatsList.add(chat)
+                            }
                         }
+                        this@callbackFlow.trySendBlocking(Result.success(chatsList))
                     }
-                    this@callbackFlow.trySendBlocking(Result.success(chatsList))
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    this@callbackFlow.trySendBlocking(Result.failure(error.toException()))
                 }
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                this@callbackFlow.trySendBlocking(Result.failure(error.toException()))
-            }
-        }
-
-        val chatId: String? = if (isGroup) profileId else getChatId(profileId)
-        Log.d("chatsList", "fetchMessages: $chatId")
-        chatId?.let { it ->
-            databaseReference.child("Chats").child(it)
-                .addValueEventListener(chatListener)
-        }
-
-        awaitClose {
+            val chatId: String? = if (isGroup) profileId else getChatId(profileId)
+            Log.d("chatsList", "fetchMessages: $chatId")
             chatId?.let { it ->
                 databaseReference.child("Chats").child(it)
                     .addValueEventListener(chatListener)
             }
-        }
 
-    }
+            awaitClose {
+                chatId?.let { it ->
+                    databaseReference.child("Chats").child(it)
+                        .addValueEventListener(chatListener)
+                }
+            }
+
+        }
 
     suspend fun getProfileDetails(profileId: String): User? {
         try {
@@ -415,38 +416,62 @@ class ChatsRepository @Inject constructor(
     }
 
     suspend fun makeCall(
-        receiverProfile: User,
+        receiverProfile: User?,
         token: String,
         uid: Int,
         typeVideo: Boolean,
-        callId: String
+        callId: String,
+        group: GroupEntity?
     ): Result<Call> {
         try {
             var call: Call? = null
-            firebaseUser?.uid?.let {
+            if (receiverProfile != null) {
+                val user = firestore.collection("Users").document(firebaseUser?.uid!!).get().await()
+                    .toObject(User::class.java)
                 call = Call(
                     callId = callId,
                     token = token,
                     uid = uid,
-                    callerProfileId = it,
+                    callerProfileId = firebaseUser.uid,
                     receiverProfileId = receiverProfile.userId,
+                    callerProfileImage = user?.imageUrl ?: "",
+                    receiverProfileImage = receiverProfile.imageUrl,
+                    callerName = user?.name ?: "",
+                    receiverName = receiverProfile.name,
                     answered = true,
                     typeVideo = typeVideo
                 )
-                firestore.collection("Call").document(it).set(
-                    call!!
+                firestore.collection("Call").document(firebaseUser.uid).set(
+                    call
                 ).await()
+                call.answered = false
                 firestore.collection("Call").document(receiverProfile.userId).set(
-                    Call(
-                        callId = callId,
-                        token = token,
-                        uid = uid,
-                        callerProfileId = it,
-                        receiverProfileId = receiverProfile.userId,
-                        answered = false,
-                        typeVideo = typeVideo
-                    )
+                    call
                 ).await()
+            } else {
+//                call = Call(
+//                    callId = callId,
+//                    token = token,
+//                    uid = uid,
+//                    callerProfileId = firebaseUser?.uid!!,
+//                    receiverProfileId = group?.groupId!!,
+//                    true,
+//                    typeVideo,
+//                )
+//
+//                group.groupMembers.keys.forEach {
+//                    firestore.collection("Call").document(it).set(
+//                        Call(
+//                            callId = callId,
+//                            token = token,
+//                            uid = uid,
+//                            callerProfileId = firebaseUser.uid,
+//                            receiverProfileId = it,
+//                            answered = false,
+//                            typeVideo = typeVideo
+//                        )
+//                    ).await()
+//                }
             }
             return Result.success(call!!)
         } catch (e: Exception) {
@@ -456,13 +481,19 @@ class ChatsRepository @Inject constructor(
 
     }
 
+    private var _deleteCallResult = MutableLiveData<Result<Boolean>>()
+    val deleteCallResult: LiveData<Result<Boolean>>
+        get() = _deleteCallResult
+
     suspend fun deleteCallDetails(otherUserId: String) {
         try {
             firebaseUser?.uid?.let { firestore.collection("Call").document(it).delete().await() }
             firestore.collection("Call").document(otherUserId).update(mapOf(Pair("uid", -1)))
                 .await()
+            _deleteCallResult.postValue(Result.success(true))
         } catch (e: Exception) {
             Log.d("deleteVideoCall", "deleteVideoCallDetails: $e")
+            _deleteCallResult.postValue(Result.failure(e))
         }
     }
 
@@ -491,9 +522,10 @@ class ChatsRepository @Inject constructor(
         groupName: String,
         groupDesc: String,
         groupImage: Uri?,
-        groupMembers: List<String>
+        groupMembers: MutableList<String>
     ) = coroutineScope {
         try {
+            firebaseUser?.uid?.let { groupMembers.add(it.trim()) }
             val groupId = UUID.randomUUID().toString()
             val imageUrl =
                 if (groupImage == null) "https://cdn-icons-png.flaticon.com/512/6387/6387947.png" else homeRepository.uploadFile(
@@ -509,30 +541,25 @@ class ChatsRepository @Inject constructor(
                 groupMembers
             )
 
-            awaitAll(
-                async {
-                    firestore.collection("Groups").document(groupId).set(group).await()
-                },
-                async {
-                    groupMembers.forEach {
-                        firestore.collection("Users").document(it)
-                            .update("groups", FieldValue.arrayUnion(groupId)).await()
-                    }
-                },
-                async { updateRecentMessage(groupId, "-1", 0, true, groupMembers) },
-                async {
-                    val userMap = homeRepository.getUserDataById(groupMembers.toSet())
-                    timeShareDbDao.insertGroup(
-                        GroupEntity(
-                            groupId,
-                            groupName,
-                            imageUrl ?: "",
-                            groupDesc,
-                            userMap
-                        )
+            launch {
+                firestore.collection("Groups").document(groupId).set(group).await()
+                groupMembers.forEach {
+                    firestore.collection("Users").document(it)
+                        .update("groups", FieldValue.arrayUnion(groupId)).await()
+                }
+                updateRecentMessage(groupId, "-1", 0, true, groupMembers)
+                val userMap = homeRepository.getUserDataById(groupMembers.toSet())
+                timeShareDbDao.insertGroup(
+                    GroupEntity(
+                        groupId,
+                        groupName,
+                        imageUrl ?: "",
+                        groupDesc,
+                        userMap
                     )
-                },
-            )
+                )
+            }
+
             _createGroupResult.postValue(Result.success(group))
         } catch (e: Exception) {
             Log.d("createGroup", "createGroupException: $e")

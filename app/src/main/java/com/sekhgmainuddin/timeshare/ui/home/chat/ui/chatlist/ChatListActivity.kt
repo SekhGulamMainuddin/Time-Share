@@ -2,6 +2,7 @@ package com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -26,7 +27,8 @@ class ChatListActivity : AppCompatActivity() {
         navController= navHostController.navController
 
         viewModel.user.observe(this){
-
+            viewModel.friendsList.clear()
+            viewModel.friendsList.putAll(it[0].friends)
         }
 
     }

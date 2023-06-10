@@ -11,8 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityMainBinding
 import com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.AddNewPostReelStatusBottomSheetDialogFragment
-import com.sekhgmainuddin.timeshare.ui.home.chat.ui.VideoCallActivity
-import com.sekhgmainuddin.timeshare.ui.home.chat.ui.VoiceCallActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.CallActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -50,15 +49,14 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "", Toast.LENGTH_SHORT).show()
                 if (call.receiverProfileId == userId && !call.answered) {
                     startActivity(
-                        Intent(
-                            this,
-                            if (call.typeVideo) VideoCallActivity::class.java else VoiceCallActivity::class.java
-                        )
+                        Intent(this,CallActivity::class.java)
                             .putExtra("agoraToken", call.token)
                             .putExtra("profileId", call.callerProfileId)
                             .putExtra("byMe", false)
-                            .putExtra("uid", call.uid)
                             .putExtra("callId", call.callId)
+                            .putExtra("typeVideo", call.typeVideo)
+                            .putExtra("profileImage", call.callerProfileImage)
+                            .putExtra("profileName", call.callerName)
                     )
                     viewModel.changeCallStatus()
                 }

@@ -5,27 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="10dp"
-    android:layout_marginTop="20dp"
+    android:layout_marginTop="10dp"
     android:background="@android:color/transparent">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profileIcon"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:padding="2dp"
         android:src="@drawable/profile_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
         app:strokeColor="@color/orangePink"
-        app:strokeWidth="4dp" />
+        app:strokeWidth="2dp" />
 
     <TextView
         android:id="@+id/profileNamme"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:text="@string/my_name_is"
         android:textColor="@color/white"
         android:textStyle="bold"
@@ -42,7 +42,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:textSize="14sp"
+        android:ellipsize="end"
+        android:textSize="12sp"
         android:text="@string/provide_a_group_subject_and_optional_ngroup_icon"
         android:layout_marginHorizontal="20dp"
         android:textColor="@color/profile_bio"
@@ -53,8 +54,8 @@
 
     <ImageButton
         android:id="@+id/checkedButton"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:background="@android:color/transparent"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_baseline_check_circle_24"

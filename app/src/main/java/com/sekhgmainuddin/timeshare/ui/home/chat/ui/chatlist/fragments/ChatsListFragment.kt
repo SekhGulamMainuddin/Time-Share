@@ -12,7 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
 import com.sekhgmainuddin.timeshare.databinding.FragmentChatsListBinding
-import com.sekhgmainuddin.timeshare.ui.home.chat.ui.oneononechat.ChatActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.ChatActivity
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.ChatsListAdapter
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.onClicked
@@ -55,14 +55,7 @@ class ChatsListFragment : Fragment(), onClicked {
                 findNavController().navigate(R.id.action_chatsListFragment_to_friendsListFragment)
             }
             addGroup.setOnClickListener {
-//                findNavController().navigate(R.id.action_chatsListFragment_to_addGroupFragment)
-                viewModel.createGroup(
-                    "Software Group", "Software description for the new group", null, listOf(
-                        "49ulF0YTsXPArQhKn5hAxEIAtSY2",
-                        "NWwYznzl1Xd8Fu2e2HfOiSMMrcF3",
-                        "a4aNsokcl6WAl3MFPWgZ07wp3Um2"
-                    )
-                )
+                findNavController().navigate(R.id.action_chatsListFragment_to_addGroupFragment)
             }
         }
     }

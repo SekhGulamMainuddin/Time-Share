@@ -7,4 +7,23 @@
     <item name="bioLayout" type="id" />
     <item name="nameEditText" type="id" />
     <item name="nameLayout" type="id" />
+    <item name="nextButton" type="id" />
+    <item name="selectedParticipantsRecyclerView" type="id" />
+    <item name="participantsCount" type="id" />
+    <item name="participantsCountTV" type="id" />
+    <item name="participantsLayout" type="id" />
+    <item name="selectParticipantsRecyclerView" type="id" />
+    <item name="addGroupContainer" type="id" />
+    <item name="groupDesc" type="id" />
+    <item name="groupName" type="id" />
+    <item name="editGroupIcon" type="id" />
+    <item name="groupIcon" type="id" />
+    <item name="guideline40" type="id" />
+    <item name="currentSelectedParticipants" type="id" />
+    <item name="clearGroupDesc" type="id" />
+    <item name="groupDescEditText" type="id" />
+    <item name="clearGroupName" type="id" />
+    <item name="groupNameEditText" type="id" />
+    <item name="backgroundImage" type="id" />
+    <item name="toolBar" type="id" />
 </resources>

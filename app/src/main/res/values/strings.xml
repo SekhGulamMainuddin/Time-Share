@@ -112,6 +112,10 @@
     <string name="next_button">Next Button</string>
     <string name="add_a_group_description">Add a group description</string>
     <string name="profile_selected_as_participant">Profile Selected as Participant</string>
+    <string name="save">SAVE</string>
+    <string name="opposite_person_profile_image">Opposite Person Profile Image</string>
+    <string name="call_from_or_to_opposite_profile_name">Call from or to Opposite Profile Name</string>
+    <string name="remote_user_mic_muted">Remote user Mic Muted</string>
 
 
 </resources>

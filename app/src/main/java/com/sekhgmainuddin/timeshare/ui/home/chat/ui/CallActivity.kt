@@ -1,6 +1,7 @@
 package com.sekhgmainuddin.timeshare.ui.home.chat.ui
 
 import android.Manifest
+import android.app.Dialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.SurfaceView
@@ -11,93 +12,110 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.bumptech.glide.Glide
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityVideoCallBinding
+import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
 import com.sekhgmainuddin.timeshare.utils.Keys
-import com.sekhgmainuddin.timeshare.utils.ManagePermissions
 import dagger.hilt.android.AndroidEntryPoint
 import io.agora.rtc2.*
 import io.agora.rtc2.video.VideoCanvas
 
 @AndroidEntryPoint
-class VideoCallActivity : AppCompatActivity() {
+class CallActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityVideoCallBinding
-    private lateinit var permissionManager: ManagePermissions
     private var callId: String? = null
     private var appId: String? = null
     private var appCertificate: String? = null
     private var token: String? = null
-    private var uid: Int? = null
     private var isJoined = false
     private var agoraEngine: RtcEngine? = null
     private var localSurfaceView: SurfaceView? = null
     private var remoteSurfaceView: SurfaceView? = null
     private var oppositeProfileId: String? = null
+    private var oppositeProfileImage: String? = null
+    private var oppositeProfileName: String? = null
     private var byMe: Boolean? = null
     private val viewModel by viewModels<ChatsViewModel>()
+    private val homeViewModel by viewModels<HomeViewModel>()
     private var mMuted: Boolean = false
+    private lateinit var progressDialog: Dialog
+    private var typeVideo = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityVideoCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        progressDialog = Dialog(this)
+        progressDialog.setContentView(R.layout.progress_dialog)
+        progressDialog.setCancelable(false)
+        progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
         appId = Keys.getAppIdAgora()
         appCertificate = Keys.getAppCertificateAgora()
-        callId= intent.getStringExtra("callId")
-        oppositeProfileId= intent.getStringExtra("profileId")
-        token= intent.getStringExtra("agoraToken")
-        uid= intent.getIntExtra("uid", 0)
-        byMe= intent.getBooleanExtra("byMe", false)
+        callId = intent.getStringExtra("callId")
+        oppositeProfileId = intent.getStringExtra("profileId")
+        oppositeProfileImage = intent.getStringExtra("profileImage")
+        oppositeProfileName = intent.getStringExtra("profileName")
+        token = intent.getStringExtra("agoraToken")
+        byMe = intent.getBooleanExtra("byMe", false)
+        typeVideo = intent.getBooleanExtra("typeVideo", false)
 
-        permissionManager = ManagePermissions(
-            this,
-            listOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA),
-            101
-        )
+        Glide.with(this).load(oppositeProfileImage).placeholder(R.color.black)
+            .into(binding.oppositeProfileImage)
+        binding.oppositeProfileName.text =
+            "Call ${if (byMe == true) "to" else "from"} $oppositeProfileName"
 
-        if (!checkSelfPermission()) {
-            ActivityCompat.requestPermissions(this, REQUESTED_PERMISSIONS, PERMISSION_REQ_ID)
+        if (!typeVideo){
+            binding.apply {
+                callingAnimation.setAnimation(R.raw.phone_call_animation)
+                localVideoViewContainer.isVisible= false
+                remoteVideoViewContainer.isVisible= false
+            }
+
         }
 
-        setupVideoSDKEngine()
+        if(typeVideo){
+            if (!checkSelfPermissionVideo()) {
+                ActivityCompat.requestPermissions(this, REQUESTED_PERMISSIONS, PERMISSION_REQ_ID)
+            }
+        }else{
+            if (!checkSelfPermissionAudio()) {
+                ActivityCompat.requestPermissions(this, arrayOf(REQUESTED_PERMISSIONS[0]), PERMISSION_REQ_ID)
+            }
+        }
 
-        if (byMe!!){
+        setupCallSDKEngine()
+
+        if (byMe!!) {
             showAndHide(true)
             joinChannel()
         } else {
             showAndHide(false)
-            binding.endCall.isVisible= true
+            binding.endCall.isVisible = true
         }
 
         registerClickListeners()
         bindObservers()
         viewModel.observeCall()
 
+        agoraEngine!!.muteLocalAudioStream(false)
+
     }
 
-    private fun bindObservers() {
-        viewModel.callStatus.observe(this){
-            it.onSuccess { call ->
-                if (call.uid==-1){
-                    viewModel.deleteCall(callId!!)
-                }
-            }
-        }
-    }
-
-    private fun showAndHide(show: Boolean){
+    private fun showAndHide(show: Boolean) {
         binding.apply {
-            acceptCall.isVisible= !show
-            endCall.isVisible= show
-            micOnOff.isVisible= show
-            switchCamera.isVisible= show
+            acceptCall.isVisible = !show
+            endCall.isVisible = show
+            micOnOff.isVisible = show
+            switchCamera.isVisible = show && typeVideo
         }
     }
 
-    private fun registerClickListeners(){
+    private fun registerClickListeners() {
         binding.apply {
             acceptCall.setOnClickListener {
                 joinChannel()
@@ -114,6 +132,8 @@ class VideoCallActivity : AppCompatActivity() {
                 } else {
                     R.drawable.baseline_mic_24
                 }
+                homeViewModel.changeCallStatus(mMuted)
+                localMicOff.isVisible= mMuted
                 micOnOff.setImageResource(res)
             }
             switchCamera.setOnClickListener {
@@ -122,9 +142,35 @@ class VideoCallActivity : AppCompatActivity() {
         }
     }
 
+    private fun bindObservers() {
+        viewModel.callStatus.observe(this) {
+            it.onSuccess { call ->
+                binding.remoteMicOff.isVisible= call.oppositeMicStatus
+                if (call.oppositeMicStatus){
+                    Toast.makeText(this, "User Muted", Toast.LENGTH_SHORT).show()
+                }
+                if (call.uid == -1) {
+                    progressDialog.show()
+                    viewModel.deleteCall(oppositeProfileId!!)
+                }
+            }
+        }
+        viewModel.deleteCallResult.observe(this) {
+            progressDialog.dismiss()
+            finish()
+        }
+    }
+
     private val mRtcEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
         override fun onUserJoined(uid: Int, elapsed: Int) {
-            runOnUiThread { setupRemoteVideo(uid) }
+            runOnUiThread {
+                setupRemoteVideo(uid)
+                binding.apply {
+                    callingAnimation.isVisible = false
+                    oppositeProfileImage.isVisible = false
+                    oppositeProfileName.isVisible = false
+                }
+            }
         }
 
         override fun onJoinChannelSuccess(channel: String, uid: Int, elapsed: Int) {
@@ -132,15 +178,19 @@ class VideoCallActivity : AppCompatActivity() {
         }
 
         override fun onUserOffline(uid: Int, reason: Int) {
-            showMessage("User Disconnected because $reason")
-            runOnUiThread { remoteSurfaceView!!.visibility = View.GONE }
+            runOnUiThread {
+                remoteSurfaceView!!.visibility = View.GONE
+                if (reason == 0) {
+                    progressDialog.show()
+                    viewModel.deleteCall(oppositeProfileId!!)
+                }
+            }
         }
     }
 
     private fun setupRemoteVideo(uid: Int) {
         val container = binding.remoteVideoViewContainer
         remoteSurfaceView = SurfaceView(baseContext)
-        remoteSurfaceView?.setZOrderMediaOverlay(true)
         container.addView(remoteSurfaceView)
         agoraEngine!!.setupRemoteVideo(
             VideoCanvas(
@@ -149,18 +199,24 @@ class VideoCallActivity : AppCompatActivity() {
                 uid
             )
         )
-        remoteSurfaceView?.visibility = View.VISIBLE
     }
 
     private fun joinChannel() {
-        if (checkSelfPermission()) {
+        if (checkSelfPermissionVideo()) {
             val options = ChannelMediaOptions()
-            options.channelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION
-            options.clientRoleType = Constants.CLIENT_ROLE_BROADCASTER
-            setupLocalVideo()
-            localSurfaceView!!.visibility = View.VISIBLE
-            agoraEngine!!.startPreview()
-            agoraEngine!!.joinChannel(token, callId, uid!!, options)
+            if (typeVideo){
+                options.channelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION
+                options.clientRoleType = Constants.CLIENT_ROLE_BROADCASTER
+                setupLocalVideo()
+                localSurfaceView!!.isVisible = true
+                agoraEngine!!.startPreview()
+            }
+            else{
+                options.autoSubscribeAudio = true
+                options.clientRoleType = Constants.CLIENT_ROLE_BROADCASTER
+                options.channelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING
+            }
+            agoraEngine!!.joinChannel(token, callId, 0, options)
         } else {
             Toast.makeText(applicationContext, "Permissions was not granted", Toast.LENGTH_SHORT)
                 .show()
@@ -168,41 +224,43 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     private fun leaveChannel() {
-        if (!isJoined) {
-            showMessage("Join a call first")
-        } else {
+        if (isJoined) {
             agoraEngine!!.leaveChannel()
-            if (remoteSurfaceView != null) remoteSurfaceView!!.visibility = View.GONE
-            if (localSurfaceView != null) localSurfaceView!!.visibility = View.GONE
-            isJoined = false
-            viewModel.deleteCall(callId!!)
-            finish()
+            if (typeVideo){
+                if (remoteSurfaceView != null) remoteSurfaceView!!.visibility = View.GONE
+                if (localSurfaceView != null) localSurfaceView!!.visibility = View.GONE
+                isJoined = false
+            }
         }
+        viewModel.deleteCall(oppositeProfileId!!)
+        progressDialog.show()
     }
 
 
     private fun setupLocalVideo() {
         val container = binding.localVideoViewContainer
         localSurfaceView = SurfaceView(baseContext)
+        localSurfaceView!!.setZOrderMediaOverlay(true)
         container.addView(localSurfaceView)
         agoraEngine!!.setupLocalVideo(
             VideoCanvas(
                 localSurfaceView,
                 VideoCanvas.RENDER_MODE_HIDDEN,
-                uid!!
+                0
             )
         )
     }
 
 
-    private fun setupVideoSDKEngine() {
+    private fun setupCallSDKEngine() {
         try {
             val config = RtcEngineConfig()
             config.mContext = baseContext
             config.mAppId = appId
             config.mEventHandler = mRtcEventHandler
             agoraEngine = RtcEngine.create(config)
-            agoraEngine?.enableVideo()
+            if (typeVideo)
+                agoraEngine?.enableVideo()
         } catch (e: Exception) {
             showMessage(e.toString())
         }
@@ -215,7 +273,7 @@ class VideoCallActivity : AppCompatActivity() {
         Manifest.permission.CAMERA
     )
 
-    private fun checkSelfPermission(): Boolean {
+    private fun checkSelfPermissionVideo(): Boolean {
         return !(ContextCompat.checkSelfPermission(
             this,
             REQUESTED_PERMISSIONS[0]
@@ -224,6 +282,13 @@ class VideoCallActivity : AppCompatActivity() {
                     this,
                     REQUESTED_PERMISSIONS[1]
                 ) != PackageManager.PERMISSION_GRANTED)
+    }
+
+    private fun checkSelfPermissionAudio(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            REQUESTED_PERMISSIONS[0]
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     fun showMessage(message: String?) {

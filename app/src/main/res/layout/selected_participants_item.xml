@@ -21,8 +21,8 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profileImage"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:padding="2dp"
         android:src="@drawable/profile_icon"
         app:layout_constraintStart_toStartOf="parent"

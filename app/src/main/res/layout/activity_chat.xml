@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/default_chat_background"
-    tools:context=".ui.home.chat.ui.oneononechat.ChatActivity">
+    tools:context=".ui.home.chat.ui.ChatActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
