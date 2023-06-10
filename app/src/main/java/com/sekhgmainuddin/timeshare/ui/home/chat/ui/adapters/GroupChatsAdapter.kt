@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.ListAdapter
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.modals.User
-import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.diffutilsmessage.ChatsDiffCallBack
-import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.viewholders.ChatsViewHolder
-import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.viewholders.GroupChatsViewHolder
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.diffutilsmessage.ChatsDiffCallBack
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.viewholders.ChatsViewHolder
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.viewholders.GroupChatsViewHolder
 import com.sekhgmainuddin.timeshare.utils.Constants
 
 class GroupChatsAdapter(val userMap: Map<String,User>, val context: Context, val firebaseUserId: String, val showDialog: (ChatEntity) -> Unit) :

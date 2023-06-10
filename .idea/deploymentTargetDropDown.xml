@@ -24,15 +24,6 @@
           </Key>
         </deviceKey>
       </Target>
-      <Target>
-        <type value="RUNNING_DEVICE_TARGET" />
-        <deviceKey>
-          <Key>
-            <type value="SERIAL_NUMBER" />
-            <value value="8DLFZ9M7T4BMMNW8" />
-          </Key>
-        </deviceKey>
-      </Target>
     </runningDeviceTargetsSelectedWithDialog>
     <targetsSelectedWithDialog>
       <Target>
@@ -41,6 +32,15 @@
           <Key>
             <type value="VIRTUAL_DEVICE_PATH" />
             <value value="C:\Users\Sekh Gulam Mainuddin\.android\avd\Pixel_6_Pro_API_32.avd" />
+          </Key>
+        </deviceKey>
+      </Target>
+      <Target>
+        <type value="QUICK_BOOT_TARGET" />
+        <deviceKey>
+          <Key>
+            <type value="VIRTUAL_DEVICE_PATH" />
+            <value value="C:\Users\Sekh Gulam Mainuddin\.android\avd\Pixel_5_API_32.avd" />
           </Key>
         </deviceKey>
       </Target>

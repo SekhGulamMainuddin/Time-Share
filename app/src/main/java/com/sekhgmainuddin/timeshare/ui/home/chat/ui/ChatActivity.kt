@@ -38,10 +38,11 @@ import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.databinding.ActivityChatBinding
-import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.ChatsAdapter
-import com.sekhgmainuddin.timeshare.ui.home.chat.backend.attachments.ImagePickerActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.ChatsAdapter
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
-import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.GroupChatsAdapter
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.GroupChatsAdapter
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.groupchat.GroupCallActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.singlechat.CallActivity
 import com.sekhgmainuddin.timeshare.utils.Keys
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
@@ -367,6 +368,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
             it.sendFiles()
         }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     private fun bindObserver() {
         viewModel.sendMessageStatus.observe(this) {
             when (it) {
@@ -398,7 +400,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
             it.onSuccess { c ->
                 progressDialog.dismiss()
                 startActivity(
-                    Intent(this,CallActivity::class.java)
+                    Intent(this, if (c.isGroupCall) GroupCallActivity::class.java else CallActivity::class.java)
                         .putExtra("agoraToken", token)
                         .putExtra("profileId", profileId)
                         .putExtra("byMe", true)

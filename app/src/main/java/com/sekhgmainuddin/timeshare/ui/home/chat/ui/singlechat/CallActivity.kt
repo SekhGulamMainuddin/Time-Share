@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.ui
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui.singlechat
 
 import android.Manifest
 import android.app.Dialog

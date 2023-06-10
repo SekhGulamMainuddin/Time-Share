@@ -13,5 +13,6 @@ data class Call (
     var answered: Boolean = true,
     var typeVideo: Boolean = true,
     var myMicStatus: Boolean = false,
-    var oppositeMicStatus: Boolean = false
+    var oppositeMicStatus: Boolean = false,
+    var isGroupCall: Boolean = false
 )

@@ -14,8 +14,8 @@ import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
 import com.sekhgmainuddin.timeshare.databinding.FragmentChatsListBinding
 import com.sekhgmainuddin.timeshare.ui.home.chat.ui.ChatActivity
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
-import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.ChatsListAdapter
-import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.onClicked
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.ChatsListAdapter
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.onClicked
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 

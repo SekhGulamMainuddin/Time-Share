@@ -10,7 +10,7 @@ import androidx.fragment.app.activityViewModels
 import com.sekhgmainuddin.timeshare.databinding.FragmentFriendsListBinding
 import com.sekhgmainuddin.timeshare.ui.home.chat.ui.ChatActivity
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
-import com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.FriendsListAdapter
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.FriendsListAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

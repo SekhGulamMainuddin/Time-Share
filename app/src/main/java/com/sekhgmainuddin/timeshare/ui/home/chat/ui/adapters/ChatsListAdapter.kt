@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters
 
 import android.content.Context
 import android.util.Log

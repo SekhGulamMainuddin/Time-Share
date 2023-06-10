@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.diffutilsmessage
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.diffutilsmessage
 
 import androidx.recyclerview.widget.DiffUtil
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity

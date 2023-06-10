@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.backend.adapters.viewholders
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.viewholders
 
 import android.content.Context
 import android.content.res.ColorStateList

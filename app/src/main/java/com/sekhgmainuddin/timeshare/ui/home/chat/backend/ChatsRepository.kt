@@ -449,29 +449,31 @@ class ChatsRepository @Inject constructor(
                     call
                 ).await()
             } else {
-//                call = Call(
-//                    callId = callId,
-//                    token = token,
-//                    uid = uid,
-//                    callerProfileId = firebaseUser?.uid!!,
-//                    receiverProfileId = group?.groupId!!,
-//                    true,
-//                    typeVideo,
-//                )
-//
-//                group.groupMembers.keys.forEach {
-//                    firestore.collection("Call").document(it).set(
-//                        Call(
-//                            callId = callId,
-//                            token = token,
-//                            uid = uid,
-//                            callerProfileId = firebaseUser.uid,
-//                            receiverProfileId = it,
-//                            answered = false,
-//                            typeVideo = typeVideo
-//                        )
-//                    ).await()
-//                }
+                call = Call(
+                    callId = callId,
+                    token = token,
+                    uid = uid,
+                    callerProfileId = firebaseUser?.uid!!,
+                    receiverProfileId = group?.groupId!!,
+                    answered = true,
+                    typeVideo = typeVideo,
+                    isGroupCall = true
+                )
+
+                group.groupMembers.keys.forEach {
+                    firestore.collection("Call").document(it).set(
+                        Call(
+                            callId = callId,
+                            token = token,
+                            uid = uid,
+                            callerProfileId = firebaseUser.uid,
+                            receiverProfileId = it,
+                            answered = false,
+                            typeVideo = typeVideo,
+                            isGroupCall = true
+                        )
+                    ).await()
+                }
             }
             return Result.success(call!!)
         } catch (e: Exception) {

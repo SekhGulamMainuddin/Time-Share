@@ -1,4 +1,4 @@
-package com.sekhgmainuddin.timeshare.ui.home.chat.backend.attachments
+package com.sekhgmainuddin.timeshare.ui.home.chat.ui
 
 import android.Manifest
 import android.os.Build
