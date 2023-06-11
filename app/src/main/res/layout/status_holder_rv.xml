@@ -4,8 +4,6 @@
     android:layout_height="wrap_content"
     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
     android:orientation="horizontal"
-    android:paddingStart="5dp"
-    android:paddingEnd="5dp"
     tools:listitem="@layout/status_layout_rv"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintEnd_toEndOf="parent"

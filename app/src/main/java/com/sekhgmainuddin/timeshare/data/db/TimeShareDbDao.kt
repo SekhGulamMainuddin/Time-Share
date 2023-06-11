@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.MyStatus
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
@@ -56,5 +57,12 @@ interface TimeShareDbDao {
 
     @Query("SELECT * from group_entity")
     fun getGroups(): LiveData<List<GroupEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertStatus(status: MyStatus)
+
+    @Query("SELECT * from my_status")
+    fun getStatus(): LiveData<List<MyStatus>>
+
 
 }

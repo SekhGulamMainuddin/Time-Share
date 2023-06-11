@@ -31,12 +31,11 @@
     <string name="already_h_a_a">I already have an account</string>
     <string name="create_an_account">Continue</string>
     <string name="already_have_an_account">Already have an account?</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="add_something_about_you">Add something about yourself ...</string>
+    <string name="add_something_about_you">Add something about yourself …</string>
     <string name="my_name_is">My Name is .....</string>
     <string name="bio">Bio</string>
-    <string name="i_am_a_software_engineer_at_microsoft">I am a Software Engineer at Microsoft...</string>
+    <string name="i_am_a_software_engineer_at_microsoft">I am a Software Engineer at Microsoft…</string>
     <string name="i_am_from">I am from</string>
     <string name="cuttack_odisha">Cuttack, Odisha</string>
     <string name="location">Location</string>

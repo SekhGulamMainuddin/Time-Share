@@ -7,7 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.sekhgmainuddin.timeshare.data.db.entities.MyStatus
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,6 +36,11 @@ class HomeViewModel @Inject constructor(
             if (result.isSuccess) {
                 result.getOrNull()?.let {
                     userData.postValue(it)
+                    val friendsFollowingIds= ArrayList<String>()
+                    friendsFollowingIds.addAll(it.friends)
+                    friendsFollowingIds.addAll(it.following)
+                    friendsFollowingIds.add(it.userId)
+                    homeRepository.getStatus(friendsFollowingIds.toSet())
                     if (it.groups.isNotEmpty()){
                         homeRepository.getGroupDetails(it.groups)
                     }
@@ -307,5 +314,9 @@ class HomeViewModel @Inject constructor(
     }
 
     val statusListWithUserDetail = homeRepository.statusListWithUserDetail
+
+    fun insertMyStatus(myStatus: MyStatus) = viewModelScope.launch(Dispatchers.IO){
+        homeRepository.insertStatus(myStatus)
+    }
 
 }

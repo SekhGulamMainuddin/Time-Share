@@ -9,6 +9,8 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
+import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
+import com.sekhgmainuddin.timeshare.data.db.entities.MyStatus
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.getBitmap
@@ -22,8 +24,11 @@ class LoginSignUpRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firebaseFirestore: FirebaseFirestore,
     private val storageReference: StorageReference,
+    private val timeShareDb: TimeShareDb,
     @ApplicationContext val context: Context
 ) {
+
+    private val timeShareDbDao = timeShareDb.getDao()
 
     val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
@@ -39,6 +44,9 @@ class LoginSignUpRepository @Inject constructor(
                 "loginTimeShare",
                 "loginEmail: ${response.additionalUserInfo.toString()} ${response.user.toString()}"
             )
+            response.user?.uid?.let {
+                insertEmptyStatus(it)
+            }
             _result.postValue(NetworkResult.Success(response.user!!, 200))
         } catch (firebaseAuthException: FirebaseAuthInvalidUserException) {
             _result.postValue(NetworkResult.Error("User Not Found", statusCode = 404))
@@ -69,12 +77,12 @@ class LoginSignUpRepository @Inject constructor(
                     arrayListOf()
                 )
                 user?.uid?.let {
-                    newUser.userId= it
+                    newUser.userId = it
                     firebaseFirestore.collection("Users").document(it).set(newUser).await()
+                    insertEmptyStatus(it)
                 }
                 _result.postValue(NetworkResult.Success(response.user!!, 201))
-            }
-            else
+            } else
                 _result.postValue(NetworkResult.Success(response.user!!, 200))
         } catch (e: Exception) {
             _result.postValue(NetworkResult.Error(e.localizedMessage, statusCode = 500))
@@ -89,15 +97,17 @@ class LoginSignUpRepository @Inject constructor(
         try {
             val response = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             _signUpResult.postValue(NetworkResult.Success(response.user!!, 201))
-        } catch (e: com.google.firebase.FirebaseException){
+            response.user?.uid?.let {
+                insertEmptyStatus(it)
+            }
+        } catch (e: com.google.firebase.FirebaseException) {
             _signUpResult.postValue(
                 NetworkResult.Error(
                     "Internal Server Error Occurred",
                     statusCode = 500
                 )
             )
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             Log.d("signUpEmail", "signUpEmail: $e")
         }
     }
@@ -106,7 +116,8 @@ class LoginSignUpRepository @Inject constructor(
     val newUserDetailUpload: LiveData<NetworkResult<String>>
         get() = _newUserDetailUpload
 
-    suspend fun uploadNewUserDetail(email: String, phone: String,
+    suspend fun uploadNewUserDetail(
+        email: String, phone: String,
         imageUri: Uri?, bitmap: Bitmap?,
         name: String, bio: String, location: String,
         interests: ArrayList<String>
@@ -114,21 +125,29 @@ class LoginSignUpRepository @Inject constructor(
         val detailMap = HashMap<String, Any>()
         try {
             try {
-                var uri: Uri?= imageUri?.getBitmap(context.contentResolver)?.saveAsJPG(firebaseAuth.uid.toString(),context) as Uri
-                if (bitmap!=null){
-                    uri = bitmap.saveAsJPG(firebaseAuth.uid.toString(),context) as Uri
+                var uri: Uri? = imageUri?.getBitmap(context.contentResolver)
+                    ?.saveAsJPG(firebaseAuth.uid.toString(), context) as Uri
+                if (bitmap != null) {
+                    uri = bitmap.saveAsJPG(firebaseAuth.uid.toString(), context) as Uri
                 }
                 val download_url = uri?.let {
 
                     storageReference.child(
-                        "ProfileImage/" + firebaseAuth.uid + "." + getFileExtension(uri,context))
+                        "ProfileImage/" + firebaseAuth.uid + "." + getFileExtension(uri, context)
+                    )
                         .putFile(it).await().storage.downloadUrl.await().toString()
                 }
                 detailMap["imageUrl"] = download_url!!
             } catch (e: Exception) {
-                _newUserDetailUpload.postValue(NetworkResult.Error("Image Upload Failed using Default Profile Image", statusCode = 409))
+                _newUserDetailUpload.postValue(
+                    NetworkResult.Error(
+                        "Image Upload Failed using Default Profile Image",
+                        statusCode = 409
+                    )
+                )
                 Log.d("imageUploadException", "uploadNewUserDetail: $e")
-                detailMap["imageUrl"] = "https://firebasestorage.googleapis.com/v0/b/time-share-30ac6.appspot.com/o/ProfileImage%2Fdefault_profile_pic.png?alt=media&token=116dce19-d848-481c-b081-389f4bf598ea"
+                detailMap["imageUrl"] =
+                    "https://firebasestorage.googleapis.com/v0/b/time-share-30ac6.appspot.com/o/ProfileImage%2Fdefault_profile_pic.png?alt=media&token=116dce19-d848-481c-b081-389f4bf598ea"
             }
             detailMap["email"] = email
             detailMap["phone"] = phone
@@ -136,11 +155,23 @@ class LoginSignUpRepository @Inject constructor(
             detailMap["bio"] = bio
             detailMap["location"] = location
             detailMap["interests"] = interests
-            firebaseAuth.uid?.let { firebaseFirestore.collection("Users").document(it).set(detailMap).await() }
-            _newUserDetailUpload.postValue(NetworkResult.Success("Profile Details Added Successfully",200))
+            firebaseAuth.uid?.let {
+                firebaseFirestore.collection("Users").document(it).set(detailMap).await()
+            }
+            _newUserDetailUpload.postValue(
+                NetworkResult.Success(
+                    "Profile Details Added Successfully",
+                    200
+                )
+            )
         } catch (e: Exception) {
             Log.d("uploadNewUser", "uploadNewUserDetail: $e")
-            _newUserDetailUpload.postValue(NetworkResult.Error("Some Error Occurred",statusCode = 400))
+            _newUserDetailUpload.postValue(
+                NetworkResult.Error(
+                    "Some Error Occurred",
+                    statusCode = 400
+                )
+            )
         }
     }
 
@@ -148,16 +179,40 @@ class LoginSignUpRepository @Inject constructor(
     val phoneLoginSignUp: LiveData<NetworkResult<FirebaseUser>>
         get() = _phoneLoginSignUp
 
-    suspend fun phoneLoginSignUp(credential: PhoneAuthCredential){
+    suspend fun phoneLoginSignUp(credential: PhoneAuthCredential) {
         try {
-            val response= firebaseAuth.signInWithCredential(credential).await()
+            val response = firebaseAuth.signInWithCredential(credential).await()
             if (response.additionalUserInfo?.isNewUser == true)
-                _phoneLoginSignUp.postValue(NetworkResult.Success(response.user!!, statusCode = 201))
+                _phoneLoginSignUp.postValue(
+                    NetworkResult.Success(
+                        response.user!!,
+                        statusCode = 201
+                    )
+                )
             else
-                _phoneLoginSignUp.postValue(NetworkResult.Success(response.user!!, statusCode = 200))
-        }catch (e: Exception){
+                _phoneLoginSignUp.postValue(
+                    NetworkResult.Success(
+                        response.user!!,
+                        statusCode = 200
+                    )
+                )
+            response.user?.uid?.let {
+                insertEmptyStatus(it)
+            }
+        } catch (e: Exception) {
             Log.d("exceptionPhoneLogin", "phoneNewUser: $e")
         }
+    }
+
+    private fun insertEmptyStatus(uid: String) {
+        MyStatus(
+            uid,
+            "",
+            "",
+            "",
+            -1,
+            arrayListOf()
+        )
     }
 
 }

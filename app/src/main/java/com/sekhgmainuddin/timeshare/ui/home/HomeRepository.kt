@@ -13,6 +13,7 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.StorageReference
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
 import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
+import com.sekhgmainuddin.timeshare.data.db.entities.MyStatus
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
@@ -25,7 +26,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.io.File
+import java.util.UUID
 import javax.inject.Inject
+import kotlin.random.Random
 
 class HomeRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
@@ -35,9 +38,27 @@ class HomeRepository @Inject constructor(
     @ApplicationContext val context: Context
 ) {
 
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            firebaseAuth.currentUser?.uid?.let {
+                timeShareDb.getDao().insertStatus(
+                    MyStatus(
+                        it,
+                        "",
+                        "",
+                        "",
+                        -1,
+                        arrayListOf()
+                    )
+                )
+            }
+        }
+    }
+
     private val firebaseUser = firebaseAuth.currentUser
     private val timeShareDbDao = timeShareDb.getDao()
 
+    val myStatus = timeShareDbDao.getStatus()
     val allPosts = timeShareDbDao.getAllPosts()
 
     fun insertPost(post: PostEntity) {
@@ -50,6 +71,10 @@ class HomeRepository @Inject constructor(
 
     fun insert(user: UserEntity) {
         timeShareDbDao.insert(user)
+    }
+
+    fun insertStatus(myStatus: MyStatus) {
+        timeShareDbDao.insertStatus(myStatus)
     }
 
     suspend fun getUserDataById(listIds: Set<String>): HashMap<String, User> {
@@ -89,7 +114,6 @@ class HomeRepository @Inject constructor(
                     it
                 ).get().await()
             }
-            Log.d("userSearchCheck", "getUserData: $response")
             if (response?.exists() == true) {
                 val otherUserList = ArrayList<String>()
                 val user = response.toObject(User::class.java)
@@ -132,24 +156,30 @@ class HomeRepository @Inject constructor(
                         )
                         if (user_Id == null) {
                             currentLoggedUser = userDetails
-                            insert(UserEntity(userDetails.userId,
-                                User(name, userId, email, phone, imageUrl, bio, interests, location, activeStatus, friends, followers, following),
-                                userDetails.friends,userDetails.following))
-                            Log.d(
-                                "userDetails",
-                                "getUserData: $followersList $followingList $friendList"
+                            insert(
+                                UserEntity(
+                                    userDetails.userId,
+                                    User(
+                                        name,
+                                        userId,
+                                        email,
+                                        phone,
+                                        imageUrl,
+                                        bio,
+                                        interests,
+                                        location,
+                                        activeStatus,
+                                        friends,
+                                        followers,
+                                        following
+                                    ),
+                                    userDetails.friends, userDetails.following
+                                )
                             )
                             _userDetails.postValue(Result.success(userDetails))
                         } else {
-                            Log.d(
-                                "userDetails",
-                                "getSearchUserData: $followersList $followingList $friendList"
-                            )
                             _searchUserDetails.postValue(Result.success(userDetails))
                         }
-                    }
-                    if (user_Id==null){
-                        getStatus(friends + following + listOf(firebaseUser?.uid!!))
                     }
                 }
             }
@@ -631,10 +661,10 @@ class HomeRepository @Inject constructor(
     suspend fun changeCallStatus(mic: Boolean?, profileId: String?) {
         try {
             firebaseUser?.uid?.let {
-                if (mic==null && profileId==null){
+                if (mic == null && profileId == null) {
                     firebaseFireStore.collection("Call").document(it)
                         .update(mapOf(Pair("answered", true))).await()
-                }else{
+                } else {
                     firebaseFireStore.collection("Call").document(it)
                         .update(mapOf(Pair("myMicStatus", mic))).await()
                     firebaseFireStore.collection("Call").document(profileId!!)
@@ -646,28 +676,34 @@ class HomeRepository @Inject constructor(
         }
     }
 
-    val userData= timeShareDbDao.getUser()
-
     private var _statusListWithUserDetail = MutableLiveData<List<Pair<List<Status>, User>>>()
     val statusListWithUserDetail: LiveData<List<Pair<List<Status>, User>>>
         get() = _statusListWithUserDetail
 
-    suspend fun getStatus(profiles: List<String>) {
+    suspend fun getStatus(profiles: Set<String>) {
         try {
-            val statusList= ArrayList<Pair<List<Status>, User>>()
-            profiles.forEach { id->
-                val status= firebaseFireStore.collection("Status").document(id).get().await()
-                if (status.exists()){
+            val statusList = ArrayList<Pair<List<Status>, User>>()
+            profiles.forEach { id ->
+                val status = firebaseFireStore.collection("Status").document(id).get().await()
+                if (status.exists()) {
                     status.toObject(StatusList::class.java)?.let {
-                        val following= userData.value?.get(0)?.following?.get(id)
-                        val friend= userData.value?.get(0)?.friends?.get(id)
-                        val user= userData.value?.get(0)?.user
-                        statusList.add(Pair(it.status, if (id==firebaseUser?.uid!!) user!! else following?:friend!!))
+                        if (it.status.isNotEmpty()) {
+                            val user =
+                                firebaseFireStore.collection("Users").document(id).get().await()
+                                    .toObject(User::class.java)
+                            statusList.add(
+                                Pair(
+                                    it.status,
+                                    user!!
+                                )
+                            )
+                        }
                     }
                 }
             }
+            _statusListWithUserDetail.postValue(statusList)
 
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("getStatus", "getStatus: $e")
         }
     }

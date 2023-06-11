@@ -28,6 +28,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.internal.wait
 
 @AndroidEntryPoint
 class StatusFragment(private val statusList: List<Status>, private val user: User) : Fragment() {
@@ -65,6 +66,7 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
             binding.statusProgressLayout.addView(progressBar, params)
             progressList.add(progressBar)
         }
+
 
     }
 
