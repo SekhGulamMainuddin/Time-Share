@@ -57,6 +57,18 @@
         app:layout_constraintStart_toEndOf="@id/profileImage"
         app:layout_constraintTop_toBottomOf="@id/profileName" />
 
+    <ProgressBar
+        android:id="@+id/progress_circular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:indeterminateTint="@color/orange"
+        android:elevation="20dp"/>
+
+
     <ImageView
         android:id="@+id/statusImage"
         android:layout_width="match_parent"
@@ -76,7 +88,6 @@
         android:layout_height="match_parent"
         app:resize_mode="fit"
         app:use_controller="false"
-        android:background="@color/black"
         android:layout_marginVertical="100dp"
         android:visibility="gone"
         />

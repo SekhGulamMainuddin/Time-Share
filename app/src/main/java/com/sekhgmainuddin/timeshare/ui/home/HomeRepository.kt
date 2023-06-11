@@ -684,12 +684,12 @@ class HomeRepository @Inject constructor(
         try {
             val statusList = ArrayList<Pair<List<Status>, User>>()
             profiles.forEach { id ->
-                val status = firebaseFireStore.collection("Status").document(id).get().await()
+                val status = firebaseFireStore.collection("Status").document(id.trim()).get().await()
                 if (status.exists()) {
                     status.toObject(StatusList::class.java)?.let {
                         if (it.status.isNotEmpty()) {
                             val user =
-                                firebaseFireStore.collection("Users").document(id).get().await()
+                                firebaseFireStore.collection("Users").document(id.trim()).get().await()
                                     .toObject(User::class.java)
                             statusList.add(
                                 Pair(

@@ -1,7 +1,7 @@
 package com.sekhgmainuddin.timeshare.ui.home.home.adapters
 
 import android.content.Context
-import android.util.Log
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.Status
 import com.sekhgmainuddin.timeshare.data.modals.User
@@ -51,6 +53,13 @@ class StatusAdapter(val context: Context, val onClick: OnClick) :
 
                         StatusType.TEXT -> {
                             statusText.text = status.urlOrText
+                        }
+
+                        StatusType.VIDEO -> {
+                            val requestOptions = RequestOptions()
+                            requestOptions.isMemoryCacheable
+                            Glide.with(context).setDefaultRequestOptions(requestOptions).load(status.urlOrText)
+                                .into(statusImage)
                         }
                     }
                 }

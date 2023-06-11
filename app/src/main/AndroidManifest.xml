@@ -57,9 +57,6 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
             />
         <activity
-            android:name=".ui.home.addnewpostreelorstatus.AddNewStatusActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.home.chat.ui.singlechat.CallActivity"
             android:exported="false" />
         <activity

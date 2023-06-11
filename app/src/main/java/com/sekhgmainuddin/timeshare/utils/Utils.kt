@@ -21,6 +21,7 @@ import android.provider.MediaStore.MediaColumns.*
 import android.text.format.DateUtils
 import android.transition.Slide
 import android.transition.TransitionManager
+import android.util.Log
 import android.util.Patterns
 import android.view.Gravity
 import android.view.View
@@ -31,14 +32,17 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.sekhgmainuddin.timeshare.R
+import java.io.DataInputStream
+import java.io.DataOutputStream
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.net.URL
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import kotlin.random.Random
 
 
 object Utils {
@@ -268,5 +272,26 @@ object Utils {
         retriever.release()
         return timeInMillisec
     }
+
+    fun downloadFile(url: String, outputFile: File) {
+        try {
+            val u = URL(url)
+            val conn = u.openConnection()
+            val contentLength = conn.contentLength
+            val stream = DataInputStream(u.openStream())
+            val buffer = ByteArray(contentLength)
+            stream.readFully(buffer)
+            stream.close()
+            val fos = DataOutputStream(FileOutputStream(outputFile))
+            fos.write(buffer)
+            fos.flush()
+            fos.close()
+        } catch (_: FileNotFoundException) {
+
+        } catch (_: IOException) {
+
+        }
+    }
+
 
 }

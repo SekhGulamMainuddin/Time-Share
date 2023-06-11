@@ -8,15 +8,23 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.Status
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.databinding.FragmentStatusBinding
 import com.sekhgmainuddin.timeshare.ui.home.status.StatusViewModel
+import com.sekhgmainuddin.timeshare.utils.Utils.downloadFile
+import com.sekhgmainuddin.timeshare.utils.Utils.getFileDuration
 import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
 import com.sekhgmainuddin.timeshare.utils.enums.StatusType
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,11 +32,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.internal.wait
+import java.io.File
 
 @AndroidEntryPoint
 class StatusFragment(private val statusList: List<Status>, private val user: User) : Fragment() {
@@ -40,6 +47,7 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
     var currentItemIndex = 0
     private val progressList = ArrayList<ProgressBar>()
     private lateinit var status: Job
+    private var exoPlayer: ExoPlayer? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,7 +70,9 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
             weight = 1f
         }
         statusList.forEach { _ ->
-            val progressBar = LinearProgressIndicator(requireContext(), null)
+            val progressBar = LinearProgressIndicator(requireContext(), null).apply {
+                setIndicatorColor(requireContext().getColor(R.color.orange))
+            }
             binding.statusProgressLayout.addView(progressBar, params)
             progressList.add(progressBar)
         }
@@ -78,8 +88,10 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
                 it.progress = 0
             }
         }
-        status = CoroutineScope(Dispatchers.Main).launch {
+        var time: Long= 5000
+        status = CoroutineScope(Dispatchers.IO).launch {
             while (true) {
+                time= 5000
                 if (currentItemIndex == statusList.size) {
                     withContext(Dispatchers.Main) {
                         viewModel.currentIndex.postValue(viewModel.currentIndex.value?.plus(1) ?: 0)
@@ -87,22 +99,61 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
                     awaitCancellation()
                 }
                 val item = statusList[currentItemIndex]
-                binding.statusUploadTime.text = item.statusUploadTime.getTimeAgo()
                 val type = StatusType.valueOf(item.type)
-                binding.statusText.isVisible = type == StatusType.TEXT
-                binding.statusImage.isVisible = type == StatusType.IMAGE
+                withContext(Dispatchers.Main) {
+                    binding.apply {
+                        statusUploadTime.text = item.statusUploadTime.getTimeAgo()
+                        statusText.isVisible = type == StatusType.TEXT
+                        statusImage.isVisible = type == StatusType.IMAGE
+                        statusVideo.isVisible = type == StatusType.VIDEO
+                        progressCircular.isVisible =
+                            (type == StatusType.IMAGE || type == StatusType.VIDEO)
+                    }
+                }
                 when (type) {
                     StatusType.IMAGE -> {
-                        Glide.with(requireContext()).load(item.urlOrText).into(binding.statusImage)
+                        val bitmap =
+                            Glide.with(requireContext()).asBitmap().load(item.urlOrText).submit()
+                                .get()
+                        withContext(Dispatchers.Main) {
+                            binding.apply {
+                                progressCircular.isVisible = false
+                                Glide.with(requireContext()).load(bitmap).into(statusImage)
+                            }
+                        }
                     }
 
                     StatusType.TEXT -> {
-                        binding.statusText.text = item.urlOrText
+                        withContext(Dispatchers.Main) {
+                            binding.statusText.text = item.urlOrText
+                        }
+                    }
+
+                    StatusType.VIDEO -> {
+                        val outputDir = requireContext().cacheDir
+                        val outputFile = File.createTempFile("prefix", ".mp4", outputDir)
+                        downloadFile(item.urlOrText,outputFile)
+                        withContext(Dispatchers.Main){
+                            time= outputFile.getFileDuration(requireContext())?:5000
+                            Toast.makeText(requireContext(), "$time", Toast.LENGTH_SHORT).show()
+                            exoPlayer= ExoPlayer.Builder(requireActivity().applicationContext).build()
+                            binding.statusVideo.player= exoPlayer
+                            exoPlayer?.seekTo(0)
+                            exoPlayer?.setMediaSource(ProgressiveMediaSource.Factory(
+                                DefaultDataSource.Factory(requireActivity().applicationContext))
+                                .createMediaSource(MediaItem.fromUri(outputFile.toUri())))
+                            binding.progressCircular.isVisible= false
+                            exoPlayer?.playWhenReady = true
+                            exoPlayer?.prepare()
+                            exoPlayer?.play()
+                        }
                     }
                 }
                 for (i in 0 until 100) {
-                    delay(50)
-                    progressList[currentItemIndex].progress = i
+                    delay(time/100)
+                    withContext(Dispatchers.Main) {
+                        progressList[currentItemIndex].progress = i
+                    }
                 }
                 currentItemIndex++
             }
@@ -121,6 +172,5 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
         super.onDestroyView()
         _binding = null
     }
-
 
 }
