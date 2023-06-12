@@ -5,9 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.telephony.mbms.GroupCall
 import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityMainBinding
@@ -38,7 +40,19 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.mainScreenFragmentContainer) as NavHostFragment
         navController = navHostFragment.navController
 
-        addNewPostBottomSheetDialogFragment = AddNewPostReelStatusBottomSheetDialogFragment()
+        addNewPostBottomSheetDialogFragment = AddNewPostReelStatusBottomSheetDialogFragment{
+            when(it){
+                0->{
+                    navController.navigate(R.id.action_homeScreenFragment_to_addStatusFragment)
+                }
+                1->{
+                    navController.navigate(R.id.action_homeScreenFragment_to_fragmentAddPost)
+                }
+                2->{
+                    navController.navigate(R.id.action_homeScreenFragment_to_fragmentAddReel)
+                }
+            }
+        }
 
         setUpBottomNavigationBar()
         bindObserver()
@@ -79,6 +93,7 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.addPost -> {
                     addNewPostBottomSheetDialogFragment.show(supportFragmentManager, "AddNewPost")
+                    return@setOnItemSelectedListener false
                 }
 
                 R.id.reels -> {
@@ -96,11 +111,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         navController.popBackStack()
-//        when(navController.currentBackStackEntry?.id){
-//
-//        }
-//        super.onBackPressed()
-    }
+        when(navController.currentBackStackEntry?.id){
 
+        }
+        super.onBackPressed()
+    }
 
 }

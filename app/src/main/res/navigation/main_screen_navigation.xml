@@ -25,6 +25,12 @@
         <action
             android:id="@+id/action_homeScreenFragment_to_reelsFragment"
             app:destination="@id/reelsFragment" />
+        <action
+            android:id="@+id/action_homeScreenFragment_to_fragmentAddPost"
+            app:destination="@id/fragmentAddPost" />
+        <action
+            android:id="@+id/action_homeScreenFragment_to_fragmentAddReel"
+            app:destination="@id/fragmentAddReel" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -48,9 +54,19 @@
         tools:layout="@layout/fragment_profile" />
     <fragment
         android:id="@+id/addStatusFragment"
-        android:name="com.sekhgmainuddin.timeshare.ui.home.status.fragments.AddStatusFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.AddStatusFragment"
         android:label="fragment_add_status"
         tools:layout="@layout/fragment_add_status" />
+    <fragment
+        android:id="@+id/fragmentAddPost"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.FragmentAddPost"
+        android:label="fragment_add_new_post_or_reel"
+        tools:layout="@layout/fragment_add_post" />
+    <fragment
+        android:id="@+id/fragmentAddReel"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.FragmentAddReel"
+        android:label="fragment_add_reel"
+        tools:layout="@layout/fragment_add_reel" />
 
 
 </navigation>

@@ -1,5 +1,6 @@
 package com.sekhgmainuddin.timeshare.ui.home.status.fragments
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -48,6 +49,7 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
     private val progressList = ArrayList<ProgressBar>()
     private lateinit var status: Job
     private var exoPlayer: ExoPlayer? = null
+    private var nextClicked= false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,6 +77,10 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
             }
             binding.statusProgressLayout.addView(progressBar, params)
             progressList.add(progressBar)
+        }
+
+        binding.mainLayout.setOnClickListener {
+            nextClicked= true
         }
 
 
@@ -108,6 +114,8 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
                         statusVideo.isVisible = type == StatusType.VIDEO
                         progressCircular.isVisible =
                             (type == StatusType.IMAGE || type == StatusType.VIDEO)
+                        mainLayout.setBackgroundColor(item.background)
+                        captions.text= item.captions
                     }
                 }
                 when (type) {
@@ -148,13 +156,20 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
                             exoPlayer?.play()
                         }
                     }
+                    else->{
+
+                    }
                 }
                 for (i in 0 until 100) {
                     delay(time/100)
+                    if (nextClicked){
+                        break
+                    }
                     withContext(Dispatchers.Main) {
                         progressList[currentItemIndex].progress = i
                     }
                 }
+                nextClicked= false
                 currentItemIndex++
             }
         }

@@ -67,20 +67,6 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ui.home.addnewpostreelorstatus.AddNewPostOrReelActivity"
-            android:exported="false" >
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".ui.home.profile.ProfileFragment"
-            android:exported="false" >
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
             android:name=".ui.home.chat.ui.ChatActivity"
             android:exported="false" >
             <meta-data

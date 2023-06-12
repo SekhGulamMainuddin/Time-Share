@@ -1,16 +1,19 @@
-package com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus
+package com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.PostImageVideo
-import com.sekhgmainuddin.timeshare.databinding.ActivityAddNewPostOrReelBinding
+import com.sekhgmainuddin.timeshare.databinding.FragmentAddPostBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
 import com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.adapters.ImageVideoViewPagerAdapter
 import com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.adapters.onClick
@@ -20,25 +23,35 @@ import com.sekhgmainuddin.timeshare.utils.Utils.isImageOrVideo
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AddNewPostOrReelActivity : AppCompatActivity(), onClick {
+class FragmentAddPost : Fragment(), onClick {
 
-    private lateinit var binding: ActivityAddNewPostOrReelBinding
-    private val viewModel by viewModels<HomeViewModel>()
+    private var _binding: FragmentAddPostBinding? = null
+    private val binding: FragmentAddPostBinding
+        get() = _binding!!
+    private val viewModel by activityViewModels<HomeViewModel>()
     private lateinit var adapter: ImageVideoViewPagerAdapter
 
     private val exoPlayerItems = ArrayList<ExoPlayerItem>()
+
     //    private val imageVideoUriList= mutableListOf<PostImageVideo>(PostImageVideo(-1,"",""))
     private val imageVideoUriList = mutableListOf<PostImageVideo>()
     private var currIndex = 0
     private var isAudioMuted = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAddNewPostOrReelBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding= FragmentAddPostBinding.inflate(inflater)
+        return _binding!!.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         imageVideoUriList.addAll(
-            listOf(PostImageVideo(-1,"","")
+            listOf(
+                PostImageVideo(-1, "", "")
 //                PostImageVideo(
 //                    1,
 //                    "",
@@ -60,26 +73,27 @@ class AddNewPostOrReelActivity : AppCompatActivity(), onClick {
         initialize()
         registerClickListeners()
         bindObserver()
-
-
     }
 
     private fun initialize() {
 
-        adapter = ImageVideoViewPagerAdapter(this, this,  object : ImageVideoViewPagerAdapter.OnVideoListener {
-            override fun onVideoPrepared(exoPlayerItem: ExoPlayerItem) {
-                exoPlayerItems.add(exoPlayerItem)
-            }
-
-            override fun onVideoClick(position: Int) {
-                isAudioMuted = !isAudioMuted
-
-                val index =
-                    exoPlayerItems.indexOfFirst { it.position == binding.viewPagerImageVideo.currentItem }
-                if (index != -1) {
-                    val player = exoPlayerItems[index].exoPlayer
-                    player.volume = if (isAudioMuted) 0f else 1f
+        adapter = ImageVideoViewPagerAdapter(
+            requireContext(),
+            this,
+            object : ImageVideoViewPagerAdapter.OnVideoListener {
+                override fun onVideoPrepared(exoPlayerItem: ExoPlayerItem) {
+                    exoPlayerItems.add(exoPlayerItem)
                 }
+
+                override fun onVideoClick(position: Int) {
+                    isAudioMuted = !isAudioMuted
+
+                    val index =
+                        exoPlayerItems.indexOfFirst { it.position == binding.viewPagerImageVideo.currentItem }
+                    if (index != -1) {
+                        val player = exoPlayerItems[index].exoPlayer
+                        player.volume = if (isAudioMuted) 0f else 1f
+                    }
 
 //                if (isAudioMuted) {
 //                    binding.ivSpeaker.setImageResource(R.drawable.speaker_muted)
@@ -91,15 +105,16 @@ class AddNewPostOrReelActivity : AppCompatActivity(), onClick {
 //                Handler(Looper.getMainLooper()).postDelayed({
 //                    binding.ivSpeaker.visibility = View.GONE
 //                }, 1000)
-            }
-        })
+                }
+            })
         binding.viewPagerImageVideo.adapter = adapter
         adapter.update(imageVideoUriList)
 
         TabLayoutMediator(binding.tabLayout, binding.viewPagerImageVideo)
         { _, _ -> }.attach()
 
-        binding.viewPagerImageVideo.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        binding.viewPagerImageVideo.registerOnPageChangeCallback(object :
+            ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 val previousIndex = exoPlayerItems.indexOfFirst { it.exoPlayer.isPlaying }
                 if (previousIndex != -1) {
@@ -122,28 +137,30 @@ class AddNewPostOrReelActivity : AppCompatActivity(), onClick {
     private fun registerClickListeners() {
 
         binding.postButton.setOnClickListener {
-//            viewModel.addPost(imageVideoUriList, "Hello this is a testing post")
+//            viewModel.addPost(imageVideoUriList, "Hello requireContext() is a testing post")
         }
 
 
     }
 
     private fun bindObserver() {
-        viewModel.addPostStatus.observe(this) {
+        viewModel.addPostStatus.observe(viewLifecycleOwner) {
             when (it) {
                 is NetworkResult.Success -> {
                     if (it.data == true && it.statusCode == 200)
-                        Toast.makeText(this, "Post Uploaded Successfully", Toast.LENGTH_SHORT)
+                        Toast.makeText(requireContext(), "Post Uploaded Successfully", Toast.LENGTH_SHORT)
                             .show()
                 }
+
                 is NetworkResult.Error -> {
                     if (it.statusCode == 500)
                         Toast.makeText(
-                            this,
+                            requireContext(),
                             "Some error occurred while uploading the post",
                             Toast.LENGTH_SHORT
                         ).show()
                 }
+
                 is NetworkResult.Loading -> {
 
                 }
@@ -155,7 +172,7 @@ class AddNewPostOrReelActivity : AppCompatActivity(), onClick {
         if (it != null) {
             Log.d("selectedVideos", "->  $it ")
             val isImageOrVideo =
-                getFileExtension(it, this@AddNewPostOrReelActivity)?.isImageOrVideo()
+                getFileExtension(it, requireContext())?.isImageOrVideo()
             if (isImageOrVideo == 0 || isImageOrVideo == 1) {
                 imageVideoUriList.add(
                     currIndex,
@@ -168,7 +185,7 @@ class AddNewPostOrReelActivity : AppCompatActivity(), onClick {
                 currIndex++
                 adapter.update(imageVideoUriList)
             } else {
-                Toast.makeText(this, "File Format Not Supported", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "File Format Not Supported", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -178,13 +195,14 @@ class AddNewPostOrReelActivity : AppCompatActivity(), onClick {
     }
 
     override fun onClickToView(postImageVideoWithExoPlayer: PostImageVideo) {
-        Toast.makeText(this, "Item Clicked", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Item Clicked", Toast.LENGTH_SHORT).show()
     }
 
     override fun onPause() {
         super.onPause()
 
-        val index = exoPlayerItems.indexOfFirst { it.position == binding.viewPagerImageVideo.currentItem }
+        val index =
+            exoPlayerItems.indexOfFirst { it.position == binding.viewPagerImageVideo.currentItem }
         if (index != -1) {
             val player = exoPlayerItems[index].exoPlayer
             player.pause()
@@ -195,7 +213,8 @@ class AddNewPostOrReelActivity : AppCompatActivity(), onClick {
     override fun onResume() {
         super.onResume()
 
-        val index = exoPlayerItems.indexOfFirst { it.position == binding.viewPagerImageVideo.currentItem }
+        val index =
+            exoPlayerItems.indexOfFirst { it.position == binding.viewPagerImageVideo.currentItem }
         if (index != -1) {
             val player = exoPlayerItems[index].exoPlayer
             player.playWhenReady = true

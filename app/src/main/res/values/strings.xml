@@ -116,6 +116,12 @@
     <string name="call_from_or_to_opposite_profile_name">Call from or to Opposite Profile Name</string>
     <string name="remote_user_mic_muted">Remote user Mic Muted</string>
     <string name="time_today_yesterday_am_pm">Time-Today-Yesterday am pm</string>
+    <string name="add_content">Add Content</string>
+    <string name="select_status_background">Select Status Background</string>
+    <string name="add_captions">Add Captions</string>
+    <string name="upload_status">Upload status</string>
+    <string name="add_reel_and_upload">Add Reel and Upload</string>
+    <string name="upload_reel">Upload Reel</string>
 
 
 </resources>

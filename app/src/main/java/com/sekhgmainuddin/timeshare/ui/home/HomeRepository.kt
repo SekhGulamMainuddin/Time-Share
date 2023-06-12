@@ -19,7 +19,9 @@ import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils
+import com.sekhgmainuddin.timeshare.utils.Utils.getThumbnailFromVideoUri
 import com.sekhgmainuddin.timeshare.utils.Utils.isImageOrVideo
+import com.sekhgmainuddin.timeshare.utils.enums.StatusType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
@@ -684,12 +686,14 @@ class HomeRepository @Inject constructor(
         try {
             val statusList = ArrayList<Pair<List<Status>, User>>()
             profiles.forEach { id ->
-                val status = firebaseFireStore.collection("Status").document(id.trim()).get().await()
+                val status =
+                    firebaseFireStore.collection("Status").document(id.trim()).get().await()
                 if (status.exists()) {
                     status.toObject(StatusList::class.java)?.let {
                         if (it.status.isNotEmpty()) {
                             val user =
-                                firebaseFireStore.collection("Users").document(id.trim()).get().await()
+                                firebaseFireStore.collection("Users").document(id.trim()).get()
+                                    .await()
                                     .toObject(User::class.java)
                             statusList.add(
                                 Pair(
@@ -705,6 +709,110 @@ class HomeRepository @Inject constructor(
 
         } catch (e: Exception) {
             Log.d("getStatus", "getStatus: $e")
+        }
+    }
+
+    private var _uploadStatusResult = MutableLiveData<Result<Boolean>>()
+    val uploadStatusResult: LiveData<Result<Boolean>>
+        get() = _uploadStatusResult
+
+    suspend fun uploadStatus(
+        statusText: String,
+        statusImageOrVideoUri: Uri?,
+        type: Int,
+        captions: String,
+        background: Int,
+    ) {
+        try {
+            firebaseUser?.uid?.let { uid ->
+                val statusId = UUID.randomUUID().toString()
+                var url = ""
+                if (statusImageOrVideoUri != null) {
+                    url = uploadFile(
+                        statusImageOrVideoUri,
+                        null,
+                        "Status/$uid/${if (type == 0) "IMG" else "VID"}$statusId"
+                    )!!
+                }
+                var thumbnail = ""
+                if (type == 1) {
+                    getThumbnailFromVideoUri(statusImageOrVideoUri!!, context)?.let {
+                        thumbnail = uploadFile(it, null, "Status/$uid/VIDThumbnail$statusId") ?: ""
+                    }
+                }
+                val status = Status(
+                    statusId = statusId,
+                    urlOrText = if (statusText.isEmpty()) url else statusText,
+                    type = (if (statusText.isNotEmpty()) StatusType.TEXT else if (type == 0) StatusType.IMAGE else StatusType.VIDEO).name,
+                    statusUploadTime = System.currentTimeMillis(),
+                    thumbnail = thumbnail,
+                    background = background,
+                    captions = captions
+                )
+                try {
+                    firebaseFireStore.collection("Status").document(uid)
+                        .update("status", FieldValue.arrayUnion(status)).await()
+                } catch (e: Exception) {
+                    firebaseFireStore.collection("Status").document(uid).set(
+                        StatusList(
+                            listOf(
+                                status
+                            )
+                        )
+                    ).await()
+                }
+                _uploadStatusResult.postValue(Result.success(true))
+            }
+        } catch (e: Exception) {
+            Log.d("uploadStatus", "uploadStatus: $e")
+            _uploadStatusResult.postValue(Result.failure(e))
+        }
+    }
+
+    private var _reelUploadResult = MutableLiveData<Result<Boolean>>()
+    val reelUploadResult: LiveData<Result<Boolean>>
+        get() = _reelUploadResult
+
+    suspend fun uploadReel(
+        reelUri: Uri,
+        captions: String
+    ) {
+        try {
+            firebaseUser?.uid?.let { id ->
+                val user = if (userProfileDetail == null) {
+                    firebaseFireStore.collection("Users").document(id).get().await()
+                        .toObject(User::class.java)!!
+                } else {
+                    userProfileDetail!!
+                }
+                val time = System.currentTimeMillis()
+                val thumbnail = getThumbnailFromVideoUri(reelUri, context)?.let {
+                    uploadFile(it, null, "Reels/$id/ReelThumbnail$time") ?: ""
+                }
+                val url = uploadFile(reelUri, null, "Reels/$id/Reel${time}")
+                val reel = Reel(
+                    UUID.randomUUID().toString(),
+                    id,
+                    user.name,
+                    user.imageUrl,
+                    captions,
+                    time,
+                    url!!,
+                    0,
+                    thumbnail ?: "",
+                    0,
+                    0,
+                    0,
+                    "",
+                    hashMapOf()
+                )
+                firebaseFireStore.collection("Reels").document(id+time)
+                    .set(reel).await()
+                _reelUploadResult.postValue(Result.success(true))
+            }
+        } catch (e: Exception) {
+            Log.d("uploadReel", "uploadReel: $e")
+            _reelUploadResult.postValue(Result.failure(e))
         }
     }
 

@@ -1,16 +1,15 @@
 package com.sekhgmainuddin.timeshare.ui.home.home.adapters
 
 import android.content.Context
-import android.graphics.drawable.Drawable
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.Status
 import com.sekhgmainuddin.timeshare.data.modals.User
@@ -37,30 +36,29 @@ class StatusAdapter(val context: Context, val onClick: OnClick) :
         fun bind(item: Pair<List<Status>, User>) {
             binding.apply {
                 val status = item.first[0]
-                addStatusButton.isVisible = status.statusUploadTime == 0L
+                val statusType = StatusType.valueOf(status.type)
+                mainLayout.setCardBackgroundColor(ColorStateList.valueOf(status.background))
+                iconButton.isVisible = status.statusUploadTime == 0L || statusType==StatusType.VIDEO
+                if (status.statusUploadTime==0L || statusType==StatusType.VIDEO){
+                    iconButton.setImageDrawable(AppCompatResources.getDrawable(context, if (status.statusUploadTime==0L) R.drawable.add_photo_video_icon else R.drawable.play_icon))
+                }
                 profileName.text = item.second.name
                 Glide.with(context).load(item.second.imageUrl)
                     .placeholder(R.drawable.default_profile_pic).into(profileImage)
                 if (status.statusUploadTime != 0L) {
-                    val statusType = StatusType.valueOf(status.type)
                     statusText.isVisible = statusType == StatusType.TEXT
-                    statusImage.isVisible = statusType == StatusType.IMAGE
+                    statusImage.isVisible = (statusType == StatusType.IMAGE || status.thumbnail.isNotEmpty())
+                    if (status.thumbnail.isNotEmpty())
+                        Glide.with(context).load(status.thumbnail).into(statusImage)
                     when (statusType) {
                         StatusType.IMAGE -> {
                             Glide.with(context).load(status.urlOrText).placeholder(R.color.black)
                                 .into(statusImage)
                         }
-
                         StatusType.TEXT -> {
                             statusText.text = status.urlOrText
                         }
-
-                        StatusType.VIDEO -> {
-                            val requestOptions = RequestOptions()
-                            requestOptions.isMemoryCacheable
-                            Glide.with(context).setDefaultRequestOptions(requestOptions).load(status.urlOrText)
-                                .into(statusImage)
-                        }
+                        else -> {}
                     }
                 }
             }

@@ -21,7 +21,6 @@ import android.provider.MediaStore.MediaColumns.*
 import android.text.format.DateUtils
 import android.transition.Slide
 import android.transition.TransitionManager
-import android.util.Log
 import android.util.Patterns
 import android.view.Gravity
 import android.view.View
@@ -32,6 +31,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.sekhgmainuddin.timeshare.R
+import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -169,12 +169,11 @@ object Utils {
     private val videoExtensionList= arrayListOf("mp4")
 
     fun String.isImageOrVideo() :Int{
-        if (this in imageExtensionList)
-            return 0
-        else if (this in videoExtensionList)
-            return 1
-        else
-            return -1
+        return when (this) {
+            in imageExtensionList -> 0
+            in videoExtensionList -> 1
+            else -> -1
+        }
     }
 
     fun Fragment.hideKeyboard() {
@@ -189,6 +188,12 @@ object Utils {
         val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
+
+    fun Context.showKeyboard(view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(view, 0)
+    }
+
 
     @Throws(Throwable::class)
     fun retrieveVideoFrameFromVideo(videoPath: String?): Bitmap? {
@@ -293,5 +298,22 @@ object Utils {
         }
     }
 
+    fun getThumbnailFromVideoUri(uri: Uri, context: Context): Uri? {
+        val mMMR = MediaMetadataRetriever()
+        mMMR.setDataSource(context, uri)
+        return mMMR.frameAtTime?.getImageUri()
+    }
+
+    private fun Bitmap.getImageUri(): Uri {
+        val tempFile = File.createTempFile("tempThumbnail", ".png")
+        val bytes = ByteArrayOutputStream()
+        this.compress(Bitmap.CompressFormat.PNG, 100, bytes)
+        val bitmapData = bytes.toByteArray()
+        val fileOutPut = FileOutputStream(tempFile)
+        fileOutPut.write(bitmapData)
+        fileOutPut.flush()
+        fileOutPut.close()
+        return Uri.fromFile(tempFile)
+    }
 
 }

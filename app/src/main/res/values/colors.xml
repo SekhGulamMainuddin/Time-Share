@@ -32,6 +32,11 @@
     <color name="posts_stroke_color">#B9B9B9</color>
     <color name="profile_bio">#5A5B5E</color>
     <color name="message_seen">#00FF62</color>
+    <color name="teal_green">#128C7E</color>
+    <color name="ufo_green">#25D366</color>
+    <color name="tea_green">#DCF8C6</color>
+    <color name="picton_blue">#34B7F1</color>
+    <color name="white_chocolate">#ECE5DD</color>
 
 
 </resources>

@@ -36,12 +36,12 @@ class HomeViewModel @Inject constructor(
             if (result.isSuccess) {
                 result.getOrNull()?.let {
                     userData.postValue(it)
-                    val friendsFollowingIds= ArrayList<String>()
+                    val friendsFollowingIds = ArrayList<String>()
                     friendsFollowingIds.addAll(it.friends)
                     friendsFollowingIds.addAll(it.following)
                     friendsFollowingIds.add(it.userId)
                     homeRepository.getStatus(friendsFollowingIds.toSet())
-                    if (it.groups.isNotEmpty()){
+                    if (it.groups.isNotEmpty()) {
                         homeRepository.getGroupDetails(it.groups)
                     }
                 }
@@ -304,19 +304,39 @@ class HomeViewModel @Inject constructor(
     fun checkVideoCall() = viewModelScope.launch(Dispatchers.IO) {
         homeRepository.checkVideoCall().collectLatest {
             if (it.isSuccess) {
-                it.getOrNull()?.let { call -> this@HomeViewModel.call.postValue(Result.success(call)) }
+                it.getOrNull()
+                    ?.let { call -> this@HomeViewModel.call.postValue(Result.success(call)) }
             }
         }
     }
 
-    fun changeCallStatus(mic: Boolean? = null, profileId: String? = null) = viewModelScope.launch(Dispatchers.IO) {
-        homeRepository.changeCallStatus(mic, profileId)
-    }
+    fun changeCallStatus(mic: Boolean? = null, profileId: String? = null) =
+        viewModelScope.launch(Dispatchers.IO) {
+            homeRepository.changeCallStatus(mic, profileId)
+        }
 
     val statusListWithUserDetail = homeRepository.statusListWithUserDetail
 
-    fun insertMyStatus(myStatus: MyStatus) = viewModelScope.launch(Dispatchers.IO){
+    fun insertMyStatus(myStatus: MyStatus) = viewModelScope.launch(Dispatchers.IO) {
         homeRepository.insertStatus(myStatus)
+    }
+
+    val statusUploadResult = homeRepository.uploadStatusResult
+
+    fun uploadStatus(
+        statusText: String,
+        statusImageOrVideoUri: Uri?,
+        type: Int,
+        captions: String,
+        background: Int
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.uploadStatus(statusText, statusImageOrVideoUri, type, captions, background)
+    }
+
+    val reelUploadResult = homeRepository.reelUploadResult
+
+    fun uploadReel(videoUri: Uri, captions: String) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.uploadReel(videoUri, captions)
     }
 
 }
