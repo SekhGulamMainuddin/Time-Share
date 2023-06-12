@@ -63,7 +63,7 @@ class SearchPostAdapter(val context: Context, val selectedPost: (Post) -> (Unit)
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    Glide.with(context).load(R.drawable.some_error_occurred_image).into(binding.postImage)
+//                    Glide.with(context).load(R.drawable.some_error_occurred_image).into(binding.postImage)
                     binding.progressCircular.visibility= View.GONE
                     return false
                 }

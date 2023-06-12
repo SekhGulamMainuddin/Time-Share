@@ -255,8 +255,14 @@ class AddStatusFragment : Fragment() {
             }
         }
 
+    override fun onPause() {
+        super.onPause()
+        exoPlayer?.pause()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        exoPlayer?.clearMediaItems()
         _binding = null
     }
 

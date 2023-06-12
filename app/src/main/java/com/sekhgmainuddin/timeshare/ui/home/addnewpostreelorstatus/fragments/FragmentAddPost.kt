@@ -1,6 +1,10 @@
 package com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments
 
+import android.app.Dialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -9,8 +13,11 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayoutMediator
+import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.PostImageVideo
 import com.sekhgmainuddin.timeshare.databinding.FragmentAddPostBinding
@@ -32,11 +39,12 @@ class FragmentAddPost : Fragment(), onClick {
     private lateinit var adapter: ImageVideoViewPagerAdapter
 
     private val exoPlayerItems = ArrayList<ExoPlayerItem>()
-
-    //    private val imageVideoUriList= mutableListOf<PostImageVideo>(PostImageVideo(-1,"",""))
-    private val imageVideoUriList = mutableListOf<PostImageVideo>()
+    private val imageVideoList = arrayListOf(PostImageVideo(imageOrVideo = -1))
+    private val imageVideoUriList = arrayListOf<Uri>()
     private var currIndex = 0
     private var isAudioMuted = false
+    private lateinit var progressDialog: Dialog
+    private lateinit var intent: Intent
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,33 +57,29 @@ class FragmentAddPost : Fragment(), onClick {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        imageVideoUriList.addAll(
-            listOf(
-                PostImageVideo(-1, "", "")
-//                PostImageVideo(
-//                    1,
-//                    "",
-//                    "content://media/external_primary/video/media/1000028817",
-//                ),
-//                PostImageVideo(
-//                    1,
-//                    "",
-//                    "content://media/external_primary/video/media/1000028816",
-//                ),
-//                PostImageVideo(
-//                    1,
-//                    "",
-//                    "content://media/external_primary/video/media/1000028815",
-//                )
-            )
-        )
+
+        progressDialog = Dialog(requireContext())
+        progressDialog.setContentView(R.layout.progress_dialog)
+        progressDialog.setCancelable(false)
+        progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         initialize()
         registerClickListeners()
         bindObserver()
+
     }
 
     private fun initialize() {
+
+        Glide.with(requireContext()).load(viewModel.userData.value?.imageUrl).into(binding.profileImage)
+        binding.profileName.text = viewModel.userData.value?.name
+
+        intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.putExtra(
+            Intent.EXTRA_MIME_TYPES,
+            arrayOf("image/*", "video/*")
+        )
+        intent.action = Intent.ACTION_GET_CONTENT
 
         adapter = ImageVideoViewPagerAdapter(
             requireContext(),
@@ -95,20 +99,10 @@ class FragmentAddPost : Fragment(), onClick {
                         player.volume = if (isAudioMuted) 0f else 1f
                     }
 
-//                if (isAudioMuted) {
-//                    binding.ivSpeaker.setImageResource(R.drawable.speaker_muted)
-//                } else {
-//                    binding.ivSpeaker.setImageResource(R.drawable.speaker_normal)
-//                }
-//
-//                binding.ivSpeaker.visibility = View.VISIBLE
-//                Handler(Looper.getMainLooper()).postDelayed({
-//                    binding.ivSpeaker.visibility = View.GONE
-//                }, 1000)
                 }
             })
         binding.viewPagerImageVideo.adapter = adapter
-        adapter.update(imageVideoUriList)
+        adapter.update(imageVideoList)
 
         TabLayoutMediator(binding.tabLayout, binding.viewPagerImageVideo)
         { _, _ -> }.attach()
@@ -137,44 +131,54 @@ class FragmentAddPost : Fragment(), onClick {
     private fun registerClickListeners() {
 
         binding.postButton.setOnClickListener {
-//            viewModel.addPost(imageVideoUriList, "Hello requireContext() is a testing post")
+            if (imageVideoUriList.isNotEmpty()) {
+                progressDialog.show()
+                viewModel.addPost(imageVideoUriList, binding.descEditText.text.toString())
+            }
         }
-
 
     }
 
     private fun bindObserver() {
         viewModel.addPostStatus.observe(viewLifecycleOwner) {
-            when (it) {
-                is NetworkResult.Success -> {
-                    if (it.data == true && it.statusCode == 200)
-                        Toast.makeText(requireContext(), "Post Uploaded Successfully", Toast.LENGTH_SHORT)
-                            .show()
-                }
-
-                is NetworkResult.Error -> {
-                    if (it.statusCode == 500)
-                        Toast.makeText(
-                            requireContext(),
-                            "Some error occurred while uploading the post",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                }
-
-                is NetworkResult.Loading -> {
-
+            if (imageVideoUriList.isNotEmpty()) {
+                progressDialog.dismiss()
+                when (it) {
+                    is NetworkResult.Success -> {
+                        if (it.data == true && it.statusCode == 200) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Post Uploaded Successfully",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            findNavController().popBackStack()
+                        }
+                    }
+                    is NetworkResult.Error -> {
+                        if (it.statusCode == 500)
+                            Toast.makeText(
+                                requireContext(),
+                                "Some error occurred while uploading the post",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                    }
+                    is NetworkResult.Loading -> {
+                        progressDialog.show()
+                    }
                 }
             }
         }
     }
 
-    private val galleryLaunch = registerForActivityResult(ActivityResultContracts.GetContent()) {
+    private val galleryLaunch = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { d->
+        val it= d.data?.data
         if (it != null) {
-            Log.d("selectedVideos", "->  $it ")
             val isImageOrVideo =
                 getFileExtension(it, requireContext())?.isImageOrVideo()
             if (isImageOrVideo == 0 || isImageOrVideo == 1) {
-                imageVideoUriList.add(
+                imageVideoUriList.add(it)
+                imageVideoList.add(
                     currIndex,
                     PostImageVideo(
                         isImageOrVideo,
@@ -183,7 +187,7 @@ class FragmentAddPost : Fragment(), onClick {
                     )
                 )
                 currIndex++
-                adapter.update(imageVideoUriList)
+                adapter.update(imageVideoList)
             } else {
                 Toast.makeText(requireContext(), "File Format Not Supported", Toast.LENGTH_SHORT).show()
             }
@@ -191,7 +195,7 @@ class FragmentAddPost : Fragment(), onClick {
     }
 
     override fun onNewAddClick() {
-        galleryLaunch.launch("image/* video/*")
+        galleryLaunch.launch(intent)
     }
 
     override fun onClickToView(postImageVideoWithExoPlayer: PostImageVideo) {

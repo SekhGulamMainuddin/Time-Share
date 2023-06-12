@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -16,7 +15,6 @@ import com.sekhgmainuddin.timeshare.data.modals.Post
 import com.sekhgmainuddin.timeshare.databinding.FragmentSearchPostBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
 import com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailActivity
-import com.sekhgmainuddin.timeshare.ui.home.profile.adapters.ProfilePostsAdapter
 import com.sekhgmainuddin.timeshare.ui.home.profile.fragments.SelectedPostFragment
 import com.sekhgmainuddin.timeshare.ui.home.search.adapters.SearchPostAdapter
 import com.sekhgmainuddin.timeshare.ui.home.search.layoutmanager.SpanSize
@@ -93,15 +91,7 @@ class SearchPostFragment: Fragment(){
         viewModel.searchFragmentPosts.observe(viewLifecycleOwner){
             if (!it.isNullOrEmpty()){
                 postsAdapter.submitList(it)
-                list.addAll(it)
-                list.addAll(it)
-                list.addAll(it)
-                list.addAll(it)
-                list.addAll(it)
                 binding.progressCircular.isVisible= false
-                Handler(Looper.getMainLooper()).postDelayed({
-                    postsAdapter.submitList(list)
-                },2000)
             }
             Log.d("postsReceived", "bindObservers: $it")
         }

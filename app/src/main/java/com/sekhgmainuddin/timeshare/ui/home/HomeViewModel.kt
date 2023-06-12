@@ -69,14 +69,13 @@ class HomeViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getLatestPosts(friendsList: MutableList<String>) = viewModelScope.launch(Dispatchers.IO) {
-        friendsList.add(firebaseUser?.uid!!)
         homeRepository.getLatestPosts(friendsList).collectLatest {
             if (it.isSuccess) {
                 it.getOrNull()?.let { data ->
                     homeRepository.deleteAllPosts()
                     val userData = homeRepository.getUserDataById(data.second)
                     for (i in data.first) {
-                        val temp = firebaseUser.let { it1 -> i.likeAndComment?.get(it1.uid) }
+                        val temp = firebaseUser.let { it1 -> i.likeAndComment?.get(it1?.uid) }
                         var likeCommentType = 0
                         var comment = ""
                         if (temp != null) {

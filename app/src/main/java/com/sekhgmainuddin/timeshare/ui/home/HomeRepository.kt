@@ -243,7 +243,8 @@ class HomeRepository @Inject constructor(
     suspend fun addPost(list: List<Uri>, description: String) {
         try {
             val imageVideoURLList = ArrayList<PostImageVideo>()
-            val postLocation = firebaseAuth.uid + System.currentTimeMillis()
+            val time = System.currentTimeMillis()
+            val postLocation = firebaseAuth.uid + time
             for (i in list.indices) {
                 val fileExtension = Utils.getFileExtension(list[i], context)
                 val response = firebaseStorage.child(
@@ -269,6 +270,7 @@ class HomeRepository @Inject constructor(
             postData["likesCount"] = 0
             postData["commentsCount"] = 0
             postData["likedAndCommentByMe"] = 0
+            postData["postTime"] = time
             firebaseFireStore.collection("Posts").document(postLocation).set(postData).await()
             _addPostStatus.postValue(NetworkResult.Success(true, 200))
         } catch (e: Exception) {
@@ -466,6 +468,7 @@ class HomeRepository @Inject constructor(
                 .await()
             _likeReelStatus.postValue(NetworkResult.Success(true, 200))
         } catch (e: Exception) {
+            Log.d("reels", "likeReel: $e")
             _likeReelStatus.postValue(NetworkResult.Error("Some Error Occurred"))
         }
     }
@@ -791,7 +794,7 @@ class HomeRepository @Inject constructor(
                 }
                 val url = uploadFile(reelUri, null, "Reels/$id/Reel${time}")
                 val reel = Reel(
-                    UUID.randomUUID().toString(),
+                    id+time,
                     id,
                     user.name,
                     user.imageUrl,

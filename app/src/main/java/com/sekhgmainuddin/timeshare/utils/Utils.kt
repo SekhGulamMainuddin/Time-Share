@@ -165,7 +165,7 @@ object Utils {
         }
     }
 
-    private val imageExtensionList= arrayListOf("jpg", "jpeg", "jpe" ,"jif", "jfif", "jfi","gif","webp","tiff","tif","psd","bmp","svg","svgz","pdf")
+    private val imageExtensionList= arrayListOf("jpg", "jpeg", "jpe" ,"jif", "jfif", "jfi","gif","webp","tiff","tif","psd","bmp","svg","svgz","pdf","png")
     private val videoExtensionList= arrayListOf("mp4")
 
     fun String.isImageOrVideo() :Int{

@@ -88,12 +88,11 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
 
     private fun bindObservers() {
         viewModel.userData.observe(viewLifecycleOwner) {
-            it.friends.let { friends ->
-                if (friends != oldFriendList) {
-                    viewModel.getLatestPosts(friends)
-                    oldFriendList.clear()
-                    oldFriendList.addAll(friends)
-                }
+            if (it.friends != oldFriendList) {
+                val list = it.friends + it.following + listOf(it.userId)
+                viewModel.getLatestPosts(list.toSet().toMutableList())
+                oldFriendList.clear()
+                oldFriendList.addAll(it.friends)
             }
         }
         viewModel.allPosts.observe(viewLifecycleOwner) {

@@ -163,6 +163,7 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
                 for (i in 0 until 100) {
                     delay(time/100)
                     if (nextClicked){
+                        progressList[currentItemIndex].progress = 100
                         break
                     }
                     withContext(Dispatchers.Main) {

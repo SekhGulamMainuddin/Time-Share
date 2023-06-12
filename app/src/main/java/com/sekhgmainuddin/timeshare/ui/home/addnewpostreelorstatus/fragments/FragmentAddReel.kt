@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -71,6 +72,8 @@ class FragmentAddReel : Fragment() {
             addReelsButton.shrink()
             uploadReelButton.isVisible = false
             addCaption.isVisible = false
+            Glide.with(requireContext()).load(viewModel.userData.value?.imageUrl).into(creatorImage)
+            creatorName.text = viewModel.userData.value?.name
             addReelsButton.setOnClickListener {
                 if (uploadReelButton.isVisible) {
                     addReelsButton.shrink()
