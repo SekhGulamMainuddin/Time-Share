@@ -2,8 +2,6 @@ package com.sekhgmainuddin.timeshare.ui.home.search.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +12,7 @@ import androidx.fragment.app.activityViewModels
 import com.sekhgmainuddin.timeshare.data.modals.Post
 import com.sekhgmainuddin.timeshare.databinding.FragmentSearchPostBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
-import com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailActivity
+import com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailFragment
 import com.sekhgmainuddin.timeshare.ui.home.profile.fragments.SelectedPostFragment
 import com.sekhgmainuddin.timeshare.ui.home.search.adapters.SearchPostAdapter
 import com.sekhgmainuddin.timeshare.ui.home.search.layoutmanager.SpanSize
@@ -71,7 +69,7 @@ class SearchPostFragment: Fragment(){
 
             }
         postsAdapter= SearchPostAdapter(requireContext(),{
-            startActivity(Intent(requireContext(), PostDetailActivity::class.java).putExtra("post",it))
+            startActivity(Intent(requireContext(), PostDetailFragment::class.java).putExtra("post",it))
         },{
             viewModel.postPassedToView.postValue(it)
             selectedPostFragment.show(childFragmentManager, "selectedPostFragment")

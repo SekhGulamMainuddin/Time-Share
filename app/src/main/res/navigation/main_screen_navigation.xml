@@ -31,6 +31,12 @@
         <action
             android:id="@+id/action_homeScreenFragment_to_fragmentAddReel"
             app:destination="@id/fragmentAddReel" />
+        <action
+            android:id="@+id/action_homeScreenFragment_to_chatsListFragment2"
+            app:destination="@id/chatsListFragment2" />
+        <action
+            android:id="@+id/action_homeScreenFragment_to_postDetailFragment"
+            app:destination="@id/postDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -67,6 +73,45 @@
         android:name="com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.FragmentAddReel"
         android:label="fragment_add_reel"
         tools:layout="@layout/fragment_add_reel" />
+    <fragment
+        android:id="@+id/chatsListFragment2"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.fragments.ChatsListFragment"
+        android:label="fragment_chats_list"
+        tools:layout="@layout/fragment_chats_list" >
+        <action
+            android:id="@+id/action_chatsListFragment2_to_friendsListFragment2"
+            app:destination="@id/friendsListFragment2" />
+        <action
+            android:id="@+id/action_chatsListFragment2_to_chatsFragment"
+            app:destination="@id/chatsFragment" />
+        <action
+            android:id="@+id/action_chatsListFragment2_to_addGroupFragment"
+            app:destination="@id/addGroupFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/friendsListFragment2"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.fragments.FriendsListFragment"
+        android:label="fragment_friends_list"
+        tools:layout="@layout/fragment_friends_list" />
+    <fragment
+        android:id="@+id/chatsFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.ChatsFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat" >
+        <action
+            android:id="@+id/action_chatsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addGroupFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.groupchat.fragments.AddGroupFragment"
+        android:label="fragment_add_group"
+        tools:layout="@layout/fragment_add_group" />
+    <fragment
+        android:id="@+id/postDetailFragment"
+        android:name="com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailFragment"
+        android:label="fragment_post_detail"
+        tools:layout="@layout/fragment_post_detail" />
 
 
 </navigation>

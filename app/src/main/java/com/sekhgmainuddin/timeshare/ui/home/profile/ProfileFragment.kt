@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.data.modals.UserWithFriendFollowerAndFollowingLists
@@ -23,6 +24,7 @@ import com.sekhgmainuddin.timeshare.ui.home.profile.fragments.PostsFragment
 import com.sekhgmainuddin.timeshare.ui.home.profile.fragments.ReelsFragment
 import com.sekhgmainuddin.timeshare.utils.Constants.TYPE_SEARCH_USER
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
@@ -37,6 +39,10 @@ class ProfileFragment : Fragment() {
     private var userDetails: UserWithFriendFollowerAndFollowingLists? = null
     private lateinit var progressDialog: Dialog
     private var userId: String? = null
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
+    private var uid = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,6 +66,8 @@ class ProfileFragment : Fragment() {
         progressDialog.setContentView(R.layout.progress_dialog)
         progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         progressDialog.show()
+
+        uid = firebaseAuth.currentUser?.uid ?: ""
 
         userId?.let {
             viewModel.getUserReels(userId = it)
@@ -95,13 +103,32 @@ class ProfileFragment : Fragment() {
 
         binding.apply {
             viewPager2.adapter = viewPagerAdapter
-
             TabLayoutMediator(
                 profileTabs,
                 viewPager2
             ) { tab, position ->
                 tab.text = fragmentNames[position]
             }.attach()
+            unFriendOrRequestButton.text =
+                getString(if (userData?.friends?.contains(uid) == true) R.string.un_friend else R.string.add_friend)
+            unFollowOrFollowButton.text =
+                getString(if (userData?.followers?.contains(uid) == true) R.string.un_follow else R.string.follow)
+
+            unFollowOrFollowButton.setOnClickListener {
+                viewModel.followOrUnFollowFriendOrUnfriend(
+                    userId!!,
+                    userData?.followers?.contains(uid) == true,
+                    0
+                )
+            }
+            unFriendOrRequestButton.setOnClickListener {
+                if (userData?.friends?.contains(uid) == true) {
+                    viewModel.followOrUnFollowFriendOrUnfriend(userId!!, true, 1)
+                }else{
+                    viewModel.addFriendRequest(userId!!)
+                }
+            }
+
         }
 
     }
@@ -241,6 +268,19 @@ class ProfileFragment : Fragment() {
             }
             it.onFailure { t ->
                 Toast.makeText(requireContext(), "$t", Toast.LENGTH_SHORT).show()
+            }
+        }
+        viewModel.followFriendResult.observe(viewLifecycleOwner) {
+            it.onSuccess {
+                Toast.makeText(requireContext(), "Changes Applied Successfully", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            it.onFailure {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to Update Some Error Occurred",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

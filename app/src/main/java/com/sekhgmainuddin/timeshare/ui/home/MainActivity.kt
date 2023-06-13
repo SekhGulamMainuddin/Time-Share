@@ -4,16 +4,20 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.telephony.mbms.GroupCall
+import android.util.Log
 import android.widget.Toast
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.ActivityMainBinding
 import com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.AddNewPostReelStatusBottomSheetDialogFragment
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
 import com.sekhgmainuddin.timeshare.ui.home.chat.ui.groupchat.GroupCallActivity
 import com.sekhgmainuddin.timeshare.ui.home.chat.ui.singlechat.CallActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var addNewPostBottomSheetDialogFragment: AddNewPostReelStatusBottomSheetDialogFragment
     private val viewModel by viewModels<HomeViewModel>()
+    private val chatsViewModel by viewModels<ChatsViewModel>()
 
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
@@ -57,6 +62,15 @@ class MainActivity : AppCompatActivity() {
         setUpBottomNavigationBar()
         bindObserver()
         viewModel.checkVideoCall()
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("tokenRetrieval", "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+            viewModel.updateToken(task.result)
+        })
+
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
@@ -76,6 +90,12 @@ class MainActivity : AppCompatActivity() {
                     )
                     viewModel.changeCallStatus()
                 }
+            }
+        }
+        chatsViewModel.user.observe(this){
+            if (it.isNotEmpty()) {
+                chatsViewModel.friendsList.clear()
+                chatsViewModel.friendsList.putAll(it[0].friends)
             }
         }
     }
@@ -114,7 +134,7 @@ class MainActivity : AppCompatActivity() {
         when(navController.currentBackStackEntry?.id){
 
         }
-        super.onBackPressed()
+//        super.onBackPressed()
     }
 
 }

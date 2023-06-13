@@ -39,6 +39,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                     android:src="@drawable/default_profile_pic"
+                    android:scaleType="centerCrop"
                     />
 
                 <TextView
@@ -357,7 +358,7 @@
                     >
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/unFollowButton"
+                        android:id="@+id/unFollowOrFollowButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -370,7 +371,7 @@
                         />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/unFriendButton"
+                        android:id="@+id/unFriendOrRequestButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -382,14 +383,14 @@
                         android:layout_marginEnd="10dp"
                         />
 
-                    <ImageButton
-                        android:id="@+id/mutePostStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/baseline_notifications_off_24"
-                        android:background="@android:color/transparent"
-                        android:layout_gravity="center"
-                        android:padding="10dp"/>
+<!--                    <ImageButton-->
+<!--                        android:id="@+id/mutePostStatus"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:src="@drawable/baseline_notifications_off_24"-->
+<!--                        android:background="@android:color/transparent"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:padding="10dp"/>-->
 
                 </LinearLayout>
 

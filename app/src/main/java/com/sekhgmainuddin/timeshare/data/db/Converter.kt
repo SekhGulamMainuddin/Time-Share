@@ -1,6 +1,7 @@
 package com.sekhgmainuddin.timeshare.data.db
 
 import androidx.room.TypeConverter
+import com.sekhgmainuddin.timeshare.data.modals.Post
 import com.sekhgmainuddin.timeshare.data.modals.PostImageVideo
 import com.sekhgmainuddin.timeshare.data.modals.User
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -33,5 +34,12 @@ class Converter {
 
     @TypeConverter
     fun toUser(value: String) = Json.decodeFromString<User>(value)
+
+    @TypeConverter
+    fun fromPost(value : Post) = Json.encodeToString(value)
+
+    @TypeConverter
+    fun toPost(value: String) = Json.decodeFromString<Post>(value)
+
 
 }

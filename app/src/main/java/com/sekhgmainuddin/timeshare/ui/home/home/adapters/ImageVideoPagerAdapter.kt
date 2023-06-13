@@ -2,34 +2,43 @@ package com.sekhgmainuddin.timeshare.ui.home.home.adapters
 
 import DoubleClickListener
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
+import com.sekhgmainuddin.timeshare.databinding.PostsViewPagerLayoutBinding
 
-class ImageVideoViewPagerAdapter(val context: Context, val post: PostEntity, val onclick: (Int)->(Unit)) :
+class ImageVideoViewPagerAdapter(
+    val context: Context,
+    val post: PostEntity,
+    val onclick: (Int) -> (Unit)
+) :
     RecyclerView.Adapter<ImageVideoViewPagerAdapter.ImageVideoViewHolder>() {
 
-    class ImageVideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val postImage = itemView.findViewById<ImageView>(R.id.postImage)
-        val playerView = itemView.findViewById<StyledPlayerView>(R.id.playerView)
+    class ImageVideoViewHolder(val binding: PostsViewPagerLayoutBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        init {
+            binding.playerView.isVisible = false
+            binding.pbLoading.isVisible = false
+        }
+
+        val postImage = binding.postImage
+        val isVideo = binding.isVideoPlayButton
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageVideoViewHolder {
         return ImageVideoViewHolder(
-            LayoutInflater.from(context).inflate(R.layout.posts_view_pager_layout, parent, false)
+            PostsViewPagerLayoutBinding.inflate(LayoutInflater.from(context), parent, false)
         )
     }
 
     override fun onBindViewHolder(holder: ImageVideoViewHolder, position: Int) {
         val item = post.postContent!![position]
-        val listener= object : DoubleClickListener(){
+        val listener = object : DoubleClickListener() {
             override fun onSingleClick(v: View?) {
                 onclick(1)
             }
@@ -38,26 +47,11 @@ class ImageVideoViewPagerAdapter(val context: Context, val post: PostEntity, val
                 onclick(2)
             }
         }
-
-        holder.postImage.visibility = View.INVISIBLE
-        holder.playerView.visibility = View.INVISIBLE
-
-        if (item.imageOrVideo == 0) {
-            holder.postImage.visibility = View.VISIBLE
-            Glide.with(context).load(item.imageUrl).placeholder(R.drawable.white_image)
-                .into(holder.postImage)
-
-            holder.postImage.setOnClickListener(listener)
-        } else {
-            holder.playerView.visibility = View.VISIBLE
-            holder.playerView.setOnClickListener(listener)
-//                imageViewHolder.playerView.player = exoPlayer
-//                val mediaItem: MediaItem = MediaItem.fromUri(item.videoUrl!!)
-//                exoPlayer.setMediaItem(mediaItem)
-//                exoPlayer.prepare()
-//                exoPlayer.play()
-        }
-
+        holder.postImage.setOnClickListener(listener)
+        holder.isVideo.isVisible = item.imageOrVideo == 1
+        Glide.with(context).load(if (item.imageOrVideo == 0) item.imageUrl else item.thumbnail)
+            .placeholder(R.drawable.white_image)
+            .into(holder.postImage)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -71,19 +65,5 @@ class ImageVideoViewPagerAdapter(val context: Context, val post: PostEntity, val
     override fun getItemCount(): Int {
         return post.postContent!!.size
     }
-
-//    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
-//        exoPlayer.pause()
-//        super.onViewDetachedFromWindow(holder)
-//    }
-//
-//    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
-//        val position= holder.bindingAdapterPosition
-//        val mediaItem: MediaItem = MediaItem.fromUri(list[position].videoUrl!!)
-//        exoPlayer.setMediaItem(mediaItem)
-//        exoPlayer.prepare()
-//        exoPlayer.play()
-//        super.onViewAttachedToWindow(holder)
-//    }
 
 }

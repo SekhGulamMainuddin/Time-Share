@@ -164,6 +164,7 @@ class PostsAdapter(val context: Context, val onClick: PostsAdapter.OnClick) :
                 onClick.sharePost(item)
             }
             holder.likeIcon.setOnClickListener {
+                onClick.likePost(item.postId)
                 playLikeAnimation(holder)
             }
             holder.commenttext.setOnClickListener {

@@ -38,16 +38,22 @@
         <activity
             android:name=".ui.home.camera.CameraActivity"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" /> <!-- <service -->
-        <!-- android:name=".services.NotificationService" -->
-        <!-- android:exported="false"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="com.google.firebase.MESSAGING_EVENT" /> -->
-        <!-- </intent-filter> -->
-        <!-- <meta-data -->
-        <!-- android:name="com.google.firebase.messaging.default_notification_channel_id" -->
-        <!-- android:value="@string/default_notification_channel_id" /> -->
-        <!-- </service> -->
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
+
+        <service
+            android:name=".services.NotificationService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+            <meta-data
+                android:name="com.google.firebase.messaging.default_notification_channel_id"
+                android:value="@string/default_notification_channel_id" />
+            <meta-data
+                android:name="com.google.firebase.messaging.default_notification_color"
+                android:resource="@color/orange" />
+        </service>
+
         <activity
             android:name=".ui.home.chat.ui.ImagePickerActivity"
             android:exported="false" />
@@ -59,27 +65,6 @@
         <activity
             android:name=".ui.home.chat.ui.singlechat.CallActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.home.postdetail.PostDetailActivity"
-            android:exported="false" >
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".ui.home.chat.ui.ChatActivity"
-            android:exported="false" >
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".ui.home.chat.ui.chatlist.ChatListActivity"
-            android:exported="false" >
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
         <activity
             android:name=".ui.WelcomeActivity"
             android:exported="false" >

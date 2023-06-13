@@ -68,43 +68,8 @@ class HomeViewModel @Inject constructor(
     val allPosts = homeRepository.allPosts
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getLatestPosts(friendsList: MutableList<String>) = viewModelScope.launch(Dispatchers.IO) {
-        homeRepository.getLatestPosts(friendsList).collectLatest {
-            if (it.isSuccess) {
-                it.getOrNull()?.let { data ->
-                    homeRepository.deleteAllPosts()
-                    val userData = homeRepository.getUserDataById(data.second)
-                    for (i in data.first) {
-                        val temp = firebaseUser.let { it1 -> i.likeAndComment?.get(it1?.uid) }
-                        var likeCommentType = 0
-                        var comment = ""
-                        if (temp != null) {
-                            if (temp.comment.isNotEmpty())
-                                comment = temp.comment
-                            likeCommentType = if (temp.liked && temp.comment.isNotEmpty())
-                                3
-                            else if (temp.liked)
-                                1
-                            else if (temp.comment.isNotEmpty())
-                                2
-                            else
-                                0
-                        }
-                        val user = userData[i.creatorId]
-                        val post = PostEntity(
-                            i.postId, i.creatorId, i.postDesc,
-                            i.postTime, i.postContent, user?.name ?: "",
-                            user?.imageUrl ?: "", i.likeCount,
-                            i.commentCount, likeCommentType, comment
-                        )
-                        homeRepository.insertPost(post)
-                    }
-                }
-            }
-            if (it.isFailure) {
-                Log.d("latestPosts", "getLatestPosts: failure occurred ${it.exceptionOrNull()}")
-            }
-        }
+    fun getLatestPosts(friendsList: List<String>) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.getLatestPosts(friendsList)
     }
 
     val postDetails =
@@ -126,6 +91,17 @@ class HomeViewModel @Inject constructor(
                     val commentList = mutableListOf<CommentWithProfile>()
                     pair.first.likeAndComment?.forEach { map ->
                         val user = userListResponse[map.key]
+                        if (map.key==firebaseUser?.uid){
+                            pair.first.likedAndCommentByMe = if (map.value.liked && map.value.comment.isNotEmpty()){
+                                3
+                            }else if (map.value.liked){
+                                1
+                            }else if(map.value.comment.isNotEmpty()){
+                                2
+                            }else{
+                                0
+                            }
+                        }
                         if (map.value.liked)
                             likeList.add(
                                 LikeWithProfile(
@@ -336,6 +312,20 @@ class HomeViewModel @Inject constructor(
 
     fun uploadReel(videoUri: Uri, captions: String) = viewModelScope.launch(Dispatchers.IO) {
         homeRepository.uploadReel(videoUri, captions)
+    }
+
+    val followFriendResult = homeRepository.followFriendResult
+
+    fun followOrUnFollowFriendOrUnfriend(id: String, isFollowingOrFriend: Boolean, friendOrFollowType: Int) = viewModelScope.launch(Dispatchers.IO){
+        homeRepository.followOrUnfollowOrUnfriendProfile(id, isFollowingOrFriend, friendOrFollowType)
+    }
+
+    fun addFriendRequest(id: String) = viewModelScope.launch(Dispatchers.IO){
+        homeRepository.addFriend(id)
+    }
+
+    fun updateToken(token: String) = viewModelScope.launch(Dispatchers.IO){
+        homeRepository.updateToken(token)
     }
 
 }

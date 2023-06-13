@@ -5,6 +5,7 @@ import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.content.Context.VIBRATOR_SERVICE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
@@ -16,16 +17,19 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.devlomi.record_view.OnRecordListener
@@ -37,7 +41,7 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
 import com.sekhgmainuddin.timeshare.data.modals.User
-import com.sekhgmainuddin.timeshare.databinding.ActivityChatBinding
+import com.sekhgmainuddin.timeshare.databinding.FragmentChatBinding
 import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.ChatsAdapter
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
 import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.GroupChatsAdapter
@@ -56,10 +60,12 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
-class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListener {
+class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
 
-    private lateinit var binding: ActivityChatBinding
-    private val viewModel by viewModels<ChatsViewModel>()
+    private var _binding: FragmentChatBinding? = null
+    private val binding: FragmentChatBinding
+        get() = _binding!!
+    private val viewModel by activityViewModels<ChatsViewModel>()
     private lateinit var imagePickerBottomSheet: ImagePickerActivity
 
     @Inject
@@ -89,20 +95,27 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     private lateinit var progressDialog: Dialog
     private lateinit var chatId: String
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityChatBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentChatBinding.inflate(inflater)
+        return _binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         appCertificate = Keys.getAppCertificateAgora()
         appId = Keys.getAppIdAgora()
 
-        progressDialog = Dialog(this)
+        progressDialog = Dialog(requireContext())
         progressDialog.setContentView(R.layout.progress_dialog)
         progressDialog.setCancelable(false)
         progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        chatsDialog = Dialog(this)
+        chatsDialog = Dialog(requireContext())
         chatsDialog.setContentView(R.layout.chats_dialog)
         chatsDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
@@ -119,7 +132,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
 
         imagePickerBottomSheet = ImagePickerActivity()
 
-        val bundle = intent.getBundleExtra("profileBundle")!!
+        val bundle = requireArguments()
         isGroup = bundle.getBoolean("isGroup", false)
         profileId = bundle.getString("profileId")
         if (isGroup) {
@@ -140,6 +153,12 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
         loadData()
         registerClickListeners()
         bindObserver()
+
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun makeCall(typeVideoOrVoice: Boolean) {
@@ -161,7 +180,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     fun updateProfileData() {
         binding.apply {
             profileName.text = if (profile != null) profile?.name else profileGroup?.groupName
-            Glide.with(this@ChatActivity)
+            Glide.with(this@ChatsFragment)
                 .load(if (profile == null) profileGroup?.groupImageUrl else profile?.imageUrl)
                 .placeholder(R.drawable.default_profile_pic)
                 .into(profileImage)
@@ -190,13 +209,14 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun loadData() {
-        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        val layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         layoutManager.stackFromEnd = true
         binding.chatsRecyclerView.layoutManager = layoutManager
         if (isGroup) {
             groupChatsAdapter = GroupChatsAdapter(
                 profileGroup!!.groupMembers,
-                this,
+                requireContext(),
                 firebaseAuth.currentUser?.uid!!
             ) {
                 selectedMessage = it
@@ -204,7 +224,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
             }
             binding.chatsRecyclerView.adapter = groupChatsAdapter
         } else {
-            chatAdapter = ChatsAdapter(this, firebaseAuth.currentUser?.uid!!) {
+            chatAdapter = ChatsAdapter(requireContext(), firebaseAuth.currentUser?.uid!!) {
                 selectedMessage = it
                 chatsDialog.show()
             }
@@ -218,7 +238,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
     fun registerClickListeners() {
         binding.apply {
             backButton.setOnClickListener {
-                finish()
+                findNavController().popBackStack()
             }
             sendMessage.setOnClickListener {
                 if (messageInputET.text.toString().isNotEmpty()) {
@@ -231,7 +251,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                     messageInputET.text.clear()
                 } else {
                     Toast.makeText(
-                        this@ChatActivity,
+                        requireContext(),
                         "Message field is Empty.\nPlease add some message.",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -282,10 +302,10 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                         startRecord()
                         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             val vibratorManager =
-                                getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                                requireActivity().getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
                             vibratorManager.defaultVibrator
                         } else {
-                            getSystemService(VIBRATOR_SERVICE) as Vibrator
+                            requireActivity().getSystemService(VIBRATOR_SERVICE) as Vibrator
                         }
                         vibrator.vibrate(
                             VibrationEffect.createOneShot(
@@ -341,7 +361,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 imageVideoResult.launch(galleryIntent)
             }
             gif.setOnClickListener {
-                giphy.show(supportFragmentManager, "giphy_dialog")
+                giphy.show(parentFragmentManager, "giphy_dialog")
             }
             attachFiles.setOnClickListener {
                 attachments.isVisible = !attachments.isVisible
@@ -355,7 +375,14 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
             file.setOnClickListener {
                 fileResult.launch(fileIntent)
             }
-
+            profileName.setOnClickListener {
+                val bundle = Bundle()
+                bundle.putSerializable("searchUser", profile)
+                findNavController().navigate(
+                    R.id.action_chatsFragment_to_profileFragment,
+                    args = bundle
+                )
+            }
         }
     }
 
@@ -370,11 +397,12 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
 
     @OptIn(ExperimentalUnsignedTypes::class)
     private fun bindObserver() {
-        viewModel.sendMessageStatus.observe(this) {
+        viewModel.sendMessageStatus.observe(viewLifecycleOwner) {
             when (it) {
                 is NetworkResult.Success -> {}
                 is NetworkResult.Error -> {
-                    Toast.makeText(this, "Some Error Occurred", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Some Error Occurred", Toast.LENGTH_SHORT)
+                        .show()
                 }
 
                 is NetworkResult.Loading -> {
@@ -382,7 +410,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 }
             }
         }
-        viewModel.chatList.observe(this) { l ->
+        viewModel.chatList.observe(viewLifecycleOwner) { l ->
             val list = ArrayList<ChatEntity>()
             l.forEach {
                 if (it.chatId.equals(chatId))
@@ -396,11 +424,14 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 binding.chatsRecyclerView.scrollToPosition(chatAdapter.itemCount - 1)
             }
         }
-        viewModel.callSuccess.observe(this) {
+        viewModel.callSuccess.observe(viewLifecycleOwner) {
             it.onSuccess { c ->
                 progressDialog.dismiss()
                 startActivity(
-                    Intent(this, if (c.isGroupCall) GroupCallActivity::class.java else CallActivity::class.java)
+                    Intent(
+                        requireContext(),
+                        if (c.isGroupCall) GroupCallActivity::class.java else CallActivity::class.java
+                    )
                         .putExtra("agoraToken", token)
                         .putExtra("profileId", profileId)
                         .putExtra("byMe", true)
@@ -412,7 +443,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
             }
             it.onFailure {
                 Toast.makeText(
-                    this,
+                    requireContext(),
                     "Failed to Do Video Call. Some Error Occurred",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -429,13 +460,13 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 mediaRecorder!!.release()
                 mediaRecorder = null
 //                chatService.sendVoice(audioPath)
-                Toast.makeText(this, audioPath, Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), audioPath, Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(applicationContext, "Null", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Null", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             Toast.makeText(
-                applicationContext,
+                requireContext(),
                 "Stop Recording Error :" + e.message,
                 Toast.LENGTH_SHORT
             ).show()
@@ -469,7 +500,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 .toString() + "audio_record.m4a"
         audioPath = path_save
         mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            MediaRecorder(this)
+            MediaRecorder(requireContext())
         } else {
             MediaRecorder()
         }
@@ -485,7 +516,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
 
     private fun requestPermission() {
         ActivityCompat.requestPermissions(
-            this,
+            requireActivity(),
             arrayOf(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.RECORD_AUDIO
@@ -500,7 +531,12 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
                 val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                 intent.action = Manifest.permission.RECORD_AUDIO
                 intent.addCategory("android.intent.category.DEFAULT")
-                intent.data = Uri.parse(String.format("package:%s", applicationContext.packageName))
+                intent.data = Uri.parse(
+                    String.format(
+                        "package:%s",
+                        requireActivity().applicationContext.packageName
+                    )
+                )
                 startActivityForResult(intent, 2296)
             } catch (e: java.lang.Exception) {
                 val intent = Intent()
@@ -510,7 +546,7 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
         } else {
             //below android 11
             ActivityCompat.requestPermissions(
-                this,
+                requireActivity(),
                 arrayOf(WRITE_EXTERNAL_STORAGE),
                 332
             )
@@ -519,9 +555,12 @@ class ChatActivity : AppCompatActivity(), GiphyDialogFragment.GifSelectionListen
 
     private fun checkPermissionFromDevice(): Boolean {
         val write_external_storage_result =
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
         val record_audio_result =
-            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
         return write_external_storage_result == PackageManager.PERMISSION_DENIED || record_audio_result == PackageManager.PERMISSION_DENIED
     }
 

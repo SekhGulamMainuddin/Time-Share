@@ -72,16 +72,30 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chatsListRV"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tabIndicatorColor="@color/orange"
+        app:tabTextColor="@color/orange"
+        app:tabIndicatorHeight="1dp"
+        app:tabSelectedTextColor="@color/orange"
+        app:tabMode="fixed"
+        app:tabGravity="fill"
+        />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/chatsListViewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:orientation="vertical"
-        tools:listitem="@layout/chat_profiles_rv"
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/messageTo"

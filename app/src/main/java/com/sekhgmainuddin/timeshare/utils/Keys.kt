@@ -10,5 +10,6 @@ object Keys {
     external fun giphyKey(): String
     external fun getAppIdAgora(): String
     external fun getAppCertificateAgora(): String
+    external fun getFCMKey(): String
 
 }

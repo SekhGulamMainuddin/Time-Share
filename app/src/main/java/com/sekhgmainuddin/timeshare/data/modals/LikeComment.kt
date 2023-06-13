@@ -1,8 +1,8 @@
 package com.sekhgmainuddin.timeshare.data.modals
 
-import com.google.firebase.database.PropertyName
 import java.io.Serializable
 
+@kotlinx.serialization.Serializable
 data class LikeComment (
     val liked: Boolean= false,
     val comment: String= "",

@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.sekhgmainuddin.timeshare.databinding.FragmentFriendsListBinding
-import com.sekhgmainuddin.timeshare.ui.home.chat.ui.ChatActivity
+import com.sekhgmainuddin.timeshare.ui.home.chat.ui.ChatsFragment
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
 import com.sekhgmainuddin.timeshare.ui.home.chat.ui.adapters.FriendsListAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,7 +45,7 @@ class FriendsListFragment : Fragment() {
             bundle.putString("profileId", it.first)
             bundle.putSerializable("profile", it.second)
             startActivity(
-                Intent(requireContext(), ChatActivity::class.java)
+                Intent(requireContext(), ChatsFragment::class.java)
                     .putExtra("profileBundle", bundle)
             )
         }

@@ -3,7 +3,7 @@ package com.sekhgmainuddin.timeshare.ui.home.home
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.util.ArraySet
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -19,9 +19,8 @@ import com.sekhgmainuddin.timeshare.data.modals.Status
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.databinding.FragmentHomeScreenBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
-import com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.ChatListActivity
 import com.sekhgmainuddin.timeshare.ui.home.home.adapters.PostsAdapter
-import com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailActivity
+import com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailFragment
 import com.sekhgmainuddin.timeshare.ui.home.status.StatusActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.encodeToString
@@ -39,6 +38,7 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
     private lateinit var progressDialog: Dialog
     private var myStatus: Pair<List<Status>, User>? = null
     private val statusList = ArrayList<Pair<List<Status>, User>>()
+    private val listProfileIds = ArraySet<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -89,14 +89,16 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
     private fun bindObservers() {
         viewModel.userData.observe(viewLifecycleOwner) {
             if (it.friends != oldFriendList) {
-                val list = it.friends + it.following + listOf(it.userId)
-                viewModel.getLatestPosts(list.toSet().toMutableList())
+                listProfileIds.clear()
+                listProfileIds.addAll(it.friends + it.following + listOf(it.userId))
+                viewModel.getLatestPosts(listProfileIds.toList())
                 oldFriendList.clear()
                 oldFriendList.addAll(it.friends)
             }
         }
         viewModel.allPosts.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
+                binding.mainLayout.isRefreshing= false
                 postsAdapter.submitList(it)
             }
         }
@@ -113,14 +115,19 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
         viewModel.statusListWithUserDetail.observe(viewLifecycleOwner) {
             statusList.clear()
             statusList.addAll(it)
-            Log.d("statusList", "bindObservers: ${it.size}")
             postsAdapter.updateStatus(statusList)
         }
     }
 
     fun registerListeners() {
-        binding.messages.setOnClickListener {
-            startActivity(Intent(requireContext(), ChatListActivity::class.java))
+        binding.apply {
+            messages.setOnClickListener {
+                findNavController().navigate(R.id.action_homeScreenFragment_to_chatsListFragment2)
+            }
+            mainLayout.setOnRefreshListener {
+                mainLayout.isRefreshing= true
+                viewModel.getLatestPosts(listProfileIds.toList())
+            }
         }
     }
 
@@ -135,12 +142,9 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
             post.creatorName, post.creatorProfileImage, post.postTime,
             post.likesCount, post.commentCount, post.likedAndCommentByMe, post.myComment
         )
-        startActivity(
-            Intent(requireContext(), PostDetailActivity::class.java).putExtra(
-                "post",
-                postData
-            )
-        )
+        val bundle= Bundle()
+        bundle.putSerializable("post", postData)
+        findNavController().navigate(R.id.action_homeScreenFragment_to_postDetailFragment, args = bundle)
     }
 
     override fun savePost(post: PostEntity) {

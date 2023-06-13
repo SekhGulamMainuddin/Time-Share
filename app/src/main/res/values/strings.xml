@@ -92,10 +92,11 @@
     <string name="add_friend">Add Friend</string>
     <string name="un_friend">Unfriend</string>
     <string name="un_follow">Unfollow</string>
+    <string name="follow">Follow</string>
     <string name="no_posts_yet">No Posts Yet</string>
     <string name="failed_to_fecth_posts">Failed to fetch posts. Please refresh.</string>
     <string name="add_status">Add Status</string>
-    <string name="default_notification_channel_id">timesharenotificationchannel</string>
+    <string name="default_notification_channel_id">time_share_notification_channel</string>
     <string name="delete">Delete Message</string>
     <string name="reply_to_message">Reply To Message</string>
     <string name="accept_video_call">Accept Video Call</string>

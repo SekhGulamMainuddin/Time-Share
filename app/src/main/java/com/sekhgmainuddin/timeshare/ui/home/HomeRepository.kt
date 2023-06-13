@@ -17,6 +17,7 @@ import com.sekhgmainuddin.timeshare.data.db.entities.MyStatus
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
+import com.sekhgmainuddin.timeshare.services.SendNotificationService
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils
 import com.sekhgmainuddin.timeshare.utils.Utils.getThumbnailFromVideoUri
@@ -37,25 +38,9 @@ class HomeRepository @Inject constructor(
     private val firebaseFireStore: FirebaseFirestore,
     private val firebaseStorage: StorageReference,
     timeShareDb: TimeShareDb,
-    @ApplicationContext val context: Context
+    @ApplicationContext val context: Context,
+    val sendNotificationService: SendNotificationService
 ) {
-
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            firebaseAuth.currentUser?.uid?.let {
-                timeShareDb.getDao().insertStatus(
-                    MyStatus(
-                        it,
-                        "",
-                        "",
-                        "",
-                        -1,
-                        arrayListOf()
-                    )
-                )
-            }
-        }
-    }
 
     private val firebaseUser = firebaseAuth.currentUser
     private val timeShareDbDao = timeShareDb.getDao()
@@ -254,11 +239,16 @@ class HomeRepository @Inject constructor(
                 while (!uriTask?.isSuccessful!!) {
                 }
                 val imageOrVideo = fileExtension?.isImageOrVideo()
+                var thumbnail = ""
+                if (imageOrVideo==1){
+                    thumbnail= uploadFile(getThumbnailFromVideoUri(list[i], context), null, "Posts/${firebaseAuth.uid}/$postLocation/" + "item${i}Thumbnail." + fileExtension)?:""
+                }
                 imageOrVideo?.let {
                     PostImageVideo(
                         it,
                         if (it == 0) uriTask.result.toString() else "",
-                        if (it == 1) uriTask.result.toString() else ""
+                        if (it == 1) uriTask.result.toString() else "",
+                        thumbnail = thumbnail
                     )
                 }?.let { imageVideoURLList.add(it) }
             }
@@ -280,29 +270,53 @@ class HomeRepository @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    suspend fun getLatestPosts(friendList: List<String>) =
-        callbackFlow<Result<Pair<List<PostWithOutCreaterImageName>, Set<String>>>> {
-            val postListener = firebaseFireStore.collection("Posts")
+    suspend fun getLatestPosts(friendList: List<String>) {
+        try {
+            val result = firebaseFireStore.collection("Posts")
                 .orderBy("postTime", Query.Direction.DESCENDING).whereIn("creatorId", friendList)
-                .limit(10).addSnapshotListener { snapshot, error ->
-                    val postList = ArrayList<PostWithOutCreaterImageName>()
-                    val userIds = ArrayList<String>()
-                    if (error != null)
-                        trySend(Result.failure(error))
-                    if (snapshot != null) {
-                        if (!snapshot.isEmpty) {
-                            snapshot.documents.forEach {
-                                it.toObject(PostWithOutCreaterImageName::class.java)?.let { post ->
-                                    postList.add(post)
-                                    userIds.add(post.creatorId)
-                                }
-                            }
-                            trySend(Result.success(Pair(postList, userIds.toSet())))
-                        }
+                .limit(10).get().await()
+            val postList = ArrayList<PostWithOutCreaterImageName>()
+            val userIds = ArrayList<String>()
+            if (result.documents.isNotEmpty()) {
+                result.documents.forEach {
+                    it.toObject(PostWithOutCreaterImageName::class.java)?.let { post ->
+                        postList.add(post)
+                        userIds.add(post.creatorId)
                     }
                 }
-            awaitClose { postListener.remove() }
+                deleteAllPosts()
+                val data = Pair(postList, userIds.toSet())
+                val userData = getUserDataById(data.second)
+                for (i in data.first) {
+                    val temp = firebaseUser.let { it1 -> i.likeAndComment?.get(it1?.uid) }
+                    var likeCommentType = 0
+                    var comment = ""
+                    if (temp != null) {
+                        if (temp.comment.isNotEmpty())
+                            comment = temp.comment
+                        likeCommentType = if (temp.liked && temp.comment.isNotEmpty())
+                            3
+                        else if (temp.liked)
+                            1
+                        else if (temp.comment.isNotEmpty())
+                            2
+                        else
+                            0
+                    }
+                    val user = userData[i.creatorId]
+                    val post = PostEntity(
+                        i.postId, i.creatorId, i.postDesc,
+                        i.postTime, i.postContent, user?.name ?: "",
+                        user?.imageUrl ?: "", i.likeCount,
+                        i.commentCount, likeCommentType, comment
+                    )
+                    insertPost(post)
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("getLatestPosts", "getLatestPosts: $e")
         }
+    }
 
     @ExperimentalCoroutinesApi
     suspend fun getPost(postId: String) = callbackFlow {
@@ -794,7 +808,7 @@ class HomeRepository @Inject constructor(
                 }
                 val url = uploadFile(reelUri, null, "Reels/$id/Reel${time}")
                 val reel = Reel(
-                    id+time,
+                    id + time,
                     id,
                     user.name,
                     user.imageUrl,
@@ -809,13 +823,60 @@ class HomeRepository @Inject constructor(
                     "",
                     hashMapOf()
                 )
-                firebaseFireStore.collection("Reels").document(id+time)
+                firebaseFireStore.collection("Reels").document(id + time)
                     .set(reel).await()
                 _reelUploadResult.postValue(Result.success(true))
             }
         } catch (e: Exception) {
             Log.d("uploadReel", "uploadReel: $e")
             _reelUploadResult.postValue(Result.failure(e))
+        }
+    }
+
+    private var _followFriendResult = MutableLiveData<Result<Boolean>>()
+    val followFriendResult: LiveData<Result<Boolean>>
+        get() = _followFriendResult
+
+    suspend fun followOrUnfollowOrUnfriendProfile(id: String, isFollowed: Boolean, friendOrFollowType: Int) {
+        try {
+            firebaseUser?.uid?.let {
+                firebaseFireStore.collection("Users").document(it).update(
+                    "${if (friendOrFollowType==0) "following" else "friends"}", if (isFollowed) FieldValue.arrayRemove(id) else FieldValue.arrayUnion(id)
+                ).await()
+                firebaseFireStore.collection("Users").document(id).update(
+                    "${if (friendOrFollowType==0) "followers" else "friends"}", if (isFollowed) FieldValue.arrayRemove(it) else FieldValue.arrayUnion(it)
+                ).await()
+                _followFriendResult.postValue(Result.success(true))
+            }
+        }
+        catch (e: Exception){
+            Log.d("followProfile", "followProfile: ")
+            _followFriendResult.postValue(Result.failure(e))
+        }
+    }
+
+    suspend fun addFriend(id: String) {
+        try {
+            firebaseUser?.uid?.let {
+
+                // Notification To be Sent. Yet to be implemented
+
+                _followFriendResult.postValue(Result.success(true))
+            }
+        }
+        catch (e: Exception){
+            Log.d("followProfile", "followProfile: ")
+            _followFriendResult.postValue(Result.failure(e))
+        }
+    }
+
+    suspend fun updateToken(token: String) {
+        try{
+            firebaseAuth.currentUser?.uid?.let {
+                firebaseFireStore.collection("Users").document(it).set(mapOf(Pair("notificationToken", token)), SetOptions.merge()).await()
+            }
+        }catch (e:Exception){
+            Log.d("saveToken", "updateToken: $e")
         }
     }
 

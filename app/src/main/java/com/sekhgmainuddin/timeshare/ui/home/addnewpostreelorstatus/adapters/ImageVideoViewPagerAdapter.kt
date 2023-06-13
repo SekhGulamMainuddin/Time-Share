@@ -1,5 +1,6 @@
 package com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.adapters
 
+import DoubleClickListener
 import android.content.Context
 import android.net.Uri
 import android.view.LayoutInflater
@@ -20,7 +21,7 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.PostImageVideo
 
-class ImageVideoViewPagerAdapter(val context: Context, val onclick: onClick, var videoListener: OnVideoListener): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class ImageVideoViewPagerAdapter(val context: Context, val onclick: onClick, var videoListener: OnVideoListener, val type: Int = 0): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     val list= ArrayList<PostImageVideo>()
 
@@ -105,15 +106,25 @@ class ImageVideoViewPagerAdapter(val context: Context, val onclick: onClick, var
             }
         }
         else{
+            val listener= object : DoubleClickListener(){
+                override fun onSingleClick(v: View?) {}
+                override fun onDoubleClick(v: View?) {
+                    onclick.onClickToView(item)
+                }
+            }
             val imageViewHolder= holder as ImageVideoViewHolder
             imageViewHolder.postImage.visibility= View.INVISIBLE
             imageViewHolder.playerView.visibility= View.INVISIBLE
-            imageViewHolder.itemView.setOnClickListener {
-                onclick.onClickToView(item)
+            if (type==0){
+                imageViewHolder.itemView.setOnClickListener {
+                        onclick.onClickToView(item)
+                }
+            }else{
+                imageViewHolder.itemView.setOnClickListener(listener)
             }
             if (item.imageOrVideo==0) {
                 imageViewHolder.postImage.visibility= View.VISIBLE
-                Glide.with(context).load(item.imageUrl).placeholder(R.drawable.default_profile_pic)
+                Glide.with(context).load(item.imageUrl).placeholder(R.drawable.white_image)
                     .into(imageViewHolder.postImage)
             }
             else {
