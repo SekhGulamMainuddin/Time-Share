@@ -23,7 +23,10 @@ import com.sekhgmainuddin.timeshare.data.modals.RecentProfileChats
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.data.modals.Call
 import com.sekhgmainuddin.timeshare.data.modals.Group
+import com.sekhgmainuddin.timeshare.data.modals.Notification
+import com.sekhgmainuddin.timeshare.data.modals.NotificationBody
 import com.sekhgmainuddin.timeshare.data.modals.RecentGroupChats
+import com.sekhgmainuddin.timeshare.services.FCMNotificationRepository
 import com.sekhgmainuddin.timeshare.ui.home.HomeRepository
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.fileFromContentUri
@@ -36,14 +39,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.UUID
 import javax.inject.Inject
 
@@ -54,7 +57,8 @@ class ChatsRepository @Inject constructor(
     firebaseAuth: FirebaseAuth,
     timeShareDb: TimeShareDb,
     private val homeRepository: HomeRepository,
-    @ApplicationContext val context: Context
+    @ApplicationContext val context: Context,
+    private val fcmNotificationRepository: FCMNotificationRepository
 ) {
 
     init {
@@ -130,7 +134,9 @@ class ChatsRepository @Inject constructor(
         message: String,
         document: String,
         isGroup: Boolean,
-        groupMembers: List<String>
+        groupMembers: List<String>,
+        group: GroupEntity?,
+        profile: User?
     ) {
         var chat: Chats? = null
         var chatId: String? = null
@@ -157,7 +163,7 @@ class ChatsRepository @Inject constructor(
                 databaseReference.child("Chats").child(it).child(id)
                     .setValue(chat).await()
             }
-            updateRecentMessage(profileId, message, 0, isGroup, groupMembers)
+            updateRecentMessage(profileId, message, 0, isGroup, groupMembers, group, profile)
             _messageSent.postValue(NetworkResult.Success(true, 201))
         } catch (e: Exception) {
             Log.d("sendMessageException", "sendMessage: $e")
@@ -170,7 +176,9 @@ class ChatsRepository @Inject constructor(
         recentMessage: String,
         numberOfUnseenMessage: Int,
         isGroupMessage: Boolean,
-        ifGroupParticipantsList: List<String> = emptyList()
+        ifGroupParticipantsList: List<String> = emptyList(),
+        group: GroupEntity? = null,
+        profile: User? = null
     ) {
         try {
             if (isGroupMessage) {
@@ -186,6 +194,36 @@ class ChatsRepository @Inject constructor(
                                 )
                             ).await()
                     }
+                    fcmNotificationRepository.sendNotification(
+                        Notification(
+                            token = group!!.notificationToken,
+                            notificationBody = NotificationBody(
+                                "${group.groupName} Message",
+                                Json.encodeToString(
+                                    mapOf(
+                                        Pair(
+                                            "profileImage", group.groupImageUrl
+                                        ),
+                                        Pair(
+                                            "profileId", group.groupId
+                                        ),
+                                        Pair(
+                                            "message", recentMessage
+                                        ),
+                                        Pair(
+                                            "type", "GROUPMESSAGE"
+                                        ),
+                                        Pair(
+                                            "by", uid
+                                        ),
+                                        Pair(
+                                            "profileName", user.value?.get(0)?.user?.name
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
                 }
             } else {
                 firebaseUser?.let {
@@ -203,6 +241,35 @@ class ChatsRepository @Inject constructor(
                                 System.currentTimeMillis(), numberOfUnseenMessage + 1
                             )
                         ).await()
+                    profile?.notificationToken?.let { token ->
+                        fcmNotificationRepository.sendNotification(
+                            Notification(
+                                token = token,
+                                notificationBody = NotificationBody(
+                                    profile.name,
+                                    Json.encodeToString(
+                                        mapOf(
+                                            Pair(
+                                                "profileImage", profile.imageUrl
+                                            ),
+                                            Pair(
+                                                "profileId", profile.userId
+                                            ),
+                                            Pair(
+                                                "message", recentMessage
+                                            ),
+                                            Pair(
+                                                "type", "CHATMESSAGE"
+                                            ),
+                                            Pair(
+                                                "profileName", user.value?.get(0)?.user?.name
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -298,7 +365,9 @@ class ChatsRepository @Inject constructor(
         typeofMessage: MessageType?,
         receiverId: String,
         isGroupMessage: Boolean,
-        groupMembers: List<String>
+        groupMembers: List<String>,
+        group: GroupEntity?,
+        profile: User?
     ) {
         try {
             val type = typeofMessage ?: (
@@ -352,7 +421,15 @@ class ChatsRepository @Inject constructor(
             )
             databaseReference.child("Chats").child(chatId).child("${firebaseUser.uid}$currentTime")
                 .setValue(chat).await()
-            updateRecentMessage(receiverId, "${type.name} ", 0, isGroupMessage, groupMembers)
+            updateRecentMessage(
+                receiverId,
+                "Shared a ${type.name} ",
+                0,
+                isGroupMessage,
+                groupMembers,
+                group,
+                profile
+            )
             _messageSent.postValue(NetworkResult.Success(true, 201))
         } catch (e: Exception) {
             Log.d("sendFileMessageException", "sendMessageFile: $e")
@@ -543,13 +620,31 @@ class ChatsRepository @Inject constructor(
                 groupMembers
             )
 
+            val groupMembersTokens = groupMembers.map { guid ->
+                user.value?.get(0)?.friends?.get(guid)?.notificationToken!!
+            }
+
+            val notificationToken = fcmNotificationRepository.createGroupNotificationToken(
+                groupName,
+                groupMembersTokens
+            )
+
             launch {
                 firestore.collection("Groups").document(groupId).set(group).await()
                 groupMembers.forEach {
                     firestore.collection("Users").document(it)
                         .update("groups", FieldValue.arrayUnion(groupId)).await()
                 }
-                updateRecentMessage(groupId, "-1", 0, true, groupMembers)
+                updateRecentMessage(
+                    groupId, "-1", 0, true, groupMembers, GroupEntity(
+                        groupId,
+                        groupName,
+                        imageUrl ?: "",
+                        groupDesc,
+                        mapOf(),
+                        notificationToken!!
+                    ), null
+                )
                 val userMap = homeRepository.getUserDataById(groupMembers.toSet())
                 timeShareDbDao.insertGroup(
                     GroupEntity(
@@ -557,7 +652,8 @@ class ChatsRepository @Inject constructor(
                         groupName,
                         imageUrl ?: "",
                         groupDesc,
-                        userMap
+                        userMap,
+                        notificationToken
                     )
                 )
             }

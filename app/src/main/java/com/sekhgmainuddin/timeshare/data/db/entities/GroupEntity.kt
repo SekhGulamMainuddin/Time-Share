@@ -15,5 +15,6 @@ data class GroupEntity(
     @ColumnInfo(name = "groupName") val groupName: String,
     @ColumnInfo(name = "groupImageUrl") val groupImageUrl: String,
     @ColumnInfo(name = "groupDesc") val groupDesc: String,
-    @ColumnInfo(name = "groupMembers") @TypeConverters(Converter::class) val groupMembers: Map<String, User>
+    @ColumnInfo(name = "groupMembers") @TypeConverters(Converter::class) val groupMembers: Map<String, User>,
+    @ColumnInfo(name = "notificationToken") val notificationToken: String
 ) : Serializable

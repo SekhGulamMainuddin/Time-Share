@@ -11,5 +11,6 @@ object Keys {
     external fun getAppIdAgora(): String
     external fun getAppCertificateAgora(): String
     external fun getFCMKey(): String
+    external fun getProjectNumber(): String
 
 }

@@ -31,8 +31,9 @@ object RemoteModule {
     @Singleton
     fun provideAuthInterceptor() = OkHttpClient.Builder().addInterceptor(Interceptor { chain ->
         val newRequest: Request = chain.request().newBuilder()
-            .addHeader("content-type","application/json")
-            .addHeader("authorization", "key=${Keys.getFCMKey()}")
+            .addHeader("Content-Type","application/json")
+            .addHeader("Authorization", "key=${Keys.getFCMKey()}")
+            .addHeader("project_id", Keys.getProjectNumber())
             .build()
         chain.proceed(newRequest)
     }).build()

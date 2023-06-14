@@ -5,5 +5,6 @@ data class Group(
     val groupName: String = "",
     val groupImageUrl: String = "",
     val groupDesc: String = "",
-    val groupMembers: List<String> = emptyList()
+    val groupMembers: List<String> = emptyList(),
+    val notificationToken: String = ""
 )

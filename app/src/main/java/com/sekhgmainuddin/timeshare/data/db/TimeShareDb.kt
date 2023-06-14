@@ -13,7 +13,7 @@ import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 
 @Database(
     entities = [ChatEntity::class, RecentProfileChatsEntity::class, PostEntity::class, UserEntity::class, GroupEntity::class, MyStatus::class, SavedPostEntity::class],
-    version = 16,
+    version = 17,
     exportSchema = false
 )
 @TypeConverters(Converter::class)

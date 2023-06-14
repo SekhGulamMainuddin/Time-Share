@@ -92,7 +92,11 @@
         android:id="@+id/friendsListFragment2"
         android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.chatlist.fragments.FriendsListFragment"
         android:label="fragment_friends_list"
-        tools:layout="@layout/fragment_friends_list" />
+        tools:layout="@layout/fragment_friends_list" >
+        <action
+            android:id="@+id/action_friendsListFragment2_to_chatsFragment"
+            app:destination="@id/chatsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/chatsFragment"
         android:name="com.sekhgmainuddin.timeshare.ui.home.chat.ui.ChatsFragment"

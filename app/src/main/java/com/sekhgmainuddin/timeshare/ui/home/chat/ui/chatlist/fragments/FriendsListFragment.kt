@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.FragmentFriendsListBinding
 import com.sekhgmainuddin.timeshare.ui.home.chat.ui.ChatsFragment
 import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
@@ -44,10 +46,7 @@ class FriendsListFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString("profileId", it.first)
             bundle.putSerializable("profile", it.second)
-            startActivity(
-                Intent(requireContext(), ChatsFragment::class.java)
-                    .putExtra("profileBundle", bundle)
-            )
+            findNavController().navigate(R.id.action_chatsListFragment2_to_chatsFragment, args = bundle)
         }
         binding.apply {
             friendsRecyclerView.adapter = friendAdapter

@@ -246,7 +246,9 @@ class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
                         profileId!!, MessageType.TEXT,
                         messageInputET.text.toString().trim(), "",
                         isGroup,
-                        profileGroup?.groupMembers?.keys?.toList() ?: emptyList()
+                        profileGroup?.groupMembers?.keys?.toList() ?: emptyList(),
+                        profileGroup,
+                        profile
                     )
                     messageInputET.text.clear()
                 } else {
@@ -580,7 +582,9 @@ class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
                 MessageType.GIF,
                 profileId!!,
                 isGroup,
-                profileGroup?.groupMembers?.keys?.toList() ?: emptyList()
+                profileGroup?.groupMembers?.keys?.toList() ?: emptyList(),
+                profileGroup,
+                profile
             )
         }
     }
@@ -597,7 +601,9 @@ class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
                         list,
                         profileId!!,
                         isGroup,
-                        profileGroup?.groupMembers?.keys?.toList() ?: emptyList()
+                        profileGroup?.groupMembers?.keys?.toList() ?: emptyList(),
+                        profileGroup,
+                        profile
                     )
                 }
             } else if (this@sendFiles.data?.data != null) {
@@ -607,7 +613,9 @@ class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
                     null,
                     profileId!!,
                     isGroup,
-                    profileGroup?.groupMembers?.keys?.toList() ?: emptyList()
+                    profileGroup?.groupMembers?.keys?.toList() ?: emptyList(),
+                    profileGroup,
+                    profile
                 )
             } else {
                 //do nothing
