@@ -163,6 +163,7 @@ class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        viewModel.removeChatListeners(currentChatId)
         currentChatId= ""
         _binding = null
     }

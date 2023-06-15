@@ -83,6 +83,8 @@
         android:layout_marginHorizontal="15dp"
         android:textSize="12sp"
         android:textStyle="italic"
+        android:maxLines="2"
+        android:ellipsize="end"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

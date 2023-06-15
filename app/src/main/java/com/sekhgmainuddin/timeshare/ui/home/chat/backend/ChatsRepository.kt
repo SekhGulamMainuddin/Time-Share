@@ -305,10 +305,12 @@ class ChatsRepository @Inject constructor(
         updatingTheMessages = false
     }
 
+    private var chatListener: ValueEventListener? = null
+
     @ExperimentalCoroutinesApi
     suspend fun fetchMessages(profileId: String, isGroup: Boolean) =
         callbackFlow<Result<List<Chats>>> {
-            val chatListener = object : ValueEventListener {
+            chatListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val chatsList = ArrayList<Chats>()
                     if (snapshot.hasChildren()) {
@@ -330,17 +332,19 @@ class ChatsRepository @Inject constructor(
             Log.d("chatsList", "fetchMessages: $chatId")
             chatId?.let { it ->
                 databaseReference.child("Chats").child(it)
-                    .addValueEventListener(chatListener)
+                    .addValueEventListener(chatListener!!)
             }
 
             awaitClose {
-                chatId?.let { it ->
-                    databaseReference.child("Chats").child(it)
-                        .addValueEventListener(chatListener)
-                }
+                databaseReference.child("Chats").child(profileId)
+                    .removeEventListener(chatListener!!)
             }
 
         }
+
+    suspend fun removeChatListener(chatId: String) {
+        databaseReference.child("Chats").child(chatId).removeEventListener(chatListener!!)
+    }
 
     suspend fun getProfileDetails(profileId: String): User? {
         try {
@@ -626,8 +630,13 @@ class ChatsRepository @Inject constructor(
                 groupMembers
             )
 
-            val groupMembersTokens = groupMembers.map { guid ->
-                user.value?.get(0)?.friends?.get(guid)?.notificationToken!!
+            val groupMembersTokens = ArrayList<String>()
+            groupMembers.forEach { guid ->
+                if (guid != firebaseUser?.uid) {
+                    groupMembersTokens.add(user.value?.get(0)?.friends?.get(guid)?.notificationToken!!)
+                } else {
+                    user.value?.get(0)?.user?.notificationToken?.let { groupMembersTokens.add(it) }
+                }
             }
 
             val notificationToken = fcmNotificationRepository.createGroupNotificationToken(
@@ -635,34 +644,38 @@ class ChatsRepository @Inject constructor(
                 groupMembersTokens
             )
 
-            launch {
-                firestore.collection("Groups").document(groupId).set(group).await()
-                groupMembers.forEach {
-                    firestore.collection("Users").document(it)
-                        .update("groups", FieldValue.arrayUnion(groupId)).await()
-                }
-                updateRecentMessage(
-                    groupId, "-1", 0, true, groupMembers, GroupEntity(
-                        groupId,
-                        groupName,
-                        imageUrl ?: "",
-                        groupDesc,
-                        mapOf(),
-                        notificationToken!!
-                    ), null
-                )
-                val userMap = homeRepository.getUserDataById(groupMembers.toSet())
-                timeShareDbDao.insertGroup(
-                    GroupEntity(
-                        groupId,
-                        groupName,
-                        imageUrl ?: "",
-                        groupDesc,
-                        userMap,
-                        notificationToken
-                    )
-                )
+            firestore.collection("Groups").document(groupId).set(group).await()
+            groupMembers.forEach {
+                firestore.collection("Users").document(it)
+                    .update("groups", FieldValue.arrayUnion(groupId)).await()
             }
+            updateRecentMessage(
+                groupId,
+                "New Group Created by ${user.value?.get(0)?.user?.name ?: ""}",
+                0,
+                true,
+                groupMembers,
+                GroupEntity(
+                    groupId,
+                    groupName,
+                    imageUrl ?: "",
+                    groupDesc,
+                    mapOf(),
+                    notificationToken!!
+                ),
+                null
+            )
+            val userMap = homeRepository.getUserDataById(groupMembers.toSet())
+            timeShareDbDao.insertGroup(
+                GroupEntity(
+                    groupId,
+                    groupName,
+                    imageUrl ?: "",
+                    groupDesc,
+                    userMap,
+                    notificationToken
+                )
+            )
 
             _createGroupResult.postValue(Result.success(group))
         } catch (e: Exception) {

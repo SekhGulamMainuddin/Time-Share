@@ -9,9 +9,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.modals.Post
@@ -145,6 +147,7 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
         binding.apply {
             messages.setOnClickListener {
                 findNavController().navigate(R.id.action_homeScreenFragment_to_chatsListFragment2)
+                requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigation).isVisible= false
             }
             mainLayout.setOnRefreshListener {
                 mainLayout.isRefreshing = true

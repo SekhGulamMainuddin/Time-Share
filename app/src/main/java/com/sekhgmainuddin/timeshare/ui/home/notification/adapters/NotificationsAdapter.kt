@@ -59,6 +59,7 @@ class NotificationsAdapter(val context: Context, val onClickNotify: OnClickNotif
             holder.bind(data)
             holder.followButton.setOnClickListener {
                 data["profileId"]?.let { it1 -> onClickNotify.friendRequestAccepted(it1) }
+                holder.followButton.text= "Accepted"
             }
         }
     }

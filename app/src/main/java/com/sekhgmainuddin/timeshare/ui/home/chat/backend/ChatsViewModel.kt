@@ -201,6 +201,10 @@ class ChatsViewModel @Inject constructor(
         chatsRepository.deleteChat(chatEntity)
     }
 
+    fun removeChatListeners(chatId: String) = viewModelScope.launch(Dispatchers.IO) {
+        chatsRepository.removeChatListener(chatId)
+    }
+
     val callSuccess = MutableLiveData<Result<Call>>()
     fun makeCall(
         receiverProfile: User?,

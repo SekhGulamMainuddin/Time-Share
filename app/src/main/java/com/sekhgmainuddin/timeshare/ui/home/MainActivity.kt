@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.gms.tasks.OnCompleteListener
@@ -28,9 +30,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var addNewPostBottomSheetDialogFragment: AddNewPostReelStatusBottomSheetDialogFragment
     private lateinit var newUserFollowDialog: NewUserFollowDialog
+    private lateinit var navHostFragment: NavHostFragment
     private val viewModel by viewModels<HomeViewModel>()
     private val chatsViewModel by viewModels<ChatsViewModel>()
-
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
     private var userId: String? = null
@@ -40,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         userId = firebaseAuth.currentUser?.uid
-        val navHostFragment =
+        navHostFragment =
             supportFragmentManager.findFragmentById(R.id.mainScreenFragmentContainer) as NavHostFragment
         navController = navHostFragment.navController
 
@@ -56,6 +58,7 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(R.id.fragmentAddReel)
                 }
             }
+            binding.bottomNavigation.isVisible= false
         }
         newUserFollowDialog= NewUserFollowDialog()
 
@@ -131,14 +134,37 @@ class MainActivity : AppCompatActivity() {
 
             true
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true){
+            override fun handleOnBackPressed() {
+                navController.popBackStack()
+                if (navHostFragment.childFragmentManager.backStackEntryCount==0)
+                    finish()
+                when(navController.currentDestination?.id){
+                    R.id.homeScreenFragment, R.id.postDetailFragment, R.id.profileFragment -> {
+                        checkBottomBarItem(R.id.home)
+                    }
+                    R.id.searchFragment-> {
+                        checkBottomBarItem(R.id.search)
+                    }
+                    R.id.reelsFragment-> {
+                        checkBottomBarItem(R.id.reels)
+                    }
+                    R.id.myProfileFragment-> {
+                        checkBottomBarItem(R.id.profile)
+                    }
+                    else-> {
+                        binding.bottomNavigation.isVisible= false
+                    }
+                }
+            }
+        })
+
     }
 
-    override fun onBackPressed() {
-        navController.popBackStack()
-        when(navController.currentBackStackEntry?.id){
-
-        }
-//        super.onBackPressed()
+    fun checkBottomBarItem(id: Int) {
+        binding.bottomNavigation.menu.findItem(id).isChecked = true
+        binding.bottomNavigation.isVisible= true
     }
 
 }

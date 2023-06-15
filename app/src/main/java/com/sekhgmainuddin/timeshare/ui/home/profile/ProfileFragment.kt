@@ -39,6 +39,7 @@ class ProfileFragment : Fragment() {
     private var userDetails: UserWithFriendFollowerAndFollowingLists? = null
     private lateinit var progressDialog: Dialog
     private var userId: String? = null
+    private var isCalled= false
 
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
@@ -120,6 +121,7 @@ class ProfileFragment : Fragment() {
                     userData?.followers?.contains(uid) == true,
                     0
                 )
+                isCalled= true
             }
             unFriendOrRequestButton.setOnClickListener {
                 if (userData?.friends?.contains(uid) == true) {
@@ -127,6 +129,7 @@ class ProfileFragment : Fragment() {
                 }else{
                     viewModel.addFriendRequest(userData!!)
                 }
+                isCalled= true
             }
 
         }
@@ -255,40 +258,45 @@ class ProfileFragment : Fragment() {
 
     private fun bindObservers() {
         viewModel.searchUserDetails.observe(viewLifecycleOwner) {
-            progressDialog.dismiss()
-            it.onSuccess { _ ->
-                it.getOrNull()?.let { user ->
-                    userDetails = user
-                    userData = User(
-                        user.name,
-                        user.userId,
-                        user.email,
-                        user.phone,
-                        user.imageUrl,
-                        user.bio ?: "",
-                        user.interests ?: arrayListOf(),
-                        user.location ?: "",
-                        user.activeStatus
-                    )
-                    loadDataToViews()
-                    loadFollowersFriendsFollowing()
+            if (it.getOrNull()?.userId==userId){
+                progressDialog.dismiss()
+                it.onSuccess { _ ->
+                    it.getOrNull()?.let { user ->
+                        userDetails = user
+                        userData = User(
+                            user.name,
+                            user.userId,
+                            user.email,
+                            user.phone,
+                            user.imageUrl,
+                            user.bio ?: "",
+                            user.interests ?: arrayListOf(),
+                            user.location ?: "",
+                            user.activeStatus
+                        )
+                        loadDataToViews()
+                        loadFollowersFriendsFollowing()
+                    }
                 }
-            }
-            it.onFailure { t ->
-                Toast.makeText(requireContext(), "$t", Toast.LENGTH_SHORT).show()
+                it.onFailure { t ->
+                    Toast.makeText(requireContext(), "$t", Toast.LENGTH_SHORT).show()
+                }
             }
         }
         viewModel.followFriendResult.observe(viewLifecycleOwner) {
-            it.onSuccess {
-                Toast.makeText(requireContext(), "Changes Applied Successfully", Toast.LENGTH_SHORT)
-                    .show()
-            }
-            it.onFailure {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to Update Some Error Occurred",
-                    Toast.LENGTH_SHORT
-                ).show()
+            if (isCalled){
+                it.onSuccess {
+                    Toast.makeText(requireContext(), "Done", Toast.LENGTH_SHORT)
+                        .show()
+                }
+                it.onFailure {
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to Update Some Error Occurred",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                isCalled= false
             }
         }
     }

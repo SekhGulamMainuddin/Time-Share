@@ -47,7 +47,7 @@ class PostDetailFragment : Fragment(), onClick {
     private val exoPlayerItems = ArrayList<ExoPlayerItem>()
     private val viewModel by activityViewModels<HomeViewModel>()
     private var isAudioMuted = false
-
+    private var lastPlayIndex: Int?= null
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
     private var uid = ""
@@ -85,99 +85,6 @@ class PostDetailFragment : Fragment(), onClick {
         post?.let { initializePostData(it) }
         bindObservers()
 
-    }
-
-    private fun bindObservers() {
-        viewModel.postDetails.observe(viewLifecycleOwner) {
-            if (it.first.postId == post?.postId) {
-                progressDialog.dismiss()
-                if (post != it.first) {
-                    post = it.first
-                    initializePostData(post!!)
-                }
-                if (it.second.isNotEmpty())
-                    binding.likeProfiles.isVisible = true
-                if (it.third.isNotEmpty())
-                    binding.commentProfiles.isVisible = true
-                likeAdapter.submitList(it.second)
-                commentsAdapter.submitList(it.third)
-            }
-        }
-        viewModel.onlyUserDetail.observe(viewLifecycleOwner) {
-            if (requestFromHere) {
-                progressDialog.dismiss()
-                it?.let {
-                    val bundle = Bundle()
-                    bundle.putSerializable("searchUser", it)
-                    findNavController().navigate(
-                        R.id.action_postDetailFragment_to_profileFragment,
-                        args = bundle
-                    )
-                }
-                requestFromHere= false
-            }
-        }
-    }
-
-    private fun initializePostData(post: Post) {
-        binding.apply {
-            profileName.text = post.creatorName
-            Glide.with(this@PostDetailFragment).load(post.creatorProfileImage)
-                .placeholder(R.drawable.default_profile_pic)
-                .into(profileImage)
-            Glide.with(this@PostDetailFragment).load(post.creatorProfileImage)
-                .placeholder(R.drawable.default_profile_pic)
-                .into(addCommentProfileImage)
-            postDate.text = post.postTime.getTimeAgo()
-            likeCount.text = post.likeCount.toString()
-            commentCount.text = post.commentCount.toString()
-            postDescription.text = post.postDesc
-            likeButton.setImageDrawable(
-                AppCompatResources.getDrawable(
-                    requireContext(),
-                    if (post.likedAndCommentByMe in intArrayOf(
-                            1,
-                            3
-                        )
-                    ) R.drawable.liked_icon else R.drawable.love_icon
-                )
-            )
-            commentButton.imageTintList = ColorStateList.valueOf(
-                requireContext().getColor(
-                    if (post.likedAndCommentByMe in intArrayOf(
-                            2,
-                            3
-                        )
-                    ) R.color.orangePink else R.color.black
-                )
-            )
-            postContentAdapter = ImageVideoViewPagerAdapter(
-                requireContext(),
-                this@PostDetailFragment,
-                object : ImageVideoViewPagerAdapter.OnVideoListener {
-                    override fun onVideoPrepared(exoPlayerItem: ExoPlayerItem) {
-                        exoPlayerItems.add(exoPlayerItem)
-                    }
-
-                    override fun onVideoClick(position: Int) {
-                        isAudioMuted = !isAudioMuted
-
-                        val index =
-                            exoPlayerItems.indexOfFirst { it.position == binding.viewPagerImageVideo.currentItem }
-                        if (index != -1) {
-                            val player = exoPlayerItems[index].exoPlayer
-                            player.volume = if (isAudioMuted) 0f else 1f
-                        }
-
-                    }
-                }, type = 1
-            )
-            viewPagerImageVideo.adapter = postContentAdapter
-            postContentAdapter.update(
-                post.postContent!!
-            )
-            followTV.isVisible= !viewModel.otherUsersId.contains(post.creatorId)
-        }
     }
 
     private fun initialize() {
@@ -240,10 +147,107 @@ class PostDetailFragment : Fragment(), onClick {
                 requestFromHere= true
             }
             followTV.setOnClickListener {
-                post?.creatorId?.let { it1 -> viewModel.followOrUnFollowFriendOrUnfriend(it1, false, 0) }
+                post?.creatorId?.let {
+                        it1 -> viewModel.followOrUnFollowFriendOrUnfriend(it1, false, 0)
+                }
+                Toast.makeText(requireContext(), "$post", Toast.LENGTH_SHORT).show()
             }
         }
 
+    }
+
+    private fun initializePostData(post: Post) {
+        binding.apply {
+            this@PostDetailFragment.post= post
+            profileName.text = post.creatorName
+            Glide.with(this@PostDetailFragment).load(post.creatorProfileImage)
+                .placeholder(R.drawable.default_profile_pic)
+                .into(profileImage)
+            Glide.with(this@PostDetailFragment).load(post.creatorProfileImage)
+                .placeholder(R.drawable.default_profile_pic)
+                .into(addCommentProfileImage)
+            postDate.text = post.postTime.getTimeAgo()
+            likeCount.text = post.likeCount.toString()
+            commentCount.text = post.commentCount.toString()
+            postDescription.text = post.postDesc
+            likeButton.setImageDrawable(
+                AppCompatResources.getDrawable(
+                    requireContext(),
+                    if (post.likedAndCommentByMe in intArrayOf(
+                            1,
+                            3
+                        )
+                    ) R.drawable.liked_icon else R.drawable.love_icon
+                )
+            )
+            commentButton.imageTintList = ColorStateList.valueOf(
+                requireContext().getColor(
+                    if (post.likedAndCommentByMe in intArrayOf(
+                            2,
+                            3
+                        )
+                    ) R.color.orangePink else R.color.black
+                )
+            )
+            postContentAdapter = ImageVideoViewPagerAdapter(
+                requireContext(),
+                this@PostDetailFragment,
+                object : ImageVideoViewPagerAdapter.OnVideoListener {
+                    override fun onVideoPrepared(exoPlayerItem: ExoPlayerItem) {
+                        exoPlayerItems.add(exoPlayerItem)
+                    }
+
+                    override fun onVideoClick(position: Int) {
+                        isAudioMuted = !isAudioMuted
+
+                        val index =
+                            exoPlayerItems.indexOfFirst { it.position == binding.viewPagerImageVideo.currentItem }
+                        if (index != -1) {
+                            val player = exoPlayerItems[index].exoPlayer
+                            player.volume = if (isAudioMuted) 0f else 1f
+                        }
+
+                    }
+                }, type = 1
+            )
+            viewPagerImageVideo.adapter = postContentAdapter
+            postContentAdapter.update(
+                post.postContent!!
+            )
+            followTV.isVisible= !viewModel.otherUsersId.contains(post.creatorId)
+        }
+    }
+
+    private fun bindObservers() {
+        viewModel.postDetails.observe(viewLifecycleOwner) {
+            if (it.first.postId == post?.postId) {
+                progressDialog.dismiss()
+                if (post != it.first) {
+                    post = it.first
+                    initializePostData(post!!)
+                }
+                if (it.second.isNotEmpty())
+                    binding.likeProfiles.isVisible = true
+                if (it.third.isNotEmpty())
+                    binding.commentProfiles.isVisible = true
+                likeAdapter.submitList(it.second)
+                commentsAdapter.submitList(it.third)
+            }
+        }
+        viewModel.onlyUserDetail.observe(viewLifecycleOwner) {
+            if (requestFromHere) {
+                progressDialog.dismiss()
+                it?.let {
+                    val bundle = Bundle()
+                    bundle.putSerializable("searchUser", it)
+                    findNavController().navigate(
+                        R.id.action_postDetailFragment_to_profileFragment,
+                        args = bundle
+                    )
+                }
+                requestFromHere= false
+            }
+        }
     }
 
     private fun showLikeAnimation() {
@@ -280,9 +284,28 @@ class PostDetailFragment : Fragment(), onClick {
         showLikeAnimation()
     }
 
+    override fun onPause() {
+        super.onPause()
+        exoPlayerItems.forEach {
+            it.exoPlayer.pause()
+            it.exoPlayer.playWhenReady = false
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (post!=null){
+            initializePostData(post!!)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        exoPlayerItems.forEach {
+            it.exoPlayer.stop()
+            it.exoPlayer.clearMediaItems()
+        }
     }
 
 }

@@ -20,4 +20,5 @@ data class User(
     val groups: ArrayList<String> = arrayListOf(),
     val notificationToken: String = "",
     val friendRequests: ArrayList<String> = arrayListOf(),
+    val requested: ArrayList<String> = arrayListOf()
 ) : java.io.Serializable
