@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -18,21 +19,21 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.Post
 import com.sekhgmainuddin.timeshare.databinding.PostLayoutInProfileBinding
 
-class ProfilePostsAdapter(val context: Context, val selectedPost: (Post) -> (Unit)) : ListAdapter<Pair<Post, String>, ProfilePostsAdapter.ProfilePostsViewHolder>(ProfilePostDiffCallBack()) {
+class ProfilePostsAdapter(val context: Context, val selectedPost: (Post, Boolean) -> (Unit)) : ListAdapter<Post, ProfilePostsAdapter.ProfilePostsViewHolder>(ProfilePostDiffCallBack()) {
 
-    private class ProfilePostDiffCallBack(): DiffUtil.ItemCallback<Pair<Post, String>>(){
+    private class ProfilePostDiffCallBack(): DiffUtil.ItemCallback<Post>(){
         override fun areItemsTheSame(
-            oldItem: Pair<Post, String>,
-            newItem: Pair<Post, String>
+            oldItem: Post,
+            newItem: Post
         ): Boolean {
             return oldItem==newItem
         }
 
         override fun areContentsTheSame(
-            oldItem: Pair<Post, String>,
-            newItem: Pair<Post, String>
+            oldItem: Post,
+            newItem: Post
         ): Boolean {
-            return oldItem.first==newItem.first && oldItem.second==newItem.second
+            return oldItem==newItem
         }
 
     }
@@ -43,14 +44,33 @@ class ProfilePostsAdapter(val context: Context, val selectedPost: (Post) -> (Uni
     }
 
     override fun onBindViewHolder(holder: ProfilePostsViewHolder, position: Int) {
-        holder.initialize(currentList[position].second)
+        holder.isVideo.isVisible= false
+        var imageUrl= ""
+        for (i in currentList[position].postContent!!){
+            if (i.imageUrl?.isNotEmpty() == true){
+                imageUrl= i.imageUrl
+                break
+            }
+            if (i.thumbnail.isNotEmpty()) {
+                imageUrl = i.thumbnail
+                holder.isVideo.isVisible= true
+                break
+            }
+        }
+        holder.initialize(imageUrl)
         holder.itemView.setOnLongClickListener {
-            selectedPost.invoke(currentList[position].first)
+            selectedPost.invoke(currentList[position], true)
             true
+        }
+        holder.itemView.setOnClickListener {
+            selectedPost.invoke(currentList[position], false)
         }
     }
 
     class ProfilePostsViewHolder(val binding: PostLayoutInProfileBinding, val context: Context): RecyclerView.ViewHolder(binding.root){
+
+        val isVideo = binding.isVideo
+
         fun initialize(postImageUrl: String){
             Glide.with(context).load(postImageUrl).addListener(object: RequestListener<Drawable>{
                 override fun onLoadFailed(

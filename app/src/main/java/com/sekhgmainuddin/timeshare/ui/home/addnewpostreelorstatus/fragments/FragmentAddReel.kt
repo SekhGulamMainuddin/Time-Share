@@ -113,10 +113,10 @@ class FragmentAddReel : Fragment() {
                     captionText.isVisible = true
                     captionText.requestFocus()
                     requireContext().showKeyboard(captionText)
-                    showingCaptionEditText = false
+                    showingCaptionEditText = true
                     addCaption.setImageResource(R.drawable.baseline_close_24)
                 } else {
-                    showingCaptionEditText = true
+                    showingCaptionEditText = false
                     captionText.isVisible = false
                     hideKeyboard()
                     addCaption.setImageResource(R.drawable.baseline_text_increase_24)

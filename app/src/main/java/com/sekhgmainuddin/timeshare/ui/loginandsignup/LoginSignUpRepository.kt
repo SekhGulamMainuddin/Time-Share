@@ -10,7 +10,6 @@ import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
-import com.sekhgmainuddin.timeshare.data.db.entities.MyStatus
 import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import com.sekhgmainuddin.timeshare.utils.Utils.getBitmap
@@ -39,14 +38,11 @@ class LoginSignUpRepository @Inject constructor(
 
     suspend fun loginEmail(email: String, password: String) {
         try {
-            val response = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+            val response = firebaseAuth.signInWithEmailAndPassword(email.trim(), password.trim()).await()
             Log.d(
                 "loginTimeShare",
                 "loginEmail: ${response.additionalUserInfo.toString()} ${response.user.toString()}"
             )
-            response.user?.uid?.let {
-                insertEmptyStatus(it)
-            }
             _result.postValue(NetworkResult.Success(response.user!!, 200))
         } catch (firebaseAuthException: FirebaseAuthInvalidUserException) {
             _result.postValue(NetworkResult.Error("User Not Found", statusCode = 404))
@@ -79,7 +75,6 @@ class LoginSignUpRepository @Inject constructor(
                 user?.uid?.let {
                     newUser.userId = it
                     firebaseFirestore.collection("Users").document(it).set(newUser).await()
-                    insertEmptyStatus(it)
                 }
                 _result.postValue(NetworkResult.Success(response.user!!, 201))
             } else
@@ -97,10 +92,25 @@ class LoginSignUpRepository @Inject constructor(
         try {
             val response = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             _signUpResult.postValue(NetworkResult.Success(response.user!!, 201))
-            response.user?.uid?.let {
-                insertEmptyStatus(it)
+            val user = response.user
+            val newUser = User(
+                user?.displayName ?: "",
+                "",
+                user?.email ?: "",
+                user?.phoneNumber ?: "",
+                user?.photoUrl.toString(),
+                "",
+                arrayListOf(),
+                "",
+                1,
+                arrayListOf()
+            )
+            user?.uid?.let {
+                newUser.userId = it
+                firebaseFirestore.collection("Users").document(it).set(newUser).await()
             }
         } catch (e: com.google.firebase.FirebaseException) {
+            Log.d("signUpEmail", "signUpEmail: $e")
             _signUpResult.postValue(
                 NetworkResult.Error(
                     "Internal Server Error Occurred",
@@ -156,7 +166,7 @@ class LoginSignUpRepository @Inject constructor(
             detailMap["location"] = location
             detailMap["interests"] = interests
             firebaseAuth.uid?.let {
-                firebaseFirestore.collection("Users").document(it).set(detailMap).await()
+                firebaseFirestore.collection("Users").document(it).update(detailMap).await()
             }
             _newUserDetailUpload.postValue(
                 NetworkResult.Success(
@@ -196,23 +206,9 @@ class LoginSignUpRepository @Inject constructor(
                         statusCode = 200
                     )
                 )
-            response.user?.uid?.let {
-                insertEmptyStatus(it)
-            }
         } catch (e: Exception) {
             Log.d("exceptionPhoneLogin", "phoneNewUser: $e")
         }
-    }
-
-    private fun insertEmptyStatus(uid: String) {
-        MyStatus(
-            uid,
-            "",
-            "",
-            "",
-            -1,
-            arrayListOf()
-        )
     }
 
 }

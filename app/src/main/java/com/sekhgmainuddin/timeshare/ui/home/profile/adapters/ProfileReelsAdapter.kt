@@ -12,7 +12,7 @@ import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.Reel
 import com.sekhgmainuddin.timeshare.databinding.UploadedReelsLayoutRvBinding
 
-class ProfileReelsAdapter(val context: Context, val selectedReel : (Reel) -> Unit) :
+class ProfileReelsAdapter(val context: Context, val selectedReel : (Reel, Boolean) -> Unit) :
     ListAdapter<Reel, ProfileReelsAdapter.ReelViewHolder>(ReelDiffCallback()) {
 
     private class ReelDiffCallback() : DiffUtil.ItemCallback<Reel>() {
@@ -33,8 +33,11 @@ class ProfileReelsAdapter(val context: Context, val selectedReel : (Reel) -> Uni
     override fun onBindViewHolder(holder: ReelViewHolder, position: Int) {
         holder.loadView(currentList[position])
         holder.itemView.setOnLongClickListener {
-            selectedReel.invoke(currentList[position])
+            selectedReel.invoke(currentList[position], true)
             true
+        }
+        holder.itemView.setOnClickListener {
+            selectedReel.invoke(currentList[position], false)
         }
     }
 

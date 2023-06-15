@@ -10,7 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -28,26 +30,40 @@ import com.sekhgmainuddin.timeshare.databinding.StatusHolderRvBinding
 import com.sekhgmainuddin.timeshare.ui.home.home.HomeScreenFragment
 import com.sekhgmainuddin.timeshare.utils.Utils.getTimeAgo
 
-class PostsAdapter(val context: Context, val onClick: PostsAdapter.OnClick) :
-    ListAdapter<PostEntity, RecyclerView.ViewHolder>(PostDiffCallBack()), StatusAdapter.OnClick {
+class PostsAdapter(val context: Context, val onClick: OnClick) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), StatusAdapter.OnClick {
 
     val statusList = ArrayList<Pair<List<Status>, User>>()
     fun updateStatus(list: List<Pair<List<Status>, User>>) {
         statusList.clear()
         statusList.addAll(list)
-        Log.d("statusUpdate", "updateStatus: ${statusList.size}")
         notifyItemChanged(0)
     }
 
-    private class PostDiffCallBack : DiffUtil.ItemCallback<PostEntity>() {
-        override fun areItemsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
-            return oldItem.creatorId == newItem.creatorId
-        }
+    private val postsList = ArrayList<PostEntity>()
+    fun updatePostList(list: List<PostEntity>){
+        postsList.clear()
+        postsList.addAll(list)
+        notifyDataSetChanged()
+    }
 
-        override fun areContentsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
-            return oldItem == newItem
+    fun updateItem(post: PostEntity){
+        var updateItemPosition= 0
+        for (i in 0 until postsList.size){
+            if (postsList[i].postId == post.postId){
+                postsList[i]= post
+                updateItemPosition= i
+                break
+            }
         }
+        notifyItemChanged(updateItemPosition)
+    }
 
+    val followingAndFriendIds = ArrayList<String>()
+
+    fun updateFollowingAndFriendIds(list: List<String>) {
+        followingAndFriendIds.clear()
+        followingAndFriendIds.addAll(list)
     }
 
     class PostsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -65,23 +81,28 @@ class PostsAdapter(val context: Context, val onClick: PostsAdapter.OnClick) :
         val savePostButton = itemView.findViewById<ImageButton>(R.id.savePostButton)
         val likeAnimation = itemView.findViewById<LottieAnimationView>(R.id.likeAnimation)
         val commenttext = itemView.findViewById<TextView>(R.id.addCommentText)
+        val follow = itemView.findViewById<TextView>(R.id.followTV)
     }
 
-    class StatusViewHolder(val binding: StatusHolderRvBinding, val context: Context, val onClick: StatusAdapter.OnClick) :
+    class StatusViewHolder(
+        val binding: StatusHolderRvBinding,
+        val context: Context,
+        val onClick: StatusAdapter.OnClick
+    ) :
         RecyclerView.ViewHolder(binding.root) {
 
         private var adapter: StatusAdapter? = null
 
-        fun loadViews(list: List<Pair<List<Status>, User>>){
-            if (adapter==null){
-                adapter= StatusAdapter(context, onClick)
-                binding.statusRecyclerView.adapter= adapter
+        fun loadViews(list: List<Pair<List<Status>, User>>) {
+            if (adapter == null) {
+                adapter = StatusAdapter(context, onClick)
+                binding.statusRecyclerView.adapter = adapter
             }
             update(list)
         }
 
-        fun update(list: List<Pair<List<Status>, User>>){
-            adapter?.submitList(list)
+        fun update(list: List<Pair<List<Status>, User>>) {
+            adapter?.updateStatusList(list)
         }
 
     }
@@ -107,16 +128,17 @@ class PostsAdapter(val context: Context, val onClick: PostsAdapter.OnClick) :
             val holder = viewHolder as StatusViewHolder
             holder.loadViews(statusList)
         } else {
-            val item = currentList[position]
+            val item = postsList[position]
             val holder = viewHolder as PostsViewHolder
             val viewPagerAdapter = ImageVideoViewPagerAdapter(context, item) {
                 if (it == 1)
                     onClick.postClicked(item)
                 else if (it == 2) {
-                    onClick.likePost(item.postId)
+                    onClick.likePost(item)
                     playLikeAnimation(holder)
                 }
             }
+            holder.follow.isVisible = !followingAndFriendIds.contains(item.creatorId)
             holder.viewPager.adapter = viewPagerAdapter
             TabLayoutMediator(holder.tabLayout, holder.viewPager)
             { _, _ -> }.attach()
@@ -164,13 +186,20 @@ class PostsAdapter(val context: Context, val onClick: PostsAdapter.OnClick) :
                 onClick.sharePost(item)
             }
             holder.likeIcon.setOnClickListener {
-                onClick.likePost(item.postId)
+                onClick.likePost(item)
                 playLikeAnimation(holder)
             }
             holder.commenttext.setOnClickListener {
                 onClick.postClicked(item)
             }
+            holder.follow.setOnClickListener {
+                onClick.followId(item.creatorId)
+            }
         }
+    }
+
+    override fun getItemCount(): Int {
+        return postsList.size
     }
 
     private fun playLikeAnimation(holder: PostsViewHolder) {
@@ -186,13 +215,13 @@ class PostsAdapter(val context: Context, val onClick: PostsAdapter.OnClick) :
         return if (position == 0) 0 else 1
     }
 
-
     interface OnClick {
         fun postClicked(post: PostEntity)
         fun savePost(post: PostEntity)
         fun sharePost(post: PostEntity)
-        fun likePost(postId: String)
+        fun likePost(post: PostEntity)
         fun showStatus(position: Int)
+        fun followId(profileId: String)
     }
 
     override fun statusClicked(position: Int) {

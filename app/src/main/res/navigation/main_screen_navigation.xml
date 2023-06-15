@@ -42,12 +42,23 @@
         android:id="@+id/searchFragment"
         android:name="com.sekhgmainuddin.timeshare.ui.home.search.SearchFragment"
         android:label="fragment_search"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_postDetailFragment"
+            app:destination="@id/postDetailFragment" />
+    </fragment>
     <fragment
         android:id="@+id/myProfileFragment"
         android:name="com.sekhgmainuddin.timeshare.ui.home.profile.MyProfileFragment"
         android:label="fragment_my_profile"
-        tools:layout="@layout/fragment_my_profile" />
+        tools:layout="@layout/fragment_my_profile" >
+        <action
+            android:id="@+id/action_myProfileFragment_to_postDetailFragment"
+            app:destination="@id/postDetailFragment" />
+        <action
+            android:id="@+id/action_myProfileFragment_to_reelsFragment"
+            app:destination="@id/reelsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/reelsFragment"
         android:name="com.sekhgmainuddin.timeshare.ui.home.reels.ReelsFragment"
@@ -57,7 +68,14 @@
         android:id="@+id/profileFragment"
         android:name="com.sekhgmainuddin.timeshare.ui.home.profile.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_postDetailFragment"
+            app:destination="@id/postDetailFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_reelsFragment"
+            app:destination="@id/reelsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/addStatusFragment"
         android:name="com.sekhgmainuddin.timeshare.ui.home.addnewpostreelorstatus.fragments.AddStatusFragment"
@@ -115,7 +133,11 @@
         android:id="@+id/postDetailFragment"
         android:name="com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailFragment"
         android:label="fragment_post_detail"
-        tools:layout="@layout/fragment_post_detail" />
+        tools:layout="@layout/fragment_post_detail" >
+        <action
+            android:id="@+id/action_postDetailFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
 
 
 </navigation>

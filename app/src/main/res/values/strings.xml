@@ -93,6 +93,7 @@
     <string name="un_friend">Unfriend</string>
     <string name="un_follow">Unfollow</string>
     <string name="follow">Follow</string>
+    <string name="followedTick"><font size="22">&#10004;</font></string>
     <string name="no_posts_yet">No Posts Yet</string>
     <string name="failed_to_fecth_posts">Failed to fetch posts. Please refresh.</string>
     <string name="add_status">Add Status</string>
@@ -123,6 +124,7 @@
     <string name="upload_status">Upload status</string>
     <string name="add_reel_and_upload">Add Reel and Upload</string>
     <string name="upload_reel">Upload Reel</string>
+    <string name="time_share_notifications">Time Share Notifications</string>
 
 
 </resources>

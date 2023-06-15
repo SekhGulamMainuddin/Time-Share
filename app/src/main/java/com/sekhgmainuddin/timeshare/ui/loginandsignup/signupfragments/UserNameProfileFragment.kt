@@ -70,15 +70,19 @@ class UserNameProfileFragment : Fragment() {
 
         camera?.setOnClickListener {
             cameraLaunch.launch()
+            bottomSheetDialog.dismiss()
         }
         cameraTV?.setOnClickListener {
             cameraLaunch.launch()
+            bottomSheetDialog.dismiss()
         }
         gallery?.setOnClickListener {
             galleryLaunch.launch("image/*")
+            bottomSheetDialog.dismiss()
         }
         galleryTV?.setOnClickListener {
             galleryLaunch.launch("image/*")
+            bottomSheetDialog.dismiss()
         }
 
     }
@@ -114,7 +118,7 @@ class UserNameProfileFragment : Fragment() {
                 for (i in binding.interestGroup.checkedChipIds){
                     interests.add(binding.interestGroup.findViewById<Chip>(i).text.toString())
                 }
-                viewModel.uploadNewUserDetail(email, phone, imageUri, imageBitmap, binding.nameEditText.text.toString(),
+                viewModel.uploadNewUserDetail(email.trim(), phone.trim(), imageUri, imageBitmap, binding.nameEditText.text.toString().trim(),
                         binding.bioEditText.text.toString(),binding.locEditText.text.toString(),
                         interests)
             }
@@ -128,7 +132,7 @@ class UserNameProfileFragment : Fragment() {
                 is NetworkResult.Success -> {
                     if (it.data != null) {
                         showSnackBar(it.data!!)
-                        startActivity(Intent(requireContext(), MainActivity::class.java))
+                        startActivity(Intent(requireContext(), MainActivity::class.java).putExtra("isNewUser", true))
                         requireActivity().finish()
                     }
                 }

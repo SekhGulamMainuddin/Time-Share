@@ -62,6 +62,10 @@ import kotlin.collections.ArrayList
 @AndroidEntryPoint
 class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
 
+    companion object{
+        var currentChatId = ""
+    }
+
     private var _binding: FragmentChatBinding? = null
     private val binding: FragmentChatBinding
         get() = _binding!!
@@ -149,6 +153,7 @@ class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
             updateProfileData()
         }
         chatId = getChatId()!!
+        currentChatId= chatId
 
         loadData()
         registerClickListeners()
@@ -158,6 +163,7 @@ class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        currentChatId= ""
         _binding = null
     }
 

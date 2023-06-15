@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.FragmentPostsBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
 import com.sekhgmainuddin.timeshare.ui.home.profile.adapters.ProfilePostsAdapter
@@ -46,11 +48,19 @@ class PostsFragment(val type: Int= TYPE_USER_LOGGED_IN) : Fragment(){
 
     private fun initialize(){
         selectedPostFragment= SelectedPostFragment()
-        postsAdapter= ProfilePostsAdapter(requireContext()) {
+        postsAdapter= ProfilePostsAdapter(requireContext()) { it, instantView->
             val bundle= Bundle()
             bundle.putSerializable("post",it)
-            viewModel.postPassedToView.postValue(it)
-            selectedPostFragment.show(childFragmentManager,"")
+            if (instantView){
+                viewModel.postPassedToView.postValue(it)
+                selectedPostFragment.show(childFragmentManager,"")
+            }else{
+                if (type== TYPE_USER_LOGGED_IN){
+                    findNavController().navigate(R.id.action_myProfileFragment_to_postDetailFragment, args = bundle)
+                }else{
+                    findNavController().navigate(R.id.action_profileFragment_to_postDetailFragment, args = bundle)
+                }
+            }
         }
         binding.postsRecyclerView.adapter = postsAdapter
     }

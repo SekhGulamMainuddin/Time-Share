@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -17,9 +16,11 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.sekhgmainuddin.timeshare.R
+import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.Post
 import com.sekhgmainuddin.timeshare.data.modals.PostImageVideo
@@ -46,17 +47,19 @@ class PostDetailFragment : Fragment(), onClick {
     private val exoPlayerItems = ArrayList<ExoPlayerItem>()
     private val viewModel by activityViewModels<HomeViewModel>()
     private var isAudioMuted = false
+
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
     private var uid = ""
     private lateinit var progressDialog: Dialog
+    private var requestFromHere = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding= FragmentPostDetailBinding.inflate(inflater)
+        _binding = FragmentPostDetailBinding.inflate(inflater)
         return _binding!!.root
     }
 
@@ -69,7 +72,7 @@ class PostDetailFragment : Fragment(), onClick {
         progressDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         progressDialog.show()
 
-        uid= firebaseAuth.currentUser?.uid?:""
+        uid = firebaseAuth.currentUser?.uid ?: ""
 
         post = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arguments?.getSerializable("post", Post::class.java)
@@ -86,7 +89,7 @@ class PostDetailFragment : Fragment(), onClick {
 
     private fun bindObservers() {
         viewModel.postDetails.observe(viewLifecycleOwner) {
-            if (it.first.postId==post?.postId) {
+            if (it.first.postId == post?.postId) {
                 progressDialog.dismiss()
                 if (post != it.first) {
                     post = it.first
@@ -100,14 +103,30 @@ class PostDetailFragment : Fragment(), onClick {
                 commentsAdapter.submitList(it.third)
             }
         }
+        viewModel.onlyUserDetail.observe(viewLifecycleOwner) {
+            if (requestFromHere) {
+                progressDialog.dismiss()
+                it?.let {
+                    val bundle = Bundle()
+                    bundle.putSerializable("searchUser", it)
+                    findNavController().navigate(
+                        R.id.action_postDetailFragment_to_profileFragment,
+                        args = bundle
+                    )
+                }
+                requestFromHere= false
+            }
+        }
     }
 
     private fun initializePostData(post: Post) {
         binding.apply {
             profileName.text = post.creatorName
-            Glide.with(this@PostDetailFragment).load(post.creatorProfileImage).placeholder(R.drawable.default_profile_pic)
+            Glide.with(this@PostDetailFragment).load(post.creatorProfileImage)
+                .placeholder(R.drawable.default_profile_pic)
                 .into(profileImage)
-            Glide.with(this@PostDetailFragment).load(post.creatorProfileImage).placeholder(R.drawable.default_profile_pic)
+            Glide.with(this@PostDetailFragment).load(post.creatorProfileImage)
+                .placeholder(R.drawable.default_profile_pic)
                 .into(addCommentProfileImage)
             postDate.text = post.postTime.getTimeAgo()
             likeCount.text = post.likeCount.toString()
@@ -157,6 +176,7 @@ class PostDetailFragment : Fragment(), onClick {
             postContentAdapter.update(
                 post.postContent!!
             )
+            followTV.isVisible= !viewModel.otherUsersId.contains(post.creatorId)
         }
     }
 
@@ -183,7 +203,7 @@ class PostDetailFragment : Fragment(), onClick {
                                 Toast.LENGTH_SHORT
                             ).show()
                         else
-                            post?.postId?.let {
+                            post?.let {
                                 viewModel.addComment(
                                     it,
                                     addCommentEditText.text.toString()
@@ -195,8 +215,32 @@ class PostDetailFragment : Fragment(), onClick {
                 }
             })
             likeButton.setOnClickListener {
-                post?.postId?.let { viewModel.addLike(it) }
+                post?.apply {
+                    viewModel.addLike(
+                        PostEntity(
+                            postId,
+                            creatorId,
+                            postDesc,
+                            postTime,
+                            postContent,
+                            creatorName,
+                            creatorProfileImage,
+                            likeCount,
+                            commentCount,
+                            likedAndCommentByMe,
+                            myComment
+                        )
+                    )
+                }
                 showLikeAnimation()
+            }
+            profileName.setOnClickListener {
+                progressDialog.show()
+                viewModel.getUserData(post?.creatorId)
+                requestFromHere= true
+            }
+            followTV.setOnClickListener {
+                post?.creatorId?.let { it1 -> viewModel.followOrUnFollowFriendOrUnfriend(it1, false, 0) }
             }
         }
 
@@ -216,13 +260,29 @@ class PostDetailFragment : Fragment(), onClick {
     override fun onNewAddClick() {}
 
     override fun onClickToView(postImageVideoWithExoPlayer: PostImageVideo) {
-        post?.postId?.let { viewModel.addLike(it) }
+        post?.apply {
+            viewModel.addLike(
+                PostEntity(
+                    postId,
+                    creatorId,
+                    postDesc,
+                    postTime,
+                    postContent,
+                    creatorName,
+                    creatorProfileImage,
+                    likeCount,
+                    commentCount,
+                    likedAndCommentByMe,
+                    myComment
+                )
+            )
+        }
         showLikeAnimation()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding= null
+        _binding = null
     }
 
 }

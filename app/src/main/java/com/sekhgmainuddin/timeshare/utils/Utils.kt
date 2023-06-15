@@ -4,10 +4,14 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.graphics.LinearGradient
 import android.graphics.Shader
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.pdf.PdfRenderer
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -40,6 +44,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.net.HttpURLConnection
 import java.net.URL
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -314,6 +319,18 @@ object Utils {
         fileOutPut.flush()
         fileOutPut.close()
         return Uri.fromFile(tempFile)
+    }
+
+    @Throws(IOException::class)
+    fun drawableFromUrl(url: String?): BitmapDrawable {
+        val x: Bitmap
+        val connection = URL(url).openConnection() as HttpURLConnection
+        connection.connect()
+        val input = connection.inputStream
+        x = BitmapFactory.decodeStream(input)
+        return BitmapDrawable(Resources.getSystem(), x).apply {
+            setBounds(0,0,24,24)
+        }
     }
 
 }

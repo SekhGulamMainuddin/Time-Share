@@ -36,6 +36,9 @@
             android:name=".ui.home.chat.ui.groupchat.GroupCallActivity"
             android:exported="false" />
         <activity
+        android:name=".ui.home.notification.NotificationsActivity"
+        android:exported="false" />
+        <activity
             android:name=".ui.home.camera.CameraActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />

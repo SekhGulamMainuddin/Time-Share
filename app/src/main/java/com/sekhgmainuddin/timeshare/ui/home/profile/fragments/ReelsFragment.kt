@@ -6,6 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.databinding.FragmentReelsBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
 import com.sekhgmainuddin.timeshare.ui.home.profile.adapters.ProfileReelsAdapter
@@ -44,9 +47,16 @@ class ReelsFragment(val type: Int= TYPE_USER_LOGGED_IN): Fragment(){
 
     private fun initialize() {
         selectedReelFragment= SelectedReelFragment()
-        adapter= ProfileReelsAdapter(requireContext()){
-            viewModel.reelPassedToView.postValue(it)
-            selectedReelFragment.show(childFragmentManager, "selectedReel")
+        adapter= ProfileReelsAdapter(requireContext()){ it, instantView->
+            if (instantView){
+                viewModel.reelPassedToView.postValue(it)
+                selectedReelFragment.show(childFragmentManager, "selectedReel")
+            }else{
+                val bundle= Bundle()
+                bundle.putBoolean("showUserReels", true)
+                bundle.putString("showReelId", it.reelId)
+                    requireActivity().findNavController(R.id.mainScreenFragmentContainer).navigate(R.id.reelsFragment, bundle)
+            }
         }
         binding.profileReelsRecyclerView.adapter= adapter
     }

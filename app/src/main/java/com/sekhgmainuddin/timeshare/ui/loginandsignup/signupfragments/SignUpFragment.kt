@@ -86,8 +86,8 @@ class SignUpFragment : Fragment() {
                 if (binding.passwordEditText.text.toString().isValidPassword()) {
                     progressDialog.show()
                     viewModel.signUpEmailPassword(
-                        binding.emailEditText.text.toString(),
-                        binding.passwordEditText.text.toString()
+                        binding.emailEditText.text.toString().trim(),
+                        binding.passwordEditText.text.toString().trim()
                     )
                 } else {
                     binding.passwordToggleLayout.error = resources.getString(R.string.password_pattern)

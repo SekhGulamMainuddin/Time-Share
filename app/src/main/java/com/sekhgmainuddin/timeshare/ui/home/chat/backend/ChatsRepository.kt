@@ -218,7 +218,10 @@ class ChatsRepository @Inject constructor(
                                         ),
                                         Pair(
                                             "profileName", user.value?.get(0)?.user?.name
-                                        )
+                                        ),
+                                        Pair(
+                                            "chatId", group.groupId
+                                        ),
                                     )
                                 )
                             )
@@ -263,7 +266,10 @@ class ChatsRepository @Inject constructor(
                                             ),
                                             Pair(
                                                 "profileName", user.value?.get(0)?.user?.name
-                                            )
+                                            ),
+                                            Pair(
+                                                "chatId", getChatId(profile.userId)
+                                            ),
                                         )
                                     )
                                 )

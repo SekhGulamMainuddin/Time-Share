@@ -61,7 +61,7 @@ class SearchAccountFragment : Fragment() {
                     
                 }
                 is NetworkResult.Error -> {
-                    Toast.makeText(requireContext(), "${it.statusCode}", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(requireContext(), "${it.statusCode}", Toast.LENGTH_SHORT).show()
 //                    if (it.statusCode==404){
 //                        Toast.makeText(requireContext(), "No Accounts Found with this prefix", Toast.LENGTH_SHORT).show()
 //                    }else{

@@ -20,7 +20,7 @@ import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.databinding.FragmentHomeScreenBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
 import com.sekhgmainuddin.timeshare.ui.home.home.adapters.PostsAdapter
-import com.sekhgmainuddin.timeshare.ui.home.postdetail.PostDetailFragment
+import com.sekhgmainuddin.timeshare.ui.home.notification.NotificationsActivity
 import com.sekhgmainuddin.timeshare.ui.home.status.StatusActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.encodeToString
@@ -34,11 +34,13 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
         get() = _binding!!
     private val viewModel by activityViewModels<HomeViewModel>()
     private val oldFriendList = ArrayList<String>()
+    private val oldFollowingList = ArrayList<String>()
     private lateinit var postsAdapter: PostsAdapter
     private lateinit var progressDialog: Dialog
     private var myStatus: Pair<List<Status>, User>? = null
     private val statusList = ArrayList<Pair<List<Status>, User>>()
     private val listProfileIds = ArraySet<String>()
+    private val postList = ArrayList<PostEntity>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -83,23 +85,33 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
 
         viewModel.getUserData(null)
         viewModel.getUserData()
-
     }
 
     private fun bindObservers() {
         viewModel.userData.observe(viewLifecycleOwner) {
-            if (it.friends != oldFriendList) {
+            if (it.friends != oldFriendList || it.following != oldFollowingList) {
                 listProfileIds.clear()
                 listProfileIds.addAll(it.friends + it.following + listOf(it.userId))
-                viewModel.getLatestPosts(listProfileIds.toList())
                 oldFriendList.clear()
                 oldFriendList.addAll(it.friends)
+                oldFollowingList.clear()
+                oldFollowingList.addAll(it.friends)
+                viewModel.otherUsersId.clear()
+                viewModel.otherUsersId.addAll(it.friends)
+                viewModel.otherUsersId.addAll(it.following)
+                viewModel.otherUsersId.add(it.userId)
+                viewModel.getLatestPosts(listProfileIds.toList())
+                postsAdapter.updateFollowingAndFriendIds(viewModel.otherUsersId)
             }
         }
         viewModel.allPosts.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
-                binding.mainLayout.isRefreshing= false
-                postsAdapter.submitList(it)
+                binding.mainLayout.isRefreshing = false
+                postList.clear()
+                postList.add(PostEntity())
+                postList.addAll(it)
+                postsAdapter.updateFollowingAndFriendIds(viewModel.otherUsersId)
+                postsAdapter.updatePostList(postList)
             }
         }
         viewModel.userDetails.observe(viewLifecycleOwner) {
@@ -113,9 +125,19 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
             }
         }
         viewModel.statusListWithUserDetail.observe(viewLifecycleOwner) {
-            statusList.clear()
-            statusList.addAll(it)
-            postsAdapter.updateStatus(statusList)
+            if (it.isNotEmpty()){
+                statusList.clear()
+                statusList.addAll(it)
+                postsAdapter.updateStatus(statusList)
+            }
+        }
+        viewModel.likeResult.observe(viewLifecycleOwner) {
+            it.onSuccess {  post->
+                postsAdapter.updateItem(post)
+            }
+            it.onFailure {
+                Toast.makeText(requireContext(), "Failed to like the Post", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -125,8 +147,11 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
                 findNavController().navigate(R.id.action_homeScreenFragment_to_chatsListFragment2)
             }
             mainLayout.setOnRefreshListener {
-                mainLayout.isRefreshing= true
+                mainLayout.isRefreshing = true
                 viewModel.getLatestPosts(listProfileIds.toList())
+            }
+            notifications.setOnClickListener {
+                startActivity(Intent(requireContext(), NotificationsActivity::class.java))
             }
         }
     }
@@ -142,9 +167,12 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
             post.creatorName, post.creatorProfileImage, post.postTime,
             post.likesCount, post.commentCount, post.likedAndCommentByMe, post.myComment
         )
-        val bundle= Bundle()
+        val bundle = Bundle()
         bundle.putSerializable("post", postData)
-        findNavController().navigate(R.id.action_homeScreenFragment_to_postDetailFragment, args = bundle)
+        findNavController().navigate(
+            R.id.action_homeScreenFragment_to_postDetailFragment,
+            args = bundle
+        )
     }
 
     override fun savePost(post: PostEntity) {
@@ -155,8 +183,12 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
 
     }
 
-    override fun likePost(postId: String) {
-        viewModel.addLike(postId)
+    override fun likePost(post: PostEntity) {
+        viewModel.addLike(post)
+    }
+
+    override fun followId(profileId: String) {
+        viewModel.followOrUnFollowFriendOrUnfriend(profileId, false, 0)
     }
 
     override fun showStatus(position: Int) {

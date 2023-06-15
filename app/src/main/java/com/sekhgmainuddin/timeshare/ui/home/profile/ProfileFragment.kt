@@ -125,7 +125,7 @@ class ProfileFragment : Fragment() {
                 if (userData?.friends?.contains(uid) == true) {
                     viewModel.followOrUnFollowFriendOrUnfriend(userId!!, true, 1)
                 }else{
-                    viewModel.addFriendRequest(userId!!)
+                    viewModel.addFriendRequest(userData!!)
                 }
             }
 
@@ -157,88 +157,96 @@ class ProfileFragment : Fragment() {
                 val followersKeys = user.followers.keys.toList()
                 val followingKeys = user.following.keys.toList()
                 val friendsKeys = user.friends.keys.toList()
-                when (user.followers.size) {
-                    1 -> {
-                        followerOneImage.isVisible = true
-                        followerOneImage.loadImage(
-                            user.followers[followersKeys[0]]?.imageUrl ?: ""
-                        )
-                    }
+                if (followersKeys.isNotEmpty()){
+                    when (user.followers.size) {
+                        0->{}
+                        1 -> {
+                            followerOneImage.isVisible = true
+                            followerOneImage.loadImage(
+                                user.followers[followersKeys[0]]?.imageUrl ?: ""
+                            )
+                        }
 
-                    2 -> {
-                        followerOneImage.isVisible = true
-                        followerTwoImage.isVisible = true
-                        followerOneImage.loadImage(
-                            user.followers[followersKeys[0]]?.imageUrl ?: ""
-                        )
-                        followerTwoImage.loadImage(user.followers[followersKeys[1]]?.imageUrl ?: "")
-                    }
+                        2 -> {
+                            followerOneImage.isVisible = true
+                            followerTwoImage.isVisible = true
+                            followerOneImage.loadImage(
+                                user.followers[followersKeys[0]]?.imageUrl ?: ""
+                            )
+                            followerTwoImage.loadImage(user.followers[followersKeys[1]]?.imageUrl ?: "")
+                        }
 
-                    else -> {
-                        followerThreeImage.isVisible = true
-                        followerTwoImage.isVisible = true
-                        followerOneImage.isVisible = true
-                        followerThreeImage.loadImage(
-                            user.followers[followersKeys[0]]?.imageUrl ?: ""
-                        )
-                        followerTwoImage.loadImage(user.followers[followersKeys[1]]?.imageUrl ?: "")
-                        followerOneImage.loadImage(user.followers[followersKeys[2]]?.imageUrl ?: "")
+                        else -> {
+                            followerThreeImage.isVisible = true
+                            followerTwoImage.isVisible = true
+                            followerOneImage.isVisible = true
+                            followerThreeImage.loadImage(
+                                user.followers[followersKeys[0]]?.imageUrl ?: ""
+                            )
+                            followerTwoImage.loadImage(user.followers[followersKeys[1]]?.imageUrl ?: "")
+                            followerOneImage.loadImage(user.followers[followersKeys[2]]?.imageUrl ?: "")
+                        }
                     }
                 }
-                when (user.following.size) {
-                    1 -> {
-                        followingOneImage.isVisible = true
-                        followingOneImage.loadImage(
-                            user.following[followingKeys[0]]?.imageUrl ?: ""
-                        )
-                    }
+                if (followingKeys.isNotEmpty()){
+                    when (user.following.size) {
+                        0->{}
+                        1 -> {
+                            followingOneImage.isVisible = true
+                            followingOneImage.loadImage(
+                                user.following[followingKeys[0]]?.imageUrl ?: ""
+                            )
+                        }
 
-                    2 -> {
-                        followingOneImage.isVisible = true
-                        followingTwoImage.isVisible = true
-                        followingOneImage.loadImage(
-                            user.following[followingKeys[0]]?.imageUrl ?: ""
-                        )
-                        followingTwoImage.loadImage(
-                            user.following[followingKeys[1]]?.imageUrl ?: ""
-                        )
-                    }
+                        2 -> {
+                            followingOneImage.isVisible = true
+                            followingTwoImage.isVisible = true
+                            followingOneImage.loadImage(
+                                user.following[followingKeys[0]]?.imageUrl ?: ""
+                            )
+                            followingTwoImage.loadImage(
+                                user.following[followingKeys[1]]?.imageUrl ?: ""
+                            )
+                        }
 
-                    else -> {
-                        followingThreeImage.isVisible = true
-                        followingTwoImage.isVisible = true
-                        followingOneImage.isVisible = true
-                        followingThreeImage.loadImage(
-                            user.following[followingKeys[0]]?.imageUrl ?: ""
-                        )
-                        followingTwoImage.loadImage(
-                            user.following[followingKeys[1]]?.imageUrl ?: ""
-                        )
-                        followingOneImage.loadImage(
-                            user.following[followingKeys[2]]?.imageUrl ?: ""
-                        )
+                        else -> {
+                            followingThreeImage.isVisible = true
+                            followingTwoImage.isVisible = true
+                            followingOneImage.isVisible = true
+                            followingThreeImage.loadImage(
+                                user.following[followingKeys[0]]?.imageUrl ?: ""
+                            )
+                            followingTwoImage.loadImage(
+                                user.following[followingKeys[1]]?.imageUrl ?: ""
+                            )
+                            followingOneImage.loadImage(
+                                user.following[followingKeys[2]]?.imageUrl ?: ""
+                            )
+                        }
                     }
                 }
-                when (user.friends.size) {
-                    1 -> {
-                        friendsOneImage.isVisible = true
-                        friendsOneImage.loadImage(user.friends[friendsKeys[0]]?.imageUrl ?: "")
-                    }
+                if (followingKeys.isNotEmpty()){
+                    when (user.friends.size) {
+                        0->{}
+                        1 -> {
+                            friendsOneImage.isVisible = true
+                            friendsOneImage.loadImage(user.friends[friendsKeys[0]]?.imageUrl ?: "")
+                        }
 
-                    2 -> {
-                        friendsOneImage.isVisible = true
-                        friendsTwoImage.isVisible = true
-                        friendsOneImage.loadImage(user.friends[friendsKeys[0]]?.imageUrl ?: "")
-                        friendsTwoImage.loadImage(user.friends[friendsKeys[1]]?.imageUrl ?: "")
-                    }
-
-                    else -> {
-                        friendsThreeImage.isVisible = true
-                        friendsTwoImage.isVisible = true
-                        friendsOneImage.isVisible = true
-                        friendsThreeImage.loadImage(user.friends[friendsKeys[0]]?.imageUrl ?: "")
-                        friendsTwoImage.loadImage(user.friends[friendsKeys[1]]?.imageUrl ?: "")
-                        friendsOneImage.loadImage(user.friends[friendsKeys[2]]?.imageUrl ?: "")
+                        2 -> {
+                            friendsOneImage.isVisible = true
+                            friendsTwoImage.isVisible = true
+                            friendsOneImage.loadImage(user.friends[friendsKeys[0]]?.imageUrl ?: "")
+                            friendsTwoImage.loadImage(user.friends[friendsKeys[1]]?.imageUrl ?: "")
+                        }
+                        else -> {
+                            friendsThreeImage.isVisible = true
+                            friendsTwoImage.isVisible = true
+                            friendsOneImage.isVisible = true
+                            friendsThreeImage.loadImage(user.friends[friendsKeys[0]]?.imageUrl ?: "")
+                            friendsTwoImage.loadImage(user.friends[friendsKeys[1]]?.imageUrl ?: "")
+                            friendsOneImage.loadImage(user.friends[friendsKeys[2]]?.imageUrl ?: "")
+                        }
                     }
                 }
             }

@@ -80,7 +80,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginVertical="100dp"
         android:visibility="gone"
-        android:scaleType="fitCenter"
+        android:scaleType="centerCrop"
         />
 
     <com.google.android.exoplayer2.ui.StyledPlayerView

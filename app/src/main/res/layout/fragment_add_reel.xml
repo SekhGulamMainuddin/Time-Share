@@ -18,7 +18,7 @@
     <EditText
         android:id="@+id/captionText"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginVertical="100dp"
         android:layout_marginHorizontal="50dp"
         app:layout_constraintTop_toTopOf="parent"
@@ -33,7 +33,7 @@
         android:inputType="textMultiLine"
         android:gravity="center"
         android:visibility="gone"
-        android:background="@android:color/transparent"/>
+        android:background="@color/black_translucent"/>
 
     <ImageButton
         android:id="@+id/removeReelButton"

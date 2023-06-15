@@ -18,5 +18,6 @@ data class User(
     val status: Status? = null,
     val isSelected: Boolean = false,
     val groups: ArrayList<String> = arrayListOf(),
-    val notificationToken: String = ""
+    val notificationToken: String = "",
+    val friendRequests: ArrayList<String> = arrayListOf(),
 ) : java.io.Serializable

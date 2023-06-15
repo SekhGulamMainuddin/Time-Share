@@ -39,14 +39,14 @@ class ReelsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding= FragmentReelsHomeBinding.inflate(inflater)
-        showUserReels = arguments?.getBoolean("showUserReels", false) == true
-        showReelId = arguments?.getString("showReelId")
         return _binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        
+        showUserReels = arguments?.getBoolean("showUserReels", false) == true
+        showReelId = arguments?.getString("showReelId")
         initialize()
         bindObservers()
 

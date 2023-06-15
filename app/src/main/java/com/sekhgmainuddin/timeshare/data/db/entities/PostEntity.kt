@@ -17,8 +17,8 @@ data class PostEntity (
     @ColumnInfo(name = "postContent") @TypeConverters(Converter::class) val postContent: MutableList<PostImageVideo>? = null,
     @ColumnInfo(name = "creatorName") val creatorName: String = "",
     @ColumnInfo(name = "creatorProfileImage") val creatorProfileImage: String = "",
-    @ColumnInfo(name = "likesCount") val likesCount: Int = 0,
+    @ColumnInfo(name = "likesCount") var likesCount: Int = 0,
     @ColumnInfo(name = "commentsCount") val commentCount: Int = 0,
-    @ColumnInfo(name = "likedAndCommentByMe") val likedAndCommentByMe: Int = 0,
+    @ColumnInfo(name = "likedAndCommentByMe") var likedAndCommentByMe: Int = 0,
     @ColumnInfo(name = "myComment") val myComment: String = ""
 )

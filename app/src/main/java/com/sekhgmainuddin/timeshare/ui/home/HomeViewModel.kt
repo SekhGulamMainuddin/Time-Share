@@ -7,9 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.sekhgmainuddin.timeshare.data.db.entities.MyStatus
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
-import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
 import com.sekhgmainuddin.timeshare.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,20 +25,17 @@ class HomeViewModel @Inject constructor(
 
     val firebaseUser = firebaseAuth.currentUser
     val userData = MutableLiveData<User>()
+    val user = homeRepository.user
+    val otherUsersId = mutableListOf<String>()
     val postPassedToView = MutableLiveData<Post>()
     val reelPassedToView = MutableLiveData<Reel>()
 
-
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getUserData() = viewModelScope.launch(Dispatchers.IO) {
         homeRepository.getUserData().collectLatest { result ->
             if (result.isSuccess) {
                 result.getOrNull()?.let {
                     userData.postValue(it)
-                    val friendsFollowingIds = ArrayList<String>()
-                    friendsFollowingIds.addAll(it.friends)
-                    friendsFollowingIds.addAll(it.following)
-                    friendsFollowingIds.add(it.userId)
-                    homeRepository.getStatus(friendsFollowingIds.toSet())
                     if (it.groups.isNotEmpty()) {
                         homeRepository.getGroupDetails(it.groups)
                     }
@@ -54,6 +49,8 @@ class HomeViewModel @Inject constructor(
         get() = homeRepository.userDetails
     val searchUserDetails: LiveData<Result<UserWithFriendFollowerAndFollowingLists?>>
         get() = homeRepository.searchUserDetails
+
+    val onlyUserDetail = homeRepository.onlyUserData
 
     fun getUserData(userId: String?) = viewModelScope.launch(Dispatchers.IO) {
         homeRepository.getUserData(userId)
@@ -70,6 +67,7 @@ class HomeViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getLatestPosts(friendsList: List<String>) = viewModelScope.launch(Dispatchers.IO) {
         homeRepository.getLatestPosts(friendsList)
+        homeRepository.getStatus(friendsList.toSet())
     }
 
     val postDetails =
@@ -91,16 +89,17 @@ class HomeViewModel @Inject constructor(
                     val commentList = mutableListOf<CommentWithProfile>()
                     pair.first.likeAndComment?.forEach { map ->
                         val user = userListResponse[map.key]
-                        if (map.key==firebaseUser?.uid){
-                            pair.first.likedAndCommentByMe = if (map.value.liked && map.value.comment.isNotEmpty()){
-                                3
-                            }else if (map.value.liked){
-                                1
-                            }else if(map.value.comment.isNotEmpty()){
-                                2
-                            }else{
-                                0
-                            }
+                        if (map.key == firebaseUser?.uid) {
+                            pair.first.likedAndCommentByMe =
+                                if (map.value.liked && map.value.comment.isNotEmpty()) {
+                                    3
+                                } else if (map.value.liked) {
+                                    1
+                                } else if (map.value.comment.isNotEmpty()) {
+                                    2
+                                } else {
+                                    0
+                                }
                         }
                         if (map.value.liked)
                             likeList.add(
@@ -134,12 +133,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addLike(postId: String) = viewModelScope.launch(Dispatchers.IO) {
-        homeRepository.incrementLike(postId)
+    val likeResult = homeRepository.likeResult
+
+    fun addLike(post: PostEntity) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.incrementLike(post)
     }
 
-    fun addComment(postId: String, comment: String) = viewModelScope.launch(Dispatchers.IO) {
-        homeRepository.addComment(postId, comment)
+    fun addComment(post: Post, comment: String) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.addComment(post, comment)
     }
 
     val newReels = MutableLiveData<ArrayList<Reel>>()
@@ -230,8 +231,8 @@ class HomeViewModel @Inject constructor(
         homeRepository.addCommentToReel(reelId, comment)
     }
 
-    val posts = MutableLiveData<List<Pair<Post, String>>?>()
-    val otherUserPosts = MutableLiveData<List<Pair<Post, String>>?>()
+    val posts = MutableLiveData<List<Post>?>()
+    val otherUserPosts = MutableLiveData<List<Post>?>()
 
     fun getAllPosts(oldList: List<String> = listOf("noList"), userId: String? = null) =
         viewModelScope.launch(Dispatchers.IO) {
@@ -248,7 +249,7 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-    val searchFragmentPosts = MutableLiveData<List<Pair<Post, String>>?>()
+    val searchFragmentPosts = MutableLiveData<List<Post>?>()
 
     fun getAllPostsForSearchFragment(
         oldList: List<String> = listOf("noList"),
@@ -292,10 +293,6 @@ class HomeViewModel @Inject constructor(
 
     val statusListWithUserDetail = homeRepository.statusListWithUserDetail
 
-    fun insertMyStatus(myStatus: MyStatus) = viewModelScope.launch(Dispatchers.IO) {
-        homeRepository.insertStatus(myStatus)
-    }
-
     val statusUploadResult = homeRepository.uploadStatusResult
 
     fun uploadStatus(
@@ -316,16 +313,44 @@ class HomeViewModel @Inject constructor(
 
     val followFriendResult = homeRepository.followFriendResult
 
-    fun followOrUnFollowFriendOrUnfriend(id: String, isFollowingOrFriend: Boolean, friendOrFollowType: Int) = viewModelScope.launch(Dispatchers.IO){
-        homeRepository.followOrUnfollowOrUnfriendProfile(id, isFollowingOrFriend, friendOrFollowType)
+    fun followOrUnFollowFriendOrUnfriend(
+        id: String,
+        isFollowingOrFriend: Boolean,
+        friendOrFollowType: Int
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.followOrUnfollowOrUnfriendProfile(
+            id,
+            isFollowingOrFriend,
+            friendOrFollowType
+        )
     }
 
-    fun addFriendRequest(id: String) = viewModelScope.launch(Dispatchers.IO){
-        homeRepository.addFriend(id)
+    fun addFriendRequest(user: User) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.addFriend(user)
     }
 
-    fun updateToken(token: String) = viewModelScope.launch(Dispatchers.IO){
+    fun verifyAndAcceptRequest(id: String) = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.verifiedAddFriend(id)
+    }
+
+    fun updateToken(token: String) = viewModelScope.launch(Dispatchers.IO) {
         homeRepository.updateToken(token)
+    }
+
+    val popularUsers = homeRepository.popularUserList
+
+    fun getPopularUsers() = viewModelScope.launch(Dispatchers.IO) {
+        homeRepository.getPopularUserList()
+    }
+
+    fun logOut() = viewModelScope.launch(Dispatchers.IO){
+        homeRepository.logOut()
+    }
+
+    val notifications = homeRepository.notificationsList
+
+    fun getNotifications() = viewModelScope.launch(Dispatchers.IO){
+        homeRepository.getNotifications()
     }
 
 }

@@ -8,7 +8,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.sekhgmainuddin.timeshare.data.db.entities.ChatEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
-import com.sekhgmainuddin.timeshare.data.db.entities.MyStatus
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.RecentProfileChatsEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.SavedPostEntity
@@ -38,6 +37,9 @@ interface TimeShareDbDao {
     @Query("select * from recent_profile_chats_entity order by lastMessageTime DESC")
     fun getRecentChatsList(): LiveData<List<RecentProfileChatsEntity>>
 
+    @Query("delete from recent_profile_chats_entity")
+    fun deleteAllRecentChatProfiles()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertPost(posts: PostEntity)
 
@@ -53,17 +55,17 @@ interface TimeShareDbDao {
     @Query("select * from user_table")
     fun getUser() : LiveData<List<UserEntity>>
 
+    @Query("delete from user_table")
+    fun deleteUserData()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertGroup(group: GroupEntity)
 
     @Query("select * from group_entity")
     fun getGroups(): LiveData<List<GroupEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertStatus(status: MyStatus)
-
-    @Query("select * from my_status")
-    fun getStatus(): LiveData<List<MyStatus>>
+    @Query("delete from group_entity")
+    fun deleteAllGroupData()
 
     @Insert
     fun insertPost(savedPostEntity: SavedPostEntity)
@@ -73,5 +75,8 @@ interface TimeShareDbDao {
 
     @Query("select * from saved_post")
     fun getAllSavedPost(): LiveData<List<SavedPostEntity>>
+
+    @Query("delete from saved_post")
+    fun deleteAllSavedPosts()
 
 }

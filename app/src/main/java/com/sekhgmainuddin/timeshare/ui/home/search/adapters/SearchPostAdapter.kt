@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -18,21 +19,21 @@ import com.sekhgmainuddin.timeshare.data.modals.Post
 import com.sekhgmainuddin.timeshare.databinding.SearchPostLayoutRvBinding
 import com.sekhgmainuddin.timeshare.ui.home.search.layoutmanager.SpanSize
 
-class SearchPostAdapter(val context: Context, val selectedPost: (Post) -> (Unit), val instantView: (Post) -> (Unit)) : ListAdapter<Pair<Post, String>, SearchPostAdapter.SearchPostViewHolder>(ProfilePostDiffCallBack()) {
+class SearchPostAdapter(val context: Context, val selectedPost: (Post) -> (Unit), val instantView: (Post) -> (Unit)) : ListAdapter<Post, SearchPostAdapter.SearchPostViewHolder>(ProfilePostDiffCallBack()) {
 
-    private class ProfilePostDiffCallBack(): DiffUtil.ItemCallback<Pair<Post, String>>(){
+    private class ProfilePostDiffCallBack(): DiffUtil.ItemCallback<Post>(){
         override fun areItemsTheSame(
-            oldItem: Pair<Post, String>,
-            newItem: Pair<Post, String>
+            oldItem: Post,
+            newItem: Post
         ): Boolean {
             return oldItem==newItem
         }
 
         override fun areContentsTheSame(
-            oldItem: Pair<Post, String>,
-            newItem: Pair<Post, String>
+            oldItem: Post,
+            newItem: Post
         ): Boolean {
-            return oldItem.first==newItem.first && oldItem.second==newItem.second
+            return oldItem==newItem
         }
 
     }
@@ -43,17 +44,33 @@ class SearchPostAdapter(val context: Context, val selectedPost: (Post) -> (Unit)
     }
 
     override fun onBindViewHolder(holder: SearchPostViewHolder, position: Int) {
-        holder.initialize(currentList[position].second)
+        holder.isVideo.isVisible= false
+        var imageUrl = ""
+        for (i in currentList[position].postContent!!){
+            if (i.imageUrl?.isNotEmpty() == true){
+                imageUrl= i.imageUrl
+                break
+            }
+            if (i.thumbnail.isNotEmpty()) {
+                imageUrl = i.thumbnail
+                holder.isVideo.isVisible= true
+                break
+            }
+        }
+        holder.initialize(imageUrl)
         holder.itemView.setOnClickListener{
-            selectedPost.invoke(currentList[position].first)
+            selectedPost.invoke(currentList[position])
         }
         holder.itemView.setOnLongClickListener {
-            instantView.invoke(currentList[position].first)
+            instantView.invoke(currentList[position])
             true
         }
     }
 
     class SearchPostViewHolder(val binding: SearchPostLayoutRvBinding, val context: Context): RecyclerView.ViewHolder(binding.root){
+
+        val isVideo= binding.isVideo
+
         fun initialize(postImageUrl: String){
 
             Glide.with(context).load(postImageUrl).addListener(object: RequestListener<Drawable> {

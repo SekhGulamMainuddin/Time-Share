@@ -191,6 +191,9 @@ class LoginActivity : AppCompatActivity() {
                     startGoogleSignIn.launch(mGoogleSignInClient.signInIntent)
                 }
         }
+        binding.signupTV.setOnClickListener {
+            startActivity(Intent(this, SignUpActivity::class.java))
+        }
     }
 
     private fun bindObservers() {

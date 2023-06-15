@@ -143,7 +143,6 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
                         downloadFile(item.urlOrText,outputFile)
                         withContext(Dispatchers.Main){
                             time= outputFile.getFileDuration(requireContext())?:5000
-                            Toast.makeText(requireContext(), "$time", Toast.LENGTH_SHORT).show()
                             exoPlayer= ExoPlayer.Builder(requireActivity().applicationContext).build()
                             binding.statusVideo.player= exoPlayer
                             exoPlayer?.seekTo(0)
@@ -163,7 +162,9 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
                 for (i in 0 until 100) {
                     delay(time/100)
                     if (nextClicked){
-                        progressList[currentItemIndex].progress = 100
+                        withContext(Dispatchers.Main){
+                            progressList[currentItemIndex].progress = 100
+                        }
                         break
                     }
                     withContext(Dispatchers.Main) {
@@ -181,6 +182,8 @@ class StatusFragment(private val statusList: List<Status>, private val user: Use
 
     override fun onPause() {
         super.onPause()
+        exoPlayer?.pause()
+        exoPlayer?.clearMediaItems()
         status.cancel()
     }
 

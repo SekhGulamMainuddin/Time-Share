@@ -30,6 +30,17 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="20dp">
 
+                <ImageButton
+                    android:id="@+id/logOutButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:src="@drawable/baseline_logout_24"
+                    android:background="@android:color/transparent"
+                    android:layout_marginEnd="10dp"
+                    />
+
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/profileImage"
                     android:layout_width="100dp"
@@ -39,6 +50,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
                     android:src="@drawable/default_profile_pic"
+                    android:scaleType="centerCrop"
                     />
 
                 <TextView

@@ -9,6 +9,10 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.Post
 import com.sekhgmainuddin.timeshare.databinding.FragmentSearchPostBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
@@ -69,7 +73,9 @@ class SearchPostFragment: Fragment(){
 
             }
         postsAdapter= SearchPostAdapter(requireContext(),{
-            startActivity(Intent(requireContext(), PostDetailFragment::class.java).putExtra("post",it))
+            val bundle= Bundle()
+            bundle.putSerializable("post", it)
+            requireActivity().findNavController(R.id.mainScreenFragmentContainer).navigate(R.id.action_searchFragment_to_postDetailFragment, args = bundle)
         },{
             viewModel.postPassedToView.postValue(it)
             selectedPostFragment.show(childFragmentManager, "selectedPostFragment")
@@ -85,13 +91,11 @@ class SearchPostFragment: Fragment(){
     }
 
     private fun bindObservers(){
-        val list= ArrayList<Pair<Post, String>>()
         viewModel.searchFragmentPosts.observe(viewLifecycleOwner){
             if (!it.isNullOrEmpty()){
                 postsAdapter.submitList(it)
                 binding.progressCircular.isVisible= false
             }
-            Log.d("postsReceived", "bindObservers: $it")
         }
     }
 

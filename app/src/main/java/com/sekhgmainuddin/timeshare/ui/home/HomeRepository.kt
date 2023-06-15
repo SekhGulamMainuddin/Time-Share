@@ -10,10 +10,10 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.StorageReference
 import com.sekhgmainuddin.timeshare.data.db.TimeShareDb
 import com.sekhgmainuddin.timeshare.data.db.entities.GroupEntity
-import com.sekhgmainuddin.timeshare.data.db.entities.MyStatus
 import com.sekhgmainuddin.timeshare.data.db.entities.PostEntity
 import com.sekhgmainuddin.timeshare.data.db.entities.UserEntity
 import com.sekhgmainuddin.timeshare.data.modals.*
@@ -28,6 +28,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.UUID
 import javax.inject.Inject
@@ -38,12 +40,13 @@ class HomeRepository @Inject constructor(
     private val firebaseStorage: StorageReference,
     timeShareDb: TimeShareDb,
     @ApplicationContext val context: Context,
-    val FCMNotificationRepository: FCMNotificationRepository
+    private val fcmNotificationRepository: FCMNotificationRepository
 ) {
 
     private val firebaseUser = firebaseAuth.currentUser
     private val timeShareDbDao = timeShareDb.getDao()
 
+    val user = timeShareDbDao.getUser()
     val allPosts = timeShareDbDao.getAllPosts()
 
     fun insertPost(post: PostEntity) {
@@ -56,10 +59,6 @@ class HomeRepository @Inject constructor(
 
     fun insert(user: UserEntity) {
         timeShareDbDao.insert(user)
-    }
-
-    fun insertStatus(myStatus: MyStatus) {
-        timeShareDbDao.insertStatus(myStatus)
     }
 
     suspend fun getUserDataById(listIds: Set<String>): HashMap<String, User> {
@@ -90,6 +89,10 @@ class HomeRepository @Inject constructor(
 
     private var currentLoggedUser: UserWithFriendFollowerAndFollowingLists? = null
 
+    private var _onlyUserData = MutableLiveData<User?>()
+    val onlyUserData: LiveData<User?>
+        get() = _onlyUserData
+
     suspend fun getUserData(user_Id: String? = null) {
         try {
             if (user_Id != null)
@@ -103,6 +106,7 @@ class HomeRepository @Inject constructor(
                 val otherUserList = ArrayList<String>()
                 val user = response.toObject(User::class.java)
                 user?.apply {
+                    _onlyUserData.postValue(user)
                     friends.let { otherUserList.addAll(it) }
                     followers.let { otherUserList.addAll(it) }
                     following.let { otherUserList.addAll(it) }
@@ -275,9 +279,17 @@ class HomeRepository @Inject constructor(
     @ExperimentalCoroutinesApi
     suspend fun getLatestPosts(friendList: List<String>) {
         try {
-            val result = firebaseFireStore.collection("Posts")
-                .orderBy("postTime", Query.Direction.DESCENDING).whereIn("creatorId", friendList)
-                .limit(10).get().await()
+            val result = if (friendList.isNotEmpty()) {
+                firebaseFireStore.collection("Posts")
+                    .orderBy("postTime", Query.Direction.DESCENDING)
+                    .whereIn("creatorId", friendList)
+                    .limit(20).get().await()
+            } else {
+                firebaseFireStore.collection("Posts")
+                    .orderBy("postTime", Query.Direction.DESCENDING)
+                    .limit(20).get().await()
+            }
+            Log.d("getLatestPosts", "getLatestPosts: ${result.documents.size}")
             val postList = ArrayList<PostWithOutCreaterImageName>()
             val userIds = ArrayList<String>()
             if (result.documents.isNotEmpty()) {
@@ -340,24 +352,56 @@ class HomeRepository @Inject constructor(
         awaitClose { postListener.remove() }
     }
 
-    suspend fun incrementLike(postId: String) {
+    private var _likeResult = MutableLiveData<Result<PostEntity>>()
+    val likeResult: LiveData<Result<PostEntity>>
+        get() = _likeResult
+
+    suspend fun incrementLike(post: PostEntity) {
         try {
             val mainMap = hashMapOf(
                 Pair(
                     "likeAndComment",
-                    hashMapOf(Pair(firebaseUser?.uid, hashMapOf(Pair("liked", true))))
+                    hashMapOf(
+                        Pair(
+                            firebaseUser?.uid, hashMapOf(
+                                Pair(
+                                    "liked",
+                                    post.likedAndCommentByMe !in intArrayOf(1, 3)
+                                )
+                            )
+                        )
+                    )
                 )
             )
-            firebaseFireStore.collection("Posts").document(postId)
-                .update("likeCount", FieldValue.increment(1)).await()
-            firebaseFireStore.collection("Posts").document(postId).set(mainMap, SetOptions.merge())
+            firebaseFireStore.collection("Posts").document(post.postId)
+                .update(
+                    "likeCount",
+                    FieldValue.increment(
+                        if (post.likedAndCommentByMe in intArrayOf(
+                                1,
+                                3
+                            )
+                        ) -1 else 1
+                    )
+                ).await()
+            firebaseFireStore.collection("Posts").document(post.postId)
+                .set(mainMap, SetOptions.merge())
                 .await()
-        } catch (_: Exception) {
 
+            if (post.likedAndCommentByMe in intArrayOf(1, 3)) {
+                post.likesCount--
+                post.likedAndCommentByMe--
+            } else {
+                post.likesCount++
+                post.likedAndCommentByMe++
+            }
+            _likeResult.postValue(Result.success(post))
+        } catch (e: Exception) {
+            _likeResult.postValue(Result.failure(e))
         }
     }
 
-    suspend fun addComment(postId: String, comment: String) {
+    suspend fun addComment(post: Post, comment: String) {
         val mainMap = hashMapOf(
             Pair(
                 "likeAndComment",
@@ -365,12 +409,14 @@ class HomeRepository @Inject constructor(
             )
         )
         try {
-            firebaseFireStore.collection("Posts").document(postId)
-                .update("commentCount", FieldValue.increment(1)).await()
-            firebaseFireStore.collection("Posts").document(postId).set(mainMap, SetOptions.merge())
+            if (post.likedAndCommentByMe !in intArrayOf(2, 3)) {
+                firebaseFireStore.collection("Posts").document(post.postId)
+                    .update("commentCount", FieldValue.increment(1)).await()
+            }
+            firebaseFireStore.collection("Posts").document(post.postId)
+                .set(mainMap, SetOptions.merge())
                 .await()
         } catch (_: Exception) {
-
         }
     }
 
@@ -519,21 +565,16 @@ class HomeRepository @Inject constructor(
     suspend fun getAllPosts(
         oldList: List<String>,
         forSearchFragment: Boolean
-    ): List<Pair<Post, String>>? {
+    ): List<Post>? {
         try {
-            val posts = ArrayList<Pair<Post, String>>()
+            val posts = ArrayList<Post>()
             val postsResponse = firebaseFireStore.collection("Posts")
                 .whereNotIn("postId", oldList).orderBy("postId")
                 .orderBy("postTime", Query.Direction.DESCENDING).limit(10).get().await()
             if (!postsResponse.isEmpty) {
                 postsResponse.documents.forEach {
                     it.toObject(Post::class.java)?.let { post ->
-                        var image = ""
-                        post.postContent?.forEach { content ->
-                            if (content.imageOrVideo == 0)
-                                image = content.imageUrl.toString()
-                        }
-                        posts.add(Pair(post, image))
+                        posts.add(post)
                     }
                 }
                 Log.d("AllPostsOfUser", "getAllPosts: $posts")
@@ -547,29 +588,24 @@ class HomeRepository @Inject constructor(
         }
     }
 
-    suspend fun getAllPosts(oldList: List<String>, userId: String?): List<Pair<Post, String>>? {
+    suspend fun getAllPosts(oldList: List<String>, userId: String?): List<Post>? {
         try {
-            val posts = ArrayList<Pair<Post, String>>()
+            val posts = ArrayList<Post>()
             val postsResponse = firebaseFireStore.collection("Posts")
                 .whereEqualTo("creatorId", userId ?: firebaseUser?.uid)
                 .whereNotIn("postId", oldList).orderBy("postId")
                 .orderBy("postTime", Query.Direction.DESCENDING).limit(10).get().await()
-            if (!postsResponse.isEmpty) {
+            return if (!postsResponse.isEmpty) {
                 postsResponse.documents.forEach {
                     it.toObject(Post::class.java)?.let { post ->
-                        var image = ""
-                        post.postContent?.forEach { content ->
-                            if (content.imageOrVideo == 0)
-                                image = content.imageUrl.toString()
-                        }
-                        posts.add(Pair(post, image))
+                        posts.add(post)
                     }
                 }
                 Log.d("AllPostsOfUser", "getAllPosts: $posts")
-                return posts
+                posts
             } else {
                 Log.d("AllPostsOfUser", "getAllPosts: Empty")
-                return null
+                null
             }
         } catch (e: Exception) {
             return null
@@ -602,28 +638,32 @@ class HomeRepository @Inject constructor(
                 val profiles = ArrayList<Pair<User, String?>>()
                 response.documents.forEach {
                     it.toObject(User::class.java)?.let { user ->
-                        var mutualFollowers = "Followed by "
-                        var firstMutualFollower = true
-                        user.followers?.forEach { following ->
-                            if (currentLoggedUser?.following?.get(following) != null) {
-                                if (firstMutualFollower) {
-                                    mutualFollowers += currentLoggedUser?.following?.get(following)?.name
-                                    firstMutualFollower = false
-                                } else {
-                                    mutualFollowers += ", ${
-                                        currentLoggedUser?.following?.get(
+                        if (user.userId != firebaseUser?.uid) {
+                            var mutualFollowers = "Followed by "
+                            var firstMutualFollower = true
+                            user.followers.forEach { following ->
+                                if (currentLoggedUser?.following?.get(following) != null) {
+                                    if (firstMutualFollower) {
+                                        mutualFollowers += currentLoggedUser?.following?.get(
                                             following
                                         )?.name
-                                    }"
+                                        firstMutualFollower = false
+                                    } else {
+                                        mutualFollowers += ", ${
+                                            currentLoggedUser?.following?.get(
+                                                following
+                                            )?.name
+                                        }"
+                                    }
                                 }
                             }
-                        }
-                        profiles.add(
-                            Pair(
-                                user,
-                                if (mutualFollowers.length > 12) mutualFollowers else null
+                            profiles.add(
+                                Pair(
+                                    user,
+                                    if (mutualFollowers.length > 12) mutualFollowers else null
+                                )
                             )
-                        )
+                        }
                     }
                     if (profiles.isNotEmpty()) {
                         _profilesFromSearchQuery.postValue(
@@ -863,17 +903,90 @@ class HomeRepository @Inject constructor(
         }
     }
 
-    suspend fun addFriend(id: String) {
+    suspend fun addFriend(user: User) = coroutineScope {
         try {
             firebaseUser?.uid?.let {
-
-                // Notification To be Sent. Yet to be implemented
-
+                val body = Json.encodeToString(
+                    mapOf(
+                        Pair("type", "FRIENDREQUEST"),
+                        Pair("profileName", userProfileDetail?.name),
+                        Pair("profileImage", userProfileDetail?.imageUrl),
+                        Pair("profileId", userProfileDetail?.userId)
+                    )
+                )
+                launch {
+                    firebaseFireStore.collection("Users").document(user.userId)
+                        .update("friendRequests", FieldValue.arrayUnion(it)).await()
+                    fcmNotificationRepository.sendNotification(
+                        Notification(
+                            token = user.notificationToken,
+                            NotificationBody(
+                                "${userProfileDetail?.name} sent you a friend request",
+                                body
+                            )
+                        )
+                    )
+                }
+                try {
+                    firebaseFireStore.collection("Notifications").document(user.userId).update(
+                        "notifications", FieldValue.arrayUnion(
+                            NotificationItem(
+                                type = "FRIENDREQUEST",
+                                body = body
+                            )
+                        )
+                    ).await()
+                } catch (e: Exception) {
+                    firebaseFireStore.collection("Notifications").document(user.userId).set(
+                        NotificationList(
+                            listOf(
+                                NotificationItem(
+                                    type = "FRIENDREQUEST",
+                                    body = body
+                                )
+                            )
+                        )
+                    ).await()
+                }
                 _followFriendResult.postValue(Result.success(true))
             }
         } catch (e: Exception) {
-            Log.d("followProfile", "followProfile: ")
+            Log.d("followProfile", "followProfile: $e")
             _followFriendResult.postValue(Result.failure(e))
+        }
+    }
+
+    suspend fun verifiedAddFriend(id: String) = coroutineScope {
+        try {
+            val user = firebaseFireStore.collection("Users").document(id).get().await()
+                .toObject(User::class.java)
+            user?.let {
+                firebaseUser?.uid?.let {
+                    launch {
+                        firebaseFireStore.collection("Users").document(id)
+                            .update("friends", FieldValue.arrayUnion(it)).await()
+                        firebaseFireStore.collection("Users").document(it)
+                            .update("friends", FieldValue.arrayUnion(id)).await()
+                        firebaseFireStore.collection("Users").document(it)
+                            .update("friendRequests", FieldValue.arrayRemove(id)).await()
+                        fcmNotificationRepository.sendNotification(
+                            Notification(
+                                user.notificationToken,
+                                NotificationBody(
+                                    title = "Friend Request Accepted by ${userProfileDetail?.name}",
+                                    body = Json.encodeToString(
+                                        mapOf(
+                                            Pair("type", "FRIENDREQUESTACCEPTED")
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("verifiedAddFriend", "verifiedAddFriend: $e")
         }
     }
 
@@ -885,6 +998,69 @@ class HomeRepository @Inject constructor(
             }
         } catch (e: Exception) {
             Log.d("saveToken", "updateToken: $e")
+        }
+    }
+
+    private var _popularUserList = MutableLiveData<Result<List<User>>>()
+    val popularUserList: LiveData<Result<List<User>>>
+        get() = _popularUserList
+
+    suspend fun getPopularUserList() {
+        try {
+            firebaseUser?.uid?.let { uid ->
+                val result = firebaseFireStore.collection("Users")
+                    .orderBy("followers", Query.Direction.DESCENDING).limit(50).get().await()
+                if (result.documents.isNotEmpty()) {
+                    val list = ArrayList<User>()
+                    result.documents.forEach {
+                        it.toObject(User::class.java)?.let { u ->
+                            if (u.userId != uid) {
+                                list.add(u)
+                            }
+                        }
+                    }
+                    _popularUserList.postValue(Result.success(list))
+                }
+            }
+        } catch (e: Exception) {
+            _popularUserList.postValue(Result.failure(e))
+        }
+    }
+
+    suspend fun logOut() {
+        try {
+            firebaseAuth.signOut()
+            timeShareDbDao.apply {
+                deleteAllGroupData()
+                deleteAllPosts()
+                deleteAllRecentChatProfiles()
+                deleteAllChats()
+                deleteUserData()
+                deleteAllSavedPosts()
+            }
+        } catch (_: Exception) {
+
+        }
+    }
+
+    private var _notificationsList = MutableLiveData<Result<NotificationList>>()
+    val notificationsList: LiveData<Result<NotificationList>>
+        get() = _notificationsList
+
+    suspend fun getNotifications() {
+        try {
+            firebaseUser?.uid?.let {
+                val result =
+                    firebaseFireStore.collection("Notifications").document(it).get().await()
+                if (result.exists()) {
+                    result.toObject(NotificationList::class.java)?.let { n->
+                        _notificationsList.postValue(Result.success(n))
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("getNotifications", "getNotifications: $e")
+            _notificationsList.postValue(Result.failure(e))
         }
     }
 

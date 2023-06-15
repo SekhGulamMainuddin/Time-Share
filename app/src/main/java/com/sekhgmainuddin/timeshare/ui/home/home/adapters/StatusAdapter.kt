@@ -17,17 +17,14 @@ import com.sekhgmainuddin.timeshare.databinding.StatusLayoutRvBinding
 import com.sekhgmainuddin.timeshare.utils.enums.StatusType
 
 class StatusAdapter(val context: Context, val onClick: OnClick) :
-    ListAdapter<Pair<List<Status>, User>, StatusAdapter.StatusViewHolder>(StatusDiffCallBack()) {
+    RecyclerView.Adapter<StatusAdapter.StatusViewHolder>() {
 
-    private class StatusDiffCallBack() : DiffUtil.ItemCallback<Pair<List<Status>, User>>(){
-        override fun areItemsTheSame(oldItem: Pair<List<Status>, User>, newItem: Pair<List<Status>, User>): Boolean {
-            return oldItem==newItem
-        }
+    val list= ArrayList<Pair<List<Status>, User>>()
 
-        override fun areContentsTheSame(oldItem: Pair<List<Status>, User>, newItem: Pair<List<Status>, User>): Boolean {
-            return oldItem.first==newItem.first && oldItem.second==newItem.second
-        }
-
+    fun updateStatusList(list: List<Pair<List<Status>, User>>){
+        this.list.clear()
+        this.list.addAll(list)
+        notifyDataSetChanged()
     }
 
     class StatusViewHolder(val binding: StatusLayoutRvBinding, val context: Context) :
@@ -76,8 +73,12 @@ class StatusAdapter(val context: Context, val onClick: OnClick) :
         )
     }
 
+    override fun getItemCount(): Int {
+        return list.size
+    }
+
     override fun onBindViewHolder(holder: StatusViewHolder, position: Int) {
-        val item = currentList[position]
+        val item = list[position]
         holder.bind(item)
         holder.itemView.setOnClickListener {
             onClick.statusClicked(position)
