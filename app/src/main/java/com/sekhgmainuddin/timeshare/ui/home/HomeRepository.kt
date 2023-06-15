@@ -570,7 +570,7 @@ class HomeRepository @Inject constructor(
             val posts = ArrayList<Post>()
             val postsResponse = firebaseFireStore.collection("Posts")
                 .whereNotIn("postId", oldList).orderBy("postId")
-                .orderBy("postTime", Query.Direction.DESCENDING).limit(10).get().await()
+                .orderBy("postTime", Query.Direction.DESCENDING).limit(100).get().await()
             if (!postsResponse.isEmpty) {
                 postsResponse.documents.forEach {
                     it.toObject(Post::class.java)?.let { post ->

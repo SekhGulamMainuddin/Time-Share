@@ -103,6 +103,8 @@ class MainActivity : AppCompatActivity() {
             if (it.isNotEmpty()) {
                 chatsViewModel.friendsList.clear()
                 chatsViewModel.friendsList.putAll(it[0].friends)
+                chatsViewModel.followingList.clear()
+                chatsViewModel.followingList.putAll(it[0].following)
             }
         }
     }

@@ -19,6 +19,7 @@ import com.sekhgmainuddin.timeshare.data.modals.User
 import com.sekhgmainuddin.timeshare.data.modals.UserWithFriendFollowerAndFollowingLists
 import com.sekhgmainuddin.timeshare.databinding.FragmentProfileBinding
 import com.sekhgmainuddin.timeshare.ui.home.HomeViewModel
+import com.sekhgmainuddin.timeshare.ui.home.chat.backend.ChatsViewModel
 import com.sekhgmainuddin.timeshare.ui.home.profile.adapters.ProfileViewPagerAdapter
 import com.sekhgmainuddin.timeshare.ui.home.profile.fragments.PostsFragment
 import com.sekhgmainuddin.timeshare.ui.home.profile.fragments.ReelsFragment
@@ -35,6 +36,7 @@ class ProfileFragment : Fragment() {
     private lateinit var viewPagerAdapter: ProfileViewPagerAdapter
     private val fragmentNames = listOf("Posts", "Reels")
     private val viewModel by activityViewModels<HomeViewModel>()
+    private val chatsViewModel by activityViewModels<ChatsViewModel>()
     private var userData: User? = null
     private var userDetails: UserWithFriendFollowerAndFollowingLists? = null
     private lateinit var progressDialog: Dialog
@@ -91,6 +93,8 @@ class ProfileFragment : Fragment() {
             profileBio.text = userData?.bio
             profileLocation.text = userData?.location
             verifiedIcon.isVisible = (userData?.isVerified == true)
+            unFollowOrFollowButton.text= getString(if (chatsViewModel.followingList.contains(userId)) R.string.un_follow else R.string.follow)
+            unFriendOrRequestButton.text = getString(if (chatsViewModel.friendsList.contains(userId)) R.string.un_friend else R.string.add_friend)
         }
     }
 
@@ -111,23 +115,26 @@ class ProfileFragment : Fragment() {
                 tab.text = fragmentNames[position]
             }.attach()
             unFriendOrRequestButton.text =
-                getString(if (userData?.friends?.contains(uid) == true) R.string.un_friend else R.string.add_friend)
+                getString(if (chatsViewModel.friendsList.contains(userId)) R.string.un_friend else R.string.add_friend)
             unFollowOrFollowButton.text =
-                getString(if (userData?.followers?.contains(uid) == true) R.string.un_follow else R.string.follow)
+                getString(if (chatsViewModel.followingList.contains(userId)) R.string.un_follow else R.string.follow)
 
             unFollowOrFollowButton.setOnClickListener {
                 viewModel.followOrUnFollowFriendOrUnfriend(
                     userId!!,
-                    userData?.followers?.contains(uid) == true,
+                    chatsViewModel.followingList.contains(userId),
                     0
                 )
+                unFollowOrFollowButton.text= getString(if (chatsViewModel.followingList.contains(userId)) R.string.follow else R.string.un_follow)
                 isCalled= true
             }
             unFriendOrRequestButton.setOnClickListener {
-                if (userData?.friends?.contains(uid) == true) {
+                if (chatsViewModel.friendsList.contains(userId)) {
                     viewModel.followOrUnFollowFriendOrUnfriend(userId!!, true, 1)
+                    unFriendOrRequestButton.text = getString(R.string.add_friend)
                 }else{
                     viewModel.addFriendRequest(userData!!)
+                    unFriendOrRequestButton.text = getString(R.string.un_friend)
                 }
                 isCalled= true
             }

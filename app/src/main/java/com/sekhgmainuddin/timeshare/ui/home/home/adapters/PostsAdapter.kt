@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
@@ -39,6 +40,8 @@ class PostsAdapter(val context: Context, val onClick: OnClick) :
         statusList.addAll(list)
         notifyItemChanged(0)
     }
+
+    var userImageUrl = ""
 
     private val postsList = ArrayList<PostEntity>()
     fun updatePostList(list: List<PostEntity>){
@@ -82,6 +85,7 @@ class PostsAdapter(val context: Context, val onClick: OnClick) :
         val likeAnimation = itemView.findViewById<LottieAnimationView>(R.id.likeAnimation)
         val commenttext = itemView.findViewById<TextView>(R.id.addCommentText)
         val follow = itemView.findViewById<TextView>(R.id.followTV)
+        val addCommentProfileImage = itemView.findViewById<ImageView>(R.id.addCommentProfileImage)
     }
 
     class StatusViewHolder(
@@ -150,6 +154,8 @@ class PostsAdapter(val context: Context, val onClick: OnClick) :
             holder.postDate.text = item.postTime.getTimeAgo()
             Glide.with(context).load(item.creatorProfileImage)
                 .placeholder(R.drawable.default_profile_pic).into(holder.creatorProfileImage)
+            Glide.with(context).load(userImageUrl)
+                .placeholder(R.drawable.default_profile_pic).into(holder.addCommentProfileImage)
             holder.postDescription.text = item.postDesc
             holder.likeCount.text = item.likesCount.toString()
             holder.commentCount.text = item.commentCount.toString()

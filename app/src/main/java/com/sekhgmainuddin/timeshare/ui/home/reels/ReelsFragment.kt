@@ -132,6 +132,7 @@ class ReelsFragment : Fragment() {
                 }
                 is NetworkResult.Error->{
                     adapter.reels[recentLiked].likedAndCommentByMe--
+                    adapter.reels[recentLiked].likeCount--
                     binding.viewPager2.adapter?.notifyItemChanged(recentLiked)
                     Toast.makeText(requireContext(), "Failed to post the like", Toast.LENGTH_SHORT).show()
                 }

@@ -32,7 +32,7 @@ class ChatsViewModel @Inject constructor(
     val recentChatProfiles = chatsRepository.recentChatProfiles
     val groups = chatsRepository.groups
     val friendsList = HashMap<String, User>()
-
+    val followingList = HashMap<String, User>()
     val sendMessageStatus = chatsRepository.messageSent
 
     fun sendMessage(

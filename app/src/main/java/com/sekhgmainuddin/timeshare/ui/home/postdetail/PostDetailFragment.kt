@@ -163,7 +163,7 @@ class PostDetailFragment : Fragment(), onClick {
             Glide.with(this@PostDetailFragment).load(post.creatorProfileImage)
                 .placeholder(R.drawable.default_profile_pic)
                 .into(profileImage)
-            Glide.with(this@PostDetailFragment).load(post.creatorProfileImage)
+            Glide.with(this@PostDetailFragment).load(viewModel.userData.value?.imageUrl)
                 .placeholder(R.drawable.default_profile_pic)
                 .into(addCommentProfileImage)
             postDate.text = post.postTime.getTimeAgo()
@@ -224,6 +224,11 @@ class PostDetailFragment : Fragment(), onClick {
                 progressDialog.dismiss()
                 if (post != it.first) {
                     post = it.first
+                    exoPlayerItems.forEach { exo->
+                        exo.exoPlayer.pause()
+                        exo.exoPlayer.stop()
+                        exo.exoPlayer.clearMediaItems()
+                    }
                     initializePostData(post!!)
                 }
                 if (it.second.isNotEmpty())

@@ -104,6 +104,7 @@ class HomeScreenFragment : Fragment(), PostsAdapter.OnClick {
                 viewModel.otherUsersId.add(it.userId)
                 viewModel.getLatestPosts(listProfileIds.toList())
                 postsAdapter.updateFollowingAndFriendIds(viewModel.otherUsersId)
+                postsAdapter.userImageUrl= it.imageUrl
             }
         }
         viewModel.allPosts.observe(viewLifecycleOwner) {
