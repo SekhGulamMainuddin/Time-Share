@@ -6,14 +6,16 @@ Social Media App built using Kotlin and XML. It has functionalities like Chattin
 <p> 
   <a href="https://developer.android.com" target="_blank" rel="noreferrer"> <img src="https://user-images.githubusercontent.com/73953395/221414435-71f899f1-d053-4ab6-b235-12e253b2bbd8.png" alt="android" width="75" height="75"/> </a>
   <a href="https://kotlinlang.org" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/kotlinlang/kotlinlang-icon.svg" alt="kotlin" width="75" height="75"/> </a> 
+  <a href="https://www.java.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="java" width="75" height="75"/> </a>
   <a href="https://www.w3schools.com/xml/" target="_blank" rel="noreferrer"> <img src="https://cdn-icons-png.flaticon.com/128/136/136526.png" alt="XML" width="75" height="75"/> </a>
   <a href="https://firebase.google.com/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/firebase/firebase-icon.svg" alt="firebase" width="75" height="75"/> </a> 
   <a href="https://www.agora.io/en/" target="_blank" rel="noreferrer"> <img src="https://www.agora.io/en/wp-content/themes/agora-main/images/agora-logo.svg" alt="agora" width="100" height="60"/> </a> &nbsp; 
+   <a href="https://www.agora.io/en/" target="_blank" rel="noreferrer"> <img src="https://www.obilityb2b.com/wp-content/uploads/2017/08/Giphy-icon.png" alt="agora" width="100" height="75"/> </a> &nbsp; 
 </p>
 
 ## TechStack Used <img src="https://cdn-icons-png.flaticon.com/128/4997/4997543.png" width="25" height="25">
 
-**Client:**  Kotlin, XML, CMake, C++ 
+**Client:**  Kotlin, Java, XML, CMake, C++ 
 
 **Server & Backend:**  Firebase, Firebase Firestore, Firebase Real-Time Database, Firebase Storage, Firebase Auth, FCM
 
