@@ -1,7 +1,7 @@
 # Time-Share
 
 Social Media App built using Kotlin and XML. It has functionalities like Chatting(1-1 and Group), Content Sharing(Image, GIF, Video, PDF, etc.), Voice and Video Conferencing(One to One and Group), Reels, Stories, Posts, etc. BackEnd is built on Firebase (Firestore, Realtime DB, Firebase Storage, and FCM). Authentication and Sign-Up using Email-Password|Google Sign-In|Phone Number-OTP. Used Agora.io for Voice and Video Conferencing.
-  <p><br></p>
+
   <h3 align="left">Languages and Tools Used:</h3>
 <p> 
   <a href="https://developer.android.com" target="_blank" rel="noreferrer"> <img src="https://user-images.githubusercontent.com/73953395/221414435-71f899f1-d053-4ab6-b235-12e253b2bbd8.png" alt="android" width="75" height="75"/> </a>
@@ -10,8 +10,6 @@ Social Media App built using Kotlin and XML. It has functionalities like Chattin
   <a href="https://firebase.google.com/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/firebase/firebase-icon.svg" alt="firebase" width="75" height="75"/> </a> 
   <a href="https://www.agora.io/en/" target="_blank" rel="noreferrer"> <img src="https://www.agora.io/en/wp-content/themes/agora-main/images/agora-logo.svg" alt="agora" width="100" height="60"/> </a> &nbsp; 
 </p>
-  
-  <p><br></p>
 
 ## TechStack Used <img src="https://cdn-icons-png.flaticon.com/128/4997/4997543.png" width="25" height="25">
 
@@ -112,6 +110,7 @@ Java_com_sekhgmainuddin_timeshare_utils_Keys_getProjectNumber(JNIEnv *env, jobje
 - Some indexing may be required on the Firebase Firestore end for multiple queries.
 
 ## Libraries Used
+MVVM Pattern is used to build this App
 - Firebase (Auth, Storage, Firestore, Realtime-DB) - Authentication and Data Storage
 - FCM - For Notification
 - Agora - Voice and Video Calling
