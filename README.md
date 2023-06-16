@@ -48,7 +48,7 @@ keytool -list -v -keystore "C:\Users\ReplaceThisWithYourUserName\.android\debug.
 - Retrieve the [App-Id]() and [App-Certificate]() from Agora Project
 - Also Create a [Giphy](https://developers.giphy.com/) Project
 - Retrieve the API key for Giphy
-- Store all the above keys using CMake -> [Prefer this article](https://www.codementor.io/blog/kotlin-apikeys-7o0g54qk5b)
+- Store all the above keys using CMake -> [Follow this article](https://www.codementor.io/blog/kotlin-apikeys-7o0g54qk5b)
 - Remember to follow this structure in Kotlin Part 
 ```
 object Keys {
