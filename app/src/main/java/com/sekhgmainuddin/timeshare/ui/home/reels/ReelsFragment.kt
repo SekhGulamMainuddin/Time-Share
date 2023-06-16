@@ -1,13 +1,18 @@
 package com.sekhgmainuddin.timeshare.ui.home.reels
 
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
+import com.sekhgmainuddin.timeshare.R
 import com.sekhgmainuddin.timeshare.data.modals.ExoPlayerItem
 import com.sekhgmainuddin.timeshare.data.modals.Reel
 import com.sekhgmainuddin.timeshare.databinding.FragmentReelsHomeBinding

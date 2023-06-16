@@ -109,7 +109,6 @@ class HomeViewModel @Inject constructor(
                                     user?.imageUrl ?: " "
                                 )
                             )
-                        if (map.key != firebaseUser?.uid) {
                             if (map.value.comment.isNotEmpty())
                                 commentList.add(
                                     CommentWithProfile(
@@ -119,7 +118,6 @@ class HomeViewModel @Inject constructor(
                                         map.value.comment
                                     )
                                 )
-                        }
                     }
                     pair.first.let { post ->
                         val creator = userListResponse[post.creatorId]

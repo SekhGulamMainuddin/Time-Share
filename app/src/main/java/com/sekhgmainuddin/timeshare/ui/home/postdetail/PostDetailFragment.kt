@@ -103,24 +103,47 @@ class PostDetailFragment : Fragment(), onClick {
                     if ((event?.action == KeyEvent.ACTION_DOWN) &&
                         (keyCode == KeyEvent.KEYCODE_ENTER)
                     ) {
-                        if (addCommentEditText.text.isEmpty())
+                        if (addCommentEditText.text.isEmpty()) {
                             Toast.makeText(
                                 requireContext(),
                                 "Add some comment",
                                 Toast.LENGTH_SHORT
                             ).show()
-                        else
+                        }
+                        else {
+                            Toast.makeText(requireContext(), "Adding the comment", Toast.LENGTH_SHORT)
+                                .show()
                             post?.let {
                                 viewModel.addComment(
                                     it,
                                     addCommentEditText.text.toString()
                                 )
                             }
+                        }
                         return true
                     }
                     return false
                 }
             })
+            saveComment.setOnClickListener {
+                if (addCommentEditText.text.isEmpty()) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Add some comment",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else {
+                    Toast.makeText(requireContext(), "Adding the comment", Toast.LENGTH_SHORT)
+                        .show()
+                    post?.let {
+                        viewModel.addComment(
+                            it,
+                            addCommentEditText.text.toString()
+                        )
+                    }
+                }
+            }
             likeButton.setOnClickListener {
                 post?.apply {
                     viewModel.addLike(
@@ -150,7 +173,6 @@ class PostDetailFragment : Fragment(), onClick {
                 post?.creatorId?.let {
                         it1 -> viewModel.followOrUnFollowFriendOrUnfriend(it1, false, 0)
                 }
-                Toast.makeText(requireContext(), "$post", Toast.LENGTH_SHORT).show()
             }
         }
 

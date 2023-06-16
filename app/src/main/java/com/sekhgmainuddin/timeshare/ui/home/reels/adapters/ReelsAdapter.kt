@@ -150,13 +150,15 @@ class ReelsAdapter(
                 reels[position].likedAndCommentByMe++
                 showAnimation(holder.binding, context)
                 videoListener.reelLiked()
-                holder.binding.likeCount.text= "${item.likeCount+1}"
+                item.likeCount++
+                holder.binding.likeCount.text= "${item.likeCount}"
             }else{
                 reels[position].likedAndCommentByMe--
                 holder.binding.likeButton.setImageDrawable(AppCompatResources.getDrawable(context,R.drawable.love_icon))
                 holder.binding.likeButton.imageTintList= ColorStateList.valueOf(context.getColor(R.color.white))
                 videoListener.reelUnliked()
-                holder.binding.likeCount.text= "${item.likeCount-1}"
+                item.likeCount--
+                holder.binding.likeCount.text= "${item.likeCount}"
             }
         }
     }

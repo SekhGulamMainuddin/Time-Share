@@ -58,7 +58,6 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(R.id.fragmentAddReel)
                 }
             }
-            binding.bottomNavigation.isVisible= false
         }
         newUserFollowDialog= NewUserFollowDialog()
 
@@ -105,6 +104,7 @@ class MainActivity : AppCompatActivity() {
                 chatsViewModel.friendsList.putAll(it[0].friends)
                 chatsViewModel.followingList.clear()
                 chatsViewModel.followingList.putAll(it[0].following)
+                Log.d("friendandfollowingList", "bindObserver: ${it[0].friends}")
             }
         }
     }
@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
                 if (navHostFragment.childFragmentManager.backStackEntryCount==0)
                     finish()
                 when(navController.currentDestination?.id){
-                    R.id.homeScreenFragment, R.id.postDetailFragment, R.id.profileFragment -> {
+                    R.id.homeScreenFragment, R.id.postDetailFragment, R.id.profileFragment, R.id.fragmentAddPost, R.id.addStatusFragment, R.id.fragmentAddReel -> {
                         checkBottomBarItem(R.id.home)
                     }
                     R.id.searchFragment-> {

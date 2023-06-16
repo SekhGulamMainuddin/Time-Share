@@ -60,7 +60,7 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
-class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
+class ChatsFragment : Fragment() {
 
     companion object{
         var currentChatId = ""
@@ -243,6 +243,33 @@ class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
     }
 
     fun registerClickListeners() {
+        giphy.gifSelectionListener = object : GiphyDialogFragment.GifSelectionListener{
+            override fun didSearchTerm(term: String) {}
+
+            override fun onDismissed(selectedContentType: GPHContentType) {}
+
+            override fun onGifSelected(
+                media: Media,
+                searchTerm: String?,
+                selectedContentType: GPHContentType
+            ) {
+                media.url?.let {
+                    val gifUrl =
+                        "https://i.giphy.com/media/${it.substring(it.lastIndexOf('-') + 1)}/200.gif"
+                    viewModel.sendFileMessage(
+                        null,
+                        gifUrl,
+                        MessageType.GIF,
+                        profileId!!,
+                        isGroup,
+                        profileGroup?.groupMembers?.keys?.toList() ?: emptyList(),
+                        profileGroup,
+                        profile
+                    )
+                }
+            }
+
+        }
         binding.apply {
             backButton.setOnClickListener {
                 findNavController().popBackStack()
@@ -571,29 +598,6 @@ class ChatsFragment : Fragment(), GiphyDialogFragment.GifSelectionListener {
         val record_audio_result =
             ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
         return write_external_storage_result == PackageManager.PERMISSION_DENIED || record_audio_result == PackageManager.PERMISSION_DENIED
-    }
-
-    override fun didSearchTerm(term: String) {}
-    override fun onDismissed(selectedContentType: GPHContentType) {}
-    override fun onGifSelected(
-        media: Media,
-        searchTerm: String?,
-        selectedContentType: GPHContentType
-    ) {
-        media.url?.let {
-            val gifUrl =
-                "https://i.giphy.com/media/${it.substring(it.lastIndexOf('-') + 1)}/200.gif"
-            viewModel.sendFileMessage(
-                null,
-                gifUrl,
-                MessageType.GIF,
-                profileId!!,
-                isGroup,
-                profileGroup?.groupMembers?.keys?.toList() ?: emptyList(),
-                profileGroup,
-                profile
-            )
-        }
     }
 
     private fun ActivityResult?.sendFiles() {

@@ -56,7 +56,7 @@ class NotificationService :
             }
             builder.setContentText(body["profileName"] + ": " + body["message"])
         }else{
-            builder.setContentText(body.toString())
+            //builder.setContentText(body.toString())
         }
         builder.setSmallIcon(R.drawable.time_share_icon)
 //        builder.setContentIntent(pendingIntent)

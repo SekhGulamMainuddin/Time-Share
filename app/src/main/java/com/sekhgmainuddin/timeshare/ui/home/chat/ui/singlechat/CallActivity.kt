@@ -167,7 +167,6 @@ class CallActivity : AppCompatActivity() {
                 setupRemoteVideo(uid)
                 binding.apply {
                     callingAnimation.isVisible = false
-                    oppositeProfileImage.isVisible = false
                     oppositeProfileName.isVisible = false
                 }
             }

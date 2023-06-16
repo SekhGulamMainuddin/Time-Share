@@ -59,6 +59,7 @@ class HomeRepository @Inject constructor(
 
     fun insert(user: UserEntity) {
         timeShareDbDao.insert(user)
+        Log.d("friendandfollowingList", "insert: ${user.following} \n ${user.friends}")
     }
 
     suspend fun getUserDataById(listIds: Set<String>): HashMap<String, User> {
@@ -751,16 +752,31 @@ class HomeRepository @Inject constructor(
                 if (status.exists()) {
                     status.toObject(StatusList::class.java)?.let {
                         if (it.status.isNotEmpty()) {
-                            val user =
-                                firebaseFireStore.collection("Users").document(id.trim()).get()
-                                    .await()
-                                    .toObject(User::class.java)
-                            statusList.add(
-                                Pair(
-                                    it.status,
-                                    user!!
+                            val userDetail =
+                                if (user.value?.get(0)?.following?.contains(id) == true) {
+                                    user.value?.get(0)?.following?.get(id)
+                                } else if (user.value?.get(0)?.friends?.contains(id) == true) {
+                                    user.value?.get(0)?.friends?.get(id)
+                                } else {
+                                    firebaseFireStore.collection("Users").document(id.trim())
+                                        .get()
+                                        .await()
+                                        .toObject(User::class.java)
+                                }
+                            val listStatusOfUser= ArrayList<Status>()
+                            it.status.forEach { status->
+                                if (status.statusUploadTime>(System.currentTimeMillis()-86400000)){
+                                    listStatusOfUser.add(status)
+                                }
+                            }
+                            if (listStatusOfUser.isNotEmpty()){
+                                statusList.add(
+                                    Pair(
+                                        listStatusOfUser,
+                                        userDetail!!
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }

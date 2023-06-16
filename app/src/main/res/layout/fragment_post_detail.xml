@@ -271,7 +271,7 @@
                         android:background="@android:color/transparent"
                         app:layout_constraintBottom_toBottomOf="@id/addCommentEditText"
                         app:layout_constraintTop_toTopOf="@id/addCommentEditText"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/saveComment"
                         android:layout_marginEnd="15dp"
                         />
 
@@ -286,6 +286,19 @@
                         app:layout_constraintTop_toTopOf="@id/addCommentEditText"
                         app:layout_constraintEnd_toStartOf="@id/addLoveComment"
                         android:layout_marginEnd="5dp"
+                        />
+
+                    <ImageButton
+                        android:id="@+id/saveComment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/recv_ic_send"
+                        app:tint="@color/black"
+                        android:background="@android:color/transparent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/addCommentEditText"
+                        app:layout_constraintBottom_toBottomOf="@id/addCommentEditText"
+                        android:layout_marginEnd="10dp"
                         />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>

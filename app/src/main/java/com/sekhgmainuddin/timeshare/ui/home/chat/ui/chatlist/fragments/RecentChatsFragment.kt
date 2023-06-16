@@ -86,6 +86,9 @@ class RecentChatsFragment : Fragment(), onClicked {
                 bundle.putBoolean("isGroup",false)
                 findNavController().navigate(R.id.action_chatsListFragment2_to_chatsFragment, args = bundle)
             }
+            if (!viewModel.friendsList.containsKey(profileId)) {
+                Toast.makeText(requireContext(), "Not found", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

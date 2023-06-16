@@ -9,7 +9,7 @@ class ChatsDiffCallBack : DiffUtil.ItemCallback<ChatEntity>() {
     }
 
     override fun areContentsTheSame(oldItem: ChatEntity, newItem: ChatEntity): Boolean {
-        return oldItem.message == newItem.message && oldItem.document == newItem.document
+        return oldItem.id == newItem.id
     }
 
 }
