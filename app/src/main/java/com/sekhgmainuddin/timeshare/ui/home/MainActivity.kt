@@ -1,12 +1,15 @@
 package com.sekhgmainuddin.timeshare.ui.home
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -21,6 +24,7 @@ import com.sekhgmainuddin.timeshare.ui.home.chat.ui.groupchat.GroupCallActivity
 import com.sekhgmainuddin.timeshare.ui.home.chat.ui.singlechat.CallActivity
 import com.sekhgmainuddin.timeshare.ui.home.newuserfollow.NewUserFollowDialog
 import dagger.hilt.android.AndroidEntryPoint
+import java.security.Permission
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -33,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navHostFragment: NavHostFragment
     private val viewModel by viewModels<HomeViewModel>()
     private val chatsViewModel by viewModels<ChatsViewModel>()
+
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
     private var userId: String? = null
@@ -46,20 +51,22 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.mainScreenFragmentContainer) as NavHostFragment
         navController = navHostFragment.navController
 
-        addNewPostBottomSheetDialogFragment = AddNewPostReelStatusBottomSheetDialogFragment{
-            when(it){
-                0->{
+        addNewPostBottomSheetDialogFragment = AddNewPostReelStatusBottomSheetDialogFragment {
+            when (it) {
+                0 -> {
                     navController.navigate(R.id.addStatusFragment)
                 }
-                1->{
+
+                1 -> {
                     navController.navigate(R.id.fragmentAddPost)
                 }
-                2->{
+
+                2 -> {
                     navController.navigate(R.id.fragmentAddReel)
                 }
             }
         }
-        newUserFollowDialog= NewUserFollowDialog()
+        newUserFollowDialog = NewUserFollowDialog()
 
         setUpBottomNavigationBar()
         bindObserver()
@@ -72,9 +79,25 @@ class MainActivity : AppCompatActivity() {
             viewModel.updateToken(task.result)
         })
 
-        if (intent.getBooleanExtra("isNewUser", false)){
+        if (intent.getBooleanExtra("isNewUser", false)) {
             Toast.makeText(this, "Follow some People to See Posts", Toast.LENGTH_SHORT).show()
             newUserFollowDialog.show(supportFragmentManager, "FollowPeople")
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+
+                requestPermissions(
+                    arrayOf(
+                        android.Manifest.permission.POST_NOTIFICATIONS
+                    ),
+                    454
+                )
+            }
         }
 
     }
@@ -85,7 +108,10 @@ class MainActivity : AppCompatActivity() {
             it.onSuccess { call ->
                 if (call.receiverProfileId == userId && !call.answered) {
                     startActivity(
-                        Intent(this, if (call.isGroupCall) GroupCallActivity::class.java else CallActivity::class.java)
+                        Intent(
+                            this,
+                            if (call.isGroupCall) GroupCallActivity::class.java else CallActivity::class.java
+                        )
                             .putExtra("agoraToken", call.token)
                             .putExtra("profileId", call.callerProfileId)
                             .putExtra("byMe", false)
@@ -98,7 +124,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        chatsViewModel.user.observe(this){
+        chatsViewModel.user.observe(this) {
             if (it.isNotEmpty()) {
                 chatsViewModel.friendsList.clear()
                 chatsViewModel.friendsList.putAll(it[0].friends)
@@ -137,26 +163,30 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true){
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 navController.popBackStack()
-                if (navHostFragment.childFragmentManager.backStackEntryCount==0)
+                if (navHostFragment.childFragmentManager.backStackEntryCount == 0)
                     finish()
-                when(navController.currentDestination?.id){
+                when (navController.currentDestination?.id) {
                     R.id.homeScreenFragment, R.id.postDetailFragment, R.id.profileFragment, R.id.fragmentAddPost, R.id.addStatusFragment, R.id.fragmentAddReel -> {
                         checkBottomBarItem(R.id.home)
                     }
-                    R.id.searchFragment-> {
+
+                    R.id.searchFragment -> {
                         checkBottomBarItem(R.id.search)
                     }
-                    R.id.reelsFragment-> {
+
+                    R.id.reelsFragment -> {
                         checkBottomBarItem(R.id.reels)
                     }
-                    R.id.myProfileFragment-> {
+
+                    R.id.myProfileFragment -> {
                         checkBottomBarItem(R.id.profile)
                     }
-                    else-> {
-                        binding.bottomNavigation.isVisible= false
+
+                    else -> {
+                        binding.bottomNavigation.isVisible = false
                     }
                 }
             }
@@ -166,7 +196,7 @@ class MainActivity : AppCompatActivity() {
 
     fun checkBottomBarItem(id: Int) {
         binding.bottomNavigation.menu.findItem(id).isChecked = true
-        binding.bottomNavigation.isVisible= true
+        binding.bottomNavigation.isVisible = true
     }
 
 }
