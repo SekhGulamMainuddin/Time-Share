@@ -65,7 +65,7 @@ git clone https://github.com/SekhGulamMainuddin/Time-Share.git
 ```
 keytool -list -v -keystore "C:\Users\ReplaceThisWithYourUserName\.android\debug.keystore" -alias androiddebugkey -storepass android -keypass android
 ```
-- After connected to firebase download and place the google-services.json at [app/src/](https://i.stack.imgur.com/BFmz5.png)
+- After connected to firebase download and place the google-services.json at [app/](https://i.stack.imgur.com/BFmz5.png)
 - Create an [Agora](https://console.agora.io/) Project 
 - Retrieve the [App-Id](https://service.cocos.com/document/en/agora/agora-param.jpg) and [App-Certificate](https://web-cdn.agora.io/docs-files/1637660100222) from Agora Project
 - Also Create a [Giphy](https://developers.giphy.com/) Project
