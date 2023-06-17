@@ -67,7 +67,7 @@ keytool -list -v -keystore "C:\Users\ReplaceThisWithYourUserName\.android\debug.
 ```
 - After connected to firebase download and place the google-services.json at [app/src/](https://i.stack.imgur.com/BFmz5.png)
 - Create an [Agora](https://console.agora.io/) Project 
-- Retrieve the [App-Id]() and [App-Certificate]() from Agora Project
+- Retrieve the [App-Id](https://service.cocos.com/document/en/agora/agora-param.jpg) and [App-Certificate](https://web-cdn.agora.io/docs-files/1637660100222) from Agora Project
 - Also Create a [Giphy](https://developers.giphy.com/) Project
 - Retrieve the API key for Giphy
 - Store all the above keys using CMake -> [Follow this article](https://www.codementor.io/blog/kotlin-apikeys-7o0g54qk5b)
