@@ -2,6 +2,14 @@
 
 Social Media App built using Kotlin and XML. It has functionalities like Chatting(1-1 and Group), Content Sharing(Image, GIF, Video, PDF, etc.), Voice and Video Conferencing(One to One and Group), Reels, Stories, Posts, etc. BackEnd is built on Firebase (Firestore, Realtime DB, Firebase Storage, and FCM). Authentication and Sign-Up using Email-Password|Google Sign-In|Phone Number-OTP. Used Agora.io for Voice and Video Conferencing.
 
+## Video
+Post, Stories, Reel, Upload, Search, Account Video -> ***Start to 03:55***
+
+Chats and Calling Video -> ***03:56 to End***
+
+https://github.com/SekhGulamMainuddin/Time-Share/assets/73953395/af995eab-02c3-467c-afa1-e05f144a747c
+
+
   <h3 align="left">Languages and Tools Used:</h3>
 <p> 
   <a href="https://developer.android.com" target="_blank" rel="noreferrer"> <img src="https://user-images.githubusercontent.com/73953395/221414435-71f899f1-d053-4ab6-b235-12e253b2bbd8.png" alt="android" width="75" height="75"/> </a>
@@ -31,6 +39,20 @@ Social Media App built using Kotlin and XML. It has functionalities like Chattin
 - Voice Message
 - Activity Status
 - Notification of Events and Messages
+
+## Libraries Used
+MVVM Pattern is used to build this App
+- Firebase (Auth, Storage, Firestore, Realtime-DB) - Authentication and Data Storage
+- FCM - For Notification
+- Agora - For Voice and Video Calling
+- Dagger-Hilt - For Dependency Injection
+- Retrofit2 - For calling FCM API for Notification
+- RoomDB - For offline data caching
+- Glide - For Image Processing
+- Giphy - For showing GIF
+- Exoplayer - For playing remote videos smoothly
+- Kotlin Serialization - For JSON-Parsing and Object Parsing
+- Other Libraries are Kotlin Coroutines, Navigation Component, ViewModels, CameraX, LottieAnimations, etc.
 
 ## Installation
  - First of all Clone the repository
@@ -110,20 +132,6 @@ Java_com_sekhgmainuddin_timeshare_utils_Keys_getProjectNumber(JNIEnv *env, jobje
 ```
 - Now Build the project and run it on your Device or Emulator
 - Some indexing may be required on the Firebase Firestore end for multiple queries.
-
-## Libraries Used
-MVVM Pattern is used to build this App
-- Firebase (Auth, Storage, Firestore, Realtime-DB) - Authentication and Data Storage
-- FCM - For Notification
-- Agora - Voice and Video Calling
-- Dagger-Hilt - Dependency Injection
-- Retrofit2 - For calling FCM API for Notification
-- RoomDB - For offline data caching
-- Glide - For Image Processing
-- Giphy - For showing GIF
-- Exoplayer - For playing remote videos smoothly
-- Kotlin Serialization - For JSON-Parsing and Object Parsing
-- Other Libraries are Kotlin Coroutines, Navigation Component, ViewModels, CameraX, LottieAnimations, etc.
 
 
 
