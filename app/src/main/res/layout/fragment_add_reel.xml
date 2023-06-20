@@ -33,7 +33,7 @@
         android:inputType="textMultiLine"
         android:gravity="center"
         android:visibility="gone"
-        android:background="@color/black_translucent"/>
+        android:background="@color/mid_black"/>
 
     <ImageButton
         android:id="@+id/removeReelButton"
